@@ -1,8 +1,17 @@
-import { Arrays, System, authority, Storage, Protobuf } from "@koinos/sdk-as";
+import {
+  Arrays,
+  System,
+  authority,
+  Storage,
+  Protobuf,
+  StringBytes,
+  Base58,
+} from "@koinos/sdk-as";
 import { nft } from "./proto/nft";
 import { common } from "./proto/common";
 import { Ownable } from "./Ownable";
 
+export const AUTHORIZE_CONTRACT_CALL_ENTRY_POINT = 0x10e5820f; // authorize_contract_call
 export const ONE_HUNDRED_PERCENT: u64 = 10000;
 
 export class NftContract extends Ownable {
@@ -201,6 +210,49 @@ export class NftContract extends Ownable {
   }
 
   /**
+   * Internal function to call the contract of an account to request its
+   * authority to perform an operation.
+   */
+  is_authorized_by_contract_account(account: Uint8Array): boolean {
+    const caller = System.getCaller();
+    const callRes = System.call(
+      account,
+      AUTHORIZE_CONTRACT_CALL_ENTRY_POINT,
+      Protobuf.encode(
+        new authority.authorize_arguments(
+          authority.authorization_type.contract_call,
+          new authority.call_data(
+            this.contractId,
+            this.callArgs!.entry_point,
+            caller.caller,
+            this.callArgs!.args
+          )
+        ),
+        authority.authorize_arguments.encode
+      )
+    );
+    if (callRes.code != 0) {
+      const errorMessage = `failed to call contract of ${Base58.encode(
+        account
+      )}: ${
+        callRes.res.error && callRes.res.error!.message
+          ? callRes.res.error!.message!
+          : "unknown error"
+      }`;
+      System.exit(callRes.code, StringBytes.stringToBytes(errorMessage));
+    }
+    System.require(
+      callRes.res.object,
+      `empty response from ${Base58.encode(account)}`
+    );
+
+    return Protobuf.decode<common.boole>(
+      callRes.res.object!,
+      common.boole.decode
+    ).value;
+  }
+
+  /**
    * Internal function to validate the authority of an operation.
    * This function replaces the koinos native function called
    * "System.requireAuthority()". And it introduces new features to
@@ -251,27 +303,7 @@ export class NftContract extends Ownable {
     // check if the account has a contract
     if (this.ownerContracts.get(account)!.value == true) {
       System.log("Account contract called to resolve the authority");
-      const result = System.call(
-        account,
-        0,
-        Protobuf.encode(
-          new authority.authorize_arguments(
-            authority.authorization_type.contract_call,
-            new authority.call_data(
-              this.contractId,
-              this.callArgs!.entry_point,
-              caller.caller,
-              this.callArgs!.args
-            )
-          ),
-          authority.authorize_arguments.encode
-        )
-      );
-      System.require(result.code != 0, "todo");
-      return Protobuf.decode<common.boole>(
-        result.res.object!,
-        common.boole.decode
-      ).value;
+      return this.is_authorized_by_contract_account(account);
     }
 
     const key = new Uint8Array(50);
@@ -352,6 +384,10 @@ export class NftContract extends Ownable {
     );
 
     // test a call
+    System.require(
+      this.is_authorized_by_contract_account(args.account!),
+      "not authorized by contract account"
+    );
 
     this.ownerContracts.put(args.account!, new common.boole(args.enabled));
 
