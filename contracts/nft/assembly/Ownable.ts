@@ -95,9 +95,13 @@ export class Ownable {
 
     // event
     const ownerEvent = new nft.owner_event(owner.account!, newOwner.account!);
-    const impacted = [ owner.account!, newOwner.account! ];
+    const impacted = [owner.account!, newOwner.account!];
 
-    System.event("collections.owner_event", Protobuf.encode(ownerEvent, nft.owner_event.encode), impacted);
+    System.event(
+      "collections.owner_event",
+      Protobuf.encode(ownerEvent, nft.owner_event.encode),
+      impacted
+    );
   }
 
   /**
