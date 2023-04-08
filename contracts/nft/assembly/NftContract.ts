@@ -280,7 +280,7 @@ export class NftContract extends Ownable {
       if (acceptOperators) {
         // check if the caller is approved for all
         key.set(account, 0);
-        key.set(caller.caller, 25);
+        key.set(caller.caller!, 25);
         if (this.operatorApprovals.get(key)!.value == true) return true;
       }
     
