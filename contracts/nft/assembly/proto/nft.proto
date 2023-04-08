@@ -1,0 +1,71 @@
+syntax = "proto3";
+
+package nft;
+
+import "koinos/options.proto";
+
+message royalty {
+   uint64 percentage = 1 [jstype = JS_STRING];
+   bytes address = 2 [(koinos.btype) = ADDRESS];
+}
+
+message royalties {
+   repeated royalty value = 1;
+}
+
+message info {
+   string name = 1;
+   string symbol = 2;
+   string uri = 3;
+}
+
+message balance_of_args {
+   bytes owner = 1 [(koinos.btype) = ADDRESS];
+}
+
+message token {
+   bytes token_id = 1 [(koinos.btype) = HEX];
+}
+
+message is_approved_for_all_args {
+   bytes owner = 1 [(koinos.btype) = ADDRESS];
+   bytes operator = 2 [(koinos.btype) = ADDRESS];
+}
+
+message mint_args {
+   bytes to = 1 [(koinos.btype) = ADDRESS];
+   bytes token_id = 2 [(koinos.btype) = HEX];
+}
+
+message burn_args {
+   bytes from = 1 [(koinos.btype) = ADDRESS];
+   bytes token_id = 2 [(koinos.btype) = HEX];
+}
+
+message transfer_args {
+   bytes from = 1 [(koinos.btype) = ADDRESS];
+   bytes to = 2 [(koinos.btype) = ADDRESS];
+   bytes token_id = 3 [(koinos.btype) = HEX];
+}
+
+message approve_args {
+   bytes approver_address = 1 [(koinos.btype) = ADDRESS];
+   bytes to = 2 [(koinos.btype) = ADDRESS];
+   bytes token_id = 3 [(koinos.btype) = HEX];
+}
+
+message set_approval_for_all_args {
+   bytes approver_address = 1 [(koinos.btype) = ADDRESS];
+   bytes operator_address = 2 [(koinos.btype) = ADDRESS];
+   bool approved = 3;
+}
+
+message set_authority_contract_args {
+   bytes account = 1 [(koinos.btype) = ADDRESS];
+   bool enabled = 2;
+}
+
+message owner_event {
+   bytes from = 1 [(koinos.btype) = ADDRESS];
+   bytes to = 2 [(koinos.btype) = ADDRESS];
+}
