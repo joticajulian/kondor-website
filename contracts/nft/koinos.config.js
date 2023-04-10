@@ -25,6 +25,12 @@ module.exports = {
         contractOwner: {
           privateKey: process.env.HARBINGER_NFT_OWNER_PRIVATE_KEY,
         },
+        user1: {
+          privateKey: process.env.HARBINGER_USER1_PRIVATE_KEY,
+        },
+        user2: {
+          privateKey: process.env.HARBINGER_USER2_PRIVATE_KEY,
+        },
       },
     },
     mainnet: {
@@ -39,6 +45,12 @@ module.exports = {
         },
         contractOwner: {
           privateKey: process.env.MAINNET_NFT_OWNER_PRIVATE_KEY,
+        },
+        user1: {
+          privateKey: process.env.MAINNET_USER1_PRIVATE_KEY,
+        },
+        user2: {
+          privateKey: process.env.MAINNET_USER2_PRIVATE_KEY,
         },
       },
     },

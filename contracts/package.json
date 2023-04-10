@@ -29,6 +29,7 @@
     "nft:build": "yarn nft:precompile && yarn nft:asbuild",
     "nft:test": "asp --verbose --config nft/as-pect.config.js",
     "nft:deploy": "ts-node nft/scripts/deployment.ts",
+    "nft:operate": "ts-node nft/scripts/operate.ts",
     "nft:info": "node getSha256.js nft",
     "lint": "eslint --max-warnings 0 --ext ts \"*/assembly/**/*.ts\""
   },
