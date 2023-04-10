@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 import { Signer, Contract, Provider } from "koilib";
 import { TransactionJson } from "koilib/lib/interface";
-import abi from "../build/nftcontract-abi.json";
+import abi from "../build/nftcontract2-abi.json";
 import koinosConfig from "../koinos.config.js";
 
 const [inputNetworkName] = process.argv.slice(2);

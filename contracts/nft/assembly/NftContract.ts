@@ -65,7 +65,7 @@ export class NftContract extends Ownable {
       4,
       common.address.decode,
       common.address.encode,
-      () => new common.address()
+      () => new common.address(new Uint8Array(25))
     );
 
     this.tokenApprovals = new Storage.Map(
@@ -73,7 +73,7 @@ export class NftContract extends Ownable {
       5,
       common.address.decode,
       common.address.encode,
-      () => new common.address()
+      () => new common.address(new Uint8Array(25))
     );
 
     this.operatorApprovals = new Storage.Map(
@@ -307,7 +307,14 @@ export class NftContract extends Ownable {
     }
 
     const key = new Uint8Array(50);
+    if (acceptOperators) {
+      key.set(account, 0);
+    }
+
     let approvedAddress: Uint8Array;
+    if (acceptApprovals) {
+      approvedAddress = this.tokenApprovals.get(token_id)!.account!;
+    }
 
     // check if there is a caller (smart contract in the middle)
     if (caller.caller && caller.caller!.length > 0) {
@@ -316,14 +323,12 @@ export class NftContract extends Ownable {
 
       if (acceptOperators) {
         // check if the caller is approved for all
-        key.set(account, 0);
         key.set(caller.caller!, 25);
         if (this.operatorApprovals.get(key)!.value == true) return true;
       }
 
       if (acceptApprovals) {
         // check if the caller is approved
-        approvedAddress = this.tokenApprovals.get(token_id)!.account!;
         if (Arrays.equal(approvedAddress, caller.caller)) {
           // clear temporal approval
           this.tokenApprovals.remove(token_id);
@@ -486,6 +491,7 @@ export class NftContract extends Ownable {
     System.require(isAuthorized, "transfer not authorized");
 
     tokenOwner.account = to;
+    this.tokenOwners.put(tokenId, tokenOwner);
 
     let fromBalance = this.balances.get(from)!;
     fromBalance.value -= 1;

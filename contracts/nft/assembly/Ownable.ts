@@ -86,7 +86,7 @@ export class Ownable {
   /**
    * Set owner
    * @external
-   * @event collections.owner_event common.address
+   * @event collections.owner_event nft.owner_event
    */
   transfer_ownership(newOwner: common.address): void {
     System.require(this.only_owner(), "not authorized by the owner");
@@ -111,7 +111,7 @@ export class Ownable {
    */
   owner(): common.address {
     const owner = this._owner.get();
-    if (!owner) return new common.address();
+    if (!owner) return new common.address(new Uint8Array(25));
     return owner;
   }
 }
