@@ -65,7 +65,7 @@ export class NftContract extends Ownable {
       4,
       common.address.decode,
       common.address.encode,
-      () => new common.address(new Uint8Array(25))
+      () => new common.address()
     );
 
     this.tokenApprovals = new Storage.Map(
@@ -73,7 +73,7 @@ export class NftContract extends Ownable {
       5,
       common.address.decode,
       common.address.encode,
-      () => new common.address(new Uint8Array(25))
+      () => new common.address()
     );
 
     this.operatorApprovals = new Storage.Map(
@@ -313,7 +313,8 @@ export class NftContract extends Ownable {
 
     let approvedAddress: Uint8Array;
     if (acceptApprovals) {
-      approvedAddress = this.tokenApprovals.get(token_id)!.account!;
+      const a = this.tokenApprovals.get(token_id)!.account;
+      if (a) approvedAddress = a;
     }
 
     // check if there is a caller (smart contract in the middle)
