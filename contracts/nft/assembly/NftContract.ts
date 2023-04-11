@@ -273,21 +273,27 @@ export class NftContract extends Ownable {
    * What changed in this check_authority function? It implements approvals
    * and checks who is the caller:
    *
-   * - If the user has a smart contract wallet (and if it was
-   *   tagged to resolve contract calls) then that contract is called.
    * - If there is a caller (that is, if this operation was not triggered
-   *   by the user itself but by some contract in the middle) it checks if
-   *   this caller is approved by the user to perform this operation. Otherwise
-   *   the transaction is rejected.
+   *   by the user itself but by some contract in the middle), it is approved
+   *   if one of the following conditions are met:
+   *     1. The caller is approved by the user (for all tokens or single
+   *        token).
+   *     2. The caller is the user.
+   *     3. The user has a contract and this contract authorizes the operation.
    * - If there is NO caller (that is, if this operation appears in the list
-   *   of operation in the transaction, not called by some contract in the
-   *   middle) then the contract will check if the transaction was signed
-   *   by the user, or if it was signed by account approved by the user.
+   *   of operations in the transaction, not called by some contract in the
+   *   middle) then the contract will check if one of the following conditions
+   *   are met:
+   *     1. The transaction is signed by an account approved by the user (for
+   *        all tokens or single token).
+   *     2. The user has a contract and this contract authorizes the operation.
+   *     3. The transaction is signed by the user, but with the condition that
+   *        the user doesn't have a contract.
    *
    * Note 1: The approvals are granted by the user by using "approve" and
    * "set_approva_for_all" functions.
    *
-   * Note 2: Currently there is no a system call to check if a contract has
+   * Note 2: Currently there is no a system call to check if an account has
    * a smart contract wallet or not. Then as a temporal solution, the user has
    * to call "set_authority_contract" to define that he uses a smart contract
    * wallet.
@@ -299,12 +305,6 @@ export class NftContract extends Ownable {
     token_id: Uint8Array
   ): boolean {
     const caller = System.getCaller();
-
-    // check if the account has a contract
-    if (this.ownerContracts.get(account)!.value == true) {
-      System.log("Account contract called to resolve the authority");
-      return this.is_authorized_by_contract_account(account);
-    }
 
     const key = new Uint8Array(50);
     if (acceptOperators) {
@@ -319,17 +319,14 @@ export class NftContract extends Ownable {
 
     // check if there is a caller (smart contract in the middle)
     if (caller.caller && caller.caller!.length > 0) {
-      // check if the account is the caller
-      if (Arrays.equal(account, caller.caller)) return true;
-
       if (acceptOperators) {
-        // check if the caller is approved for all
+        // check if the caller is approved for all tokens
         key.set(caller.caller!, 25);
         if (this.operatorApprovals.get(key)!.value == true) return true;
       }
 
       if (acceptApprovals) {
-        // check if the caller is approved
+        // check if the caller is approved for the token id
         if (Arrays.equal(approvedAddress, caller.caller)) {
           // clear temporal approval
           this.tokenApprovals.remove(token_id);
@@ -337,28 +334,31 @@ export class NftContract extends Ownable {
         }
       }
 
-      // the transaction has a caller but this caller is not
-      // authorized, then the operation is rejected.
+      // check if the account is the caller
+      if (Arrays.equal(account, caller.caller)) return true;
+
+      // check if the contract of the account authorizes the operation
+      if (this.ownerContracts.get(account)!.value == true) {
+        System.log("Account contract called to resolve the authority");
+        return this.is_authorized_by_contract_account(account);
+      }
+
+      // the transaction has a caller but none of the different
+      // options authorized the operation, then it is rejected.
       return false;
     }
 
-    // the account doesn't have a smart contract and there is no
-    // caller, then the authority relies only in the signatures
-
-    // check the signatures
+    // check the signatures related to allowances
     const signers = this.getSigners();
     for (let i = 0; i < signers.length; i += 1) {
-      // check if the account is the signer
-      if (Arrays.equal(account, signers[i])) return true;
-
       if (acceptOperators) {
-        // check if the signer is approved for all
+        // check if the signer is approved for all tokens
         key.set(signers[i], 25);
         if (this.operatorApprovals.get(key)!.value == true) return true;
       }
 
       if (acceptApprovals) {
-        // check if the signer is approved
+        // check if the signer is approved for the token id
         if (Arrays.equal(approvedAddress, signers[i])) {
           // clear temporal approval
           this.tokenApprovals.remove(token_id);
@@ -367,6 +367,21 @@ export class NftContract extends Ownable {
       }
     }
 
+    // check if the account has a contract
+    if (this.ownerContracts.get(account)!.value == true) {
+      // consult the contract of the account
+      System.log("Account contract called to resolve the authority");
+      return this.is_authorized_by_contract_account(account);
+    }
+
+    // there is no caller, no approval from allowances, and the account
+    // doesn't have a contract then check if the account signed the transaction
+    for (let i = 0; i < signers.length; i += 1) {
+      if (Arrays.equal(account, signers[i])) return true;
+    }
+
+    // none of the different options authorized the operation,
+    // then it is rejected.
     return false;
   }
 
