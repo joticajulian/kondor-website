@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package wallet;
+
+import "koinos/options.proto";
+
+message transfer_approval {
+   bytes contract_id = 1 [(koinos.btype) = ADDRESS];
+   bytes to = 2 [(koinos.btype) = ADDRESS];
+   bytes token_id = 3 [(koinos.btype) = HEX];
+}
+
+message transfer_args {
+   bytes from = 1 [(koinos.btype) = ADDRESS];
+   bytes to = 2 [(koinos.btype) = ADDRESS];
+   bytes token_id = 3 [(koinos.btype) = HEX];
+}

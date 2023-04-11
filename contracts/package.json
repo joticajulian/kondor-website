@@ -31,6 +31,13 @@
     "nft:deploy": "ts-node nft/scripts/deployment.ts",
     "nft:operate": "ts-node nft/scripts/operate.ts",
     "nft:info": "node getSha256.js nft",
+    "testwallet:asbuild": "asc testwallet/build/index.ts --config testwallet/asconfig.json --use abort= --target release",
+    "testwallet:precompile": "koinos-precompiler-as testwallet",
+    "testwallet:build": "yarn testwallet:precompile && yarn testwallet:asbuild",
+    "testwallet:test": "asp --verbose --config testwallet/as-pect.config.js",
+    "testwallet:deploy": "ts-node testwallet/scripts/deployment.ts",
+    "testwallet:operate": "ts-node testwallet/scripts/operate.ts",
+    "testwallet:info": "node getSha256.js testwallet",
     "lint": "eslint --max-warnings 0 --ext ts \"*/assembly/**/*.ts\""
   },
   "config": {
