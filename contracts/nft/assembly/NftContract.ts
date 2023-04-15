@@ -527,6 +527,8 @@ export class NftContract extends Ownable {
   mint(args: nft.mint_args): void {
     System.require(this.only_owner(), "not authorized by the owner");
 
+    const tokenOwner = this.tokenOwners.get(args.token_id!)!;
+    System.require(!tokenOwner.account, "token already minted");
     this.tokenOwners.put(args.token_id!, new common.address(args.to!));
 
     const balance = this.balances.get(args.to!)!;

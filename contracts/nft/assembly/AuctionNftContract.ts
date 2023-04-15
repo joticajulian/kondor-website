@@ -1,6 +1,7 @@
 import { System, Storage, Protobuf, Token } from "@koinos/sdk-as";
 import { common } from "./proto/common";
 import { auction } from "./proto/auction";
+import { nft } from "./proto/nft";
 import { NftContract } from "./NftContract";
 
 export const AUCTION_PERIOD = 7 * 24 * 60 * 60 * 1000;
@@ -50,6 +51,48 @@ export class AuctionNftContract extends NftContract {
     this.reentrantLocked.put(new common.boole(false));
   }
 
+  /**
+   * Create a new auction for a token id
+   * @external
+   */
+  createAuction(args: auction.bid): void {
+    System.require(this.only_owner(), "not authorized by the owner");
+    // check the auction and bid period
+    const auctionToken = this.auctions.get(args.token_id!);
+    System.require(!auctionToken, "this token is already listed for auction");
+    const now = System.getHeadInfo().head_block_time;
+    const auct = new auction.auction(
+      new auction.bid(
+        null,
+        args.token_id,
+        args.koin_amount,
+        args.credit_amount
+      ),
+      now,
+      false,
+      false
+    );
+    this.auctions.put(args.token_id!, auct);
+    System.event(
+      "auction.auction",
+      Protobuf.encode<auction.auction>(auct, auction.auction.encode),
+      []
+    );
+  }
+
+  /**
+   * Get the last bid of a token id
+   * @external
+   * @readonly
+   */
+  getBid(tokenId: auction.token_id): auction.auction {
+    return this.auctions.get(tokenId.value!)!;
+  }
+
+  /**
+   * Submit a new bid
+   * @external
+   */
   bid(args: auction.bid): void {
     this.reentrantLock();
 
@@ -59,11 +102,13 @@ export class AuctionNftContract extends NftContract {
     const auct = auctionToken!;
     System.require(!auct.sold, "this token was sold");
     const now = System.getHeadInfo().head_block_time;
-    System.require(now >= auct.time_bid, "time internal error");
-    System.require(
-      now - auct.time_bid < AUCTION_PERIOD,
-      "the auction period has ended for this token"
-    );
+    if (auct.started) {
+      System.require(now >= auct.time_bid, "time internal error");
+      System.require(
+        now - auct.time_bid < AUCTION_PERIOD,
+        "the auction period has ended for this token"
+      );
+    }
 
     // check user credit
     const userCredit = this.credits.get(args.account!)!;
@@ -99,20 +144,22 @@ export class AuctionNftContract extends NftContract {
     if (auct.bid.account) {
       const user2Credit = this.credits.get(auct.bid.account!)!;
       user2Credit.value += auct.bid.credit_amount;
-      const transferStatus = koin.transfer(
-        this.contractId,
-        auct.bid.account!,
-        auct.bid.koin_amount
-      );
-      System.require(
-        transferStatus == true,
-        "the transfer to return koins was rejected"
-      );
+      if (auct.bid.koin_amount > 0) {
+        const transferStatus = koin.transfer(
+          this.contractId,
+          auct.bid.account!,
+          auct.bid.koin_amount
+        );
+        System.require(
+          transferStatus == true,
+          "the transfer to return koins was rejected"
+        );
+      }
       impacted.push(auct.bid.account);
     }
 
     // update auction
-    const auctionUpdated = new auction.auction(args, now, false);
+    const auctionUpdated = new auction.auction(args, now, true, false);
     this.auctions.put(args.token_id!, auctionUpdated);
     System.event(
       "auction.auction",
@@ -122,11 +169,16 @@ export class AuctionNftContract extends NftContract {
     this.reentrantUnlock();
   }
 
+  /**
+   * Claim the NFT token
+   * @external
+   */
   claimToken(tokenId: auction.token_id): void {
     // check the auction and bid period
     const auctionToken = this.auctions.get(tokenId.value!);
     System.require(auctionToken, "this token is not listed for auction");
     const auct = auctionToken!;
+    System.require(auct.started, "this auction has not started");
     System.require(!auct.sold, "this token was claimed");
     const now = System.getHeadInfo().head_block_time;
     System.require(now >= auct.time_bid, "time internal error");
@@ -134,9 +186,15 @@ export class AuctionNftContract extends NftContract {
       now - auct.time_bid >= AUCTION_PERIOD,
       "the auction period has not ended for this token"
     );
-    // TODO: send the nft
+    this.mint(new nft.mint_args(auct.bid.account, tokenId.value!));
+    auct.sold = true;
+    this.auctions.put(tokenId.value!, auct);
   }
 
+  /**
+   * Add credit to an user
+   * @external
+   */
   addCredit(args: auction.userKoin): void {
     System.require(this.only_owner(), "not authorized by the owner");
     const userCredit = this.credits.get(args.account!)!;
@@ -148,6 +206,11 @@ export class AuctionNftContract extends NftContract {
     this.credits.put(args.account, userCredit);
   }
 
+  /**
+   * Get user credit
+   * @external
+   * @readonly
+   */
   getCredit(args: common.address): common.uint64 {
     return this.credits.get(args.account!)!;
   }

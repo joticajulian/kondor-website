@@ -14,7 +14,8 @@ message bid {
 message auction {
    bid bid = 1;
    uint64 time_bid = 2 [jstype = JS_STRING];
-   bool sold = 3;
+   bool started = 3;
+   bool sold = 4;
 }
 
 message token_id {
