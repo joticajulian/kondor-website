@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package auction;
+
+import "koinos/options.proto";
+
+message bid {
+   bytes account = 1 [(koinos.btype) = ADDRESS];
+   bytes token_id = 2 [(koinos.btype) = HEX];
+   uint64 koin_amount = 3 [jstype = JS_STRING];
+   uint64 credit_amount = 4 [jstype = JS_STRING];
+}
+
+message auction {
+   bid bid = 1;
+   uint64 time_bid = 2 [jstype = JS_STRING];
+   bool sold = 3;
+}
+
+message token_id {
+   bytes value = 1 [(koinos.btype) = HEX];
+}
+
+message userKoin {
+   bytes account = 1 [(koinos.btype) = ADDRESS];
+   uint64 amount = 2 [jstype = JS_STRING];
+}

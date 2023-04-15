@@ -15,8 +15,6 @@ export const AUTHORIZE_CONTRACT_CALL_ENTRY_POINT = 0x10e5820f; // authorize_cont
 export const ONE_HUNDRED_PERCENT: u64 = 10000;
 
 export class NftContract extends Ownable {
-  callArgs: System.getArgumentsReturn | null;
-
   _name: string = "Kondor";
   _symbol: string = "KONDOR";
   _uri: string = "";
