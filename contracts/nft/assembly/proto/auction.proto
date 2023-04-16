@@ -18,6 +18,10 @@ message auction {
    bool sold = 4;
 }
 
+message auctions {
+   repeated auction value = 1;
+}
+
 message token_id {
    bytes value = 1 [(koinos.btype) = HEX];
 }

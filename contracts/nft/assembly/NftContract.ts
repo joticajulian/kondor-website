@@ -15,8 +15,8 @@ export const AUTHORIZE_CONTRACT_CALL_ENTRY_POINT = 0x10e5820f; // authorize_cont
 export const ONE_HUNDRED_PERCENT: u64 = 10000;
 
 export class NftContract extends Ownable {
-  _name: string = "Kondor";
-  _symbol: string = "KONDOR";
+  _name: string = "TestX";
+  _symbol: string = "TEST_X";
   _uri: string = "";
 
   supply: Storage.Obj<common.uint64>;
@@ -542,7 +542,11 @@ export class NftContract extends Ownable {
     this.balances.put(args.to!, balance);
     this.supply.put(supply);
 
-    System.event("collections.mint_event", this.callArgs!.args, [args.to!]);
+    System.event(
+      "collections.mint_event",
+      Protobuf.encode<nft.mint_args>(args, nft.mint_args.encode),
+      [args.to!]
+    );
   }
 
   /**

@@ -1,6 +1,4 @@
-import fs from "fs";
-import path from "path";
-import { Signer, Contract, Provider } from "koilib";
+import { Signer, Contract, Provider, Transaction } from "koilib";
 import { TransactionJson } from "koilib/lib/interface";
 import abi from "../build/nftcontract2-abi.json";
 import koinosConfig from "../koinos.config.js";
@@ -20,12 +18,10 @@ async function main() {
   contractAccount.provider = provider;
 
   const contract = new Contract({
+    id: contractAccount.address,
     signer: contractAccount,
     provider,
     abi,
-    bytecode: fs.readFileSync(
-      path.join(__dirname, "../build/release/nft.wasm")
-    ),
     options: {
       payer: accountWithFunds.address,
       beforeSend: async (tx: TransactionJson) => {
@@ -34,26 +30,30 @@ async function main() {
     },
   });
 
-  const { operation: takeOwnership } =
-    await contract.functions.transfer_ownership(
-      {
-        account: contractAccount.address,
+  const tx = new Transaction({
+    signer: contractAccount,
+    provider,
+    options: {
+      payer: accountWithFunds.address,
+      rcLimit: "10000000000",
+      beforeSend: async (tx: TransactionJson) => {
+        await accountWithFunds.signTransaction(tx);
       },
-      {
-        onlyOperation: true,
-      }
-    );
-
-  const { receipt, transaction } = await contract.deploy({
-    abi: JSON.stringify(abi),
-    rcLimit: "10000000000",
-    nextOperations: [takeOwnership],
+    },
   });
+  const tokenNames = ["test_x1", "test_x2", "test_x3", "test_x4"];
+  for (let i = 0; i < tokenNames.length; i += 1) {
+    await tx.pushOperation(contract.functions.createAuction, {
+      token_id: `0x${Buffer.from(tokenNames[i]).toString("hex")}`,
+      koin_amount: "1000",
+    });
+  }
+  const receipt = await tx.send();
   console.log("Transaction submitted. Receipt: ");
   console.log(receipt);
-  const { blockNumber } = await transaction.wait("byBlock", 60000);
+  const { blockNumber } = await tx.wait("byBlock", 60000);
   console.log(
-    `Contract ${contractAccount.address} uploaded in block number ${blockNumber} (${networkName})`
+    `New auctions created in contract ${contractAccount.address} (block number ${blockNumber} - ${networkName})`
   );
 }
 

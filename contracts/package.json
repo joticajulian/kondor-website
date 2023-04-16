@@ -29,6 +29,7 @@
     "nft:build": "yarn nft:precompile && yarn nft:asbuild",
     "nft:test": "asp --verbose --config nft/as-pect.config.js",
     "nft:deploy": "ts-node nft/scripts/deployment.ts",
+    "nft:createAuctions": "ts-node nft/scripts/createAuctions.ts",
     "nft:operate": "ts-node nft/scripts/operate.ts",
     "nft:info": "node getSha256.js nft",
     "testwallet:asbuild": "asc testwallet/build/index.ts --config testwallet/asconfig.json --use abort= --target release",

@@ -4,7 +4,8 @@ import { auction } from "./proto/auction";
 import { nft } from "./proto/nft";
 import { NftContract } from "./NftContract";
 
-export const AUCTION_PERIOD: u64 = 7 * 24 * 60 * 60 * 1000;
+// export const AUCTION_PERIOD: u64 = 7 * 24 * 60 * 60 * 1000;
+export const AUCTION_PERIOD: u64 = 5 * 60 * 1000;
 
 export class AuctionNftContract extends NftContract {
   auctions: Storage.Map<Uint8Array, auction.auction>;
@@ -21,7 +22,7 @@ export class AuctionNftContract extends NftContract {
       200,
       auction.auction.decode,
       auction.auction.encode,
-      () => new auction.auction()
+      null
     );
 
     this.credits = new Storage.Map(
@@ -57,6 +58,10 @@ export class AuctionNftContract extends NftContract {
    */
   createAuction(args: auction.bid): void {
     System.require(this.only_owner(), "not authorized by the owner");
+    // check if the token is already minted
+    const tokenOwner = this.tokenOwners.get(args.token_id!)!;
+    System.require(!tokenOwner.account, "token already minted");
+
     // check the auction and bid period
     const auctionToken = this.auctions.get(args.token_id!);
     System.require(!auctionToken, "this token is already listed for auction");
@@ -85,8 +90,26 @@ export class AuctionNftContract extends NftContract {
    * @external
    * @readonly
    */
-  getBid(tokenId: auction.token_id): auction.auction {
+  getAuction(tokenId: auction.token_id): auction.auction {
     return this.auctions.get(tokenId.value!)!;
+  }
+
+  /**
+   * List paginated auctions
+   * @external
+   * @readonly
+   */
+  listAuctions(args: common.list_args): auction.auctions {
+    const direction =
+      args.direction == common.direction.ascending
+        ? Storage.Direction.Ascending
+        : Storage.Direction.Descending;
+    const auctions = this.auctions.getManyValues(
+      args.start ? args.start! : new Uint8Array(0),
+      args.limit,
+      direction
+    );
+    return new auction.auctions(auctions);
   }
 
   /**
@@ -112,7 +135,10 @@ export class AuctionNftContract extends NftContract {
 
     // check user credit
     const userCredit = this.credits.get(args.account!)!;
-    System.require(userCredit.value >= args.credit_amount, "insufficient credit");
+    System.require(
+      userCredit.value >= args.credit_amount,
+      "insufficient credit"
+    );
 
     // check min bid
     const lastBid = auct.bid!.koin_amount + auct.bid!.credit_amount;
@@ -186,6 +212,7 @@ export class AuctionNftContract extends NftContract {
       now - auct.time_bid >= AUCTION_PERIOD,
       "the auction period has not ended for this token"
     );
+    // TODO: mint without requiring owner approval
     this.mint(new nft.mint_args(auct.bid!.account, tokenId.value!));
     auct.sold = true;
     this.auctions.put(tokenId.value!, auct);
