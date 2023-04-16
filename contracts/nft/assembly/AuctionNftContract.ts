@@ -4,7 +4,7 @@ import { auction } from "./proto/auction";
 import { nft } from "./proto/nft";
 import { NftContract } from "./NftContract";
 
-export const AUCTION_PERIOD = 7 * 24 * 60 * 60 * 1000;
+export const AUCTION_PERIOD: u64 = 7 * 24 * 60 * 60 * 1000;
 
 export class AuctionNftContract extends NftContract {
   auctions: Storage.Map<Uint8Array, auction.auction>;
@@ -41,13 +41,13 @@ export class AuctionNftContract extends NftContract {
     );
   }
 
-  reentrantLock() {
+  reentrantLock(): void {
     const reentrantLocked = this.reentrantLocked.get()!;
     System.require(reentrantLocked.value == false, "no reentrant");
     this.reentrantLocked.put(new common.boole(true));
   }
 
-  reentrantUnlock() {
+  reentrantUnlock(): void {
     this.reentrantLocked.put(new common.boole(false));
   }
 
@@ -112,10 +112,10 @@ export class AuctionNftContract extends NftContract {
 
     // check user credit
     const userCredit = this.credits.get(args.account!)!;
-    System.require(userCredit >= args.credit_amount, "insufficient credit");
+    System.require(userCredit.value >= args.credit_amount, "insufficient credit");
 
     // check min bid
-    const lastBid = auct.bid.koin_amount + auct.bid.credit_amount;
+    const lastBid = auct.bid!.koin_amount + auct.bid!.credit_amount;
     const newBid = args.koin_amount + args.credit_amount;
     const minBid = lastBid + lastBid / 100;
     System.require(newBid >= minBid, `the bid must be at least ${minBid}`);
@@ -141,21 +141,21 @@ export class AuctionNftContract extends NftContract {
     const impacted = [args.account!];
 
     // return the credit and koins to the previous bidder
-    if (auct.bid.account) {
-      const user2Credit = this.credits.get(auct.bid.account!)!;
-      user2Credit.value += auct.bid.credit_amount;
-      if (auct.bid.koin_amount > 0) {
+    if (auct.bid!.account) {
+      const user2Credit = this.credits.get(auct.bid!.account!)!;
+      user2Credit.value += auct.bid!.credit_amount;
+      if (auct.bid!.koin_amount > 0) {
         const transferStatus = koin.transfer(
           this.contractId,
-          auct.bid.account!,
-          auct.bid.koin_amount
+          auct.bid!.account!,
+          auct.bid!.koin_amount
         );
         System.require(
           transferStatus == true,
           "the transfer to return koins was rejected"
         );
       }
-      impacted.push(auct.bid.account);
+      impacted.push(auct.bid!.account!);
     }
 
     // update auction
@@ -186,7 +186,7 @@ export class AuctionNftContract extends NftContract {
       now - auct.time_bid >= AUCTION_PERIOD,
       "the auction period has not ended for this token"
     );
-    this.mint(new nft.mint_args(auct.bid.account, tokenId.value!));
+    this.mint(new nft.mint_args(auct.bid!.account, tokenId.value!));
     auct.sold = true;
     this.auctions.put(tokenId.value!, auct);
   }
@@ -203,7 +203,7 @@ export class AuctionNftContract extends NftContract {
       "amount overflow"
     );
     userCredit.value += args.amount;
-    this.credits.put(args.account, userCredit);
+    this.credits.put(args.account!, userCredit);
   }
 
   /**
