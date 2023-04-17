@@ -383,6 +383,29 @@ export class NftContract extends Ownable {
     return false;
   }
 
+  _mint(args: nft.mint_args): void {
+    const tokenOwner = this.tokenOwners.get(args.token_id!)!;
+    System.require(!tokenOwner.account, "token already minted");
+    this.tokenOwners.put(args.token_id!, new common.address(args.to!));
+
+    const balance = this.balances.get(args.to!)!;
+    const supply = this.supply.get()!;
+    System.require(
+      supply.value <= u64.MAX_VALUE - 1,
+      "Mint would overflow supply"
+    );
+    balance.value += 1;
+    supply.value += 1;
+    this.balances.put(args.to!, balance);
+    this.supply.put(supply);
+
+    System.event(
+      "collections.mint_event",
+      Protobuf.encode<nft.mint_args>(args, nft.mint_args.encode),
+      [args.to!]
+    );
+  }
+
   /**
    * Function to define if the user has a smart contract wallet or not
    * to resolve the authority when making transfers or burns. This contract
@@ -526,27 +549,7 @@ export class NftContract extends Ownable {
    */
   mint(args: nft.mint_args): void {
     System.require(this.only_owner(), "not authorized by the owner");
-
-    const tokenOwner = this.tokenOwners.get(args.token_id!)!;
-    System.require(!tokenOwner.account, "token already minted");
-    this.tokenOwners.put(args.token_id!, new common.address(args.to!));
-
-    const balance = this.balances.get(args.to!)!;
-    const supply = this.supply.get()!;
-    System.require(
-      supply.value <= u64.MAX_VALUE - 1,
-      "Mint would overflow supply"
-    );
-    balance.value += 1;
-    supply.value += 1;
-    this.balances.put(args.to!, balance);
-    this.supply.put(supply);
-
-    System.event(
-      "collections.mint_event",
-      Protobuf.encode<nft.mint_args>(args, nft.mint_args.encode),
-      [args.to!]
-    );
+    this._mint(args);
   }
 
   /**

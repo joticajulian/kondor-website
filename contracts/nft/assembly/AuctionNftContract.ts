@@ -212,8 +212,7 @@ export class AuctionNftContract extends NftContract {
       now - auct.time_bid >= AUCTION_PERIOD,
       "the auction period has not ended for this token"
     );
-    // TODO: mint without requiring owner approval
-    this.mint(new nft.mint_args(auct.bid!.account, tokenId.value!));
+    this._mint(new nft.mint_args(auct.bid!.account, tokenId.value!));
     auct.sold = true;
     this.auctions.put(tokenId.value!, auct);
   }
