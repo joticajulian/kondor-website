@@ -9,6 +9,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "koilib": "^5.5.4",
+    "kondor-js": "^0.4.1",
     "vue": "^3.2.47",
     "vue-router": "4"
   },

@@ -16,8 +16,8 @@
   align-items: center;
 }
 
-.logo {
-
+.logo img {
+  width: 3em;
 }
 
 .project {
@@ -25,7 +25,13 @@
   font-weight: bold;
 }
 
-.logo-koinos {
+.logo-koinos img {
+  width: 3em;
+}
 
+@media only screen and (max-width: 600px) {
+  .project {
+    font-size: 2em;
+  }
 }
 </style>    
