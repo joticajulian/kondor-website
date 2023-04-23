@@ -437,10 +437,22 @@ is-core-module@^2.11.0:
   dependencies:
     has "^1.0.3"
 
-koilib@^5.2.0, koilib@^5.5.4:
+koilib@^5.2.0:
   version "5.5.4"
   resolved "https://registry.yarnpkg.com/koilib/-/koilib-5.5.4.tgz#0bb3520025ba84bb19e0621bbe9900fb8d1a1ab5"
   integrity sha512-pHhZSibYdjNwCukrrGxPv/zVFxhJLF6+oXVP7foqgKO+iljdYeY0dDhrqWz1xqdVhRZqaH1j/mx0rwppEJoTEA==
+  dependencies:
+    "@noble/hashes" "^1.1.2"
+    "@noble/secp256k1" "^1.6.3"
+    "@roamin/koinos-pb-to-proto" "^0.0.3"
+    cross-fetch "^3.1.5"
+    multibase "^4.0.6"
+    protobufjs "^7.0.0"
+
+koilib@^5.5.5:
+  version "5.5.5"
+  resolved "https://registry.yarnpkg.com/koilib/-/koilib-5.5.5.tgz#c9278dd4b3168c4067f0f752f58bf5410ef0fb6a"
+  integrity sha512-i4YqqAtk4txaw11IkN35aetM0Gi9lcaqJavSYwQPqOoovKAEmkbvngT8SEQeQSlk/xMS1hDaOZdj4YHPqMzguA==
   dependencies:
     "@noble/hashes" "^1.1.2"
     "@noble/secp256k1" "^1.6.3"
