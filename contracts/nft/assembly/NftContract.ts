@@ -146,28 +146,6 @@ export class NftContract extends Ownable {
   }
 
   /**
-   * Set royalties
-   * @external
-   * @event collections.royalties_event nft.royalties
-   */
-  set_royalties(args: nft.royalties): void {
-    System.require(this.only_owner(), "not authorized by the owner");
-    const impacted: Uint8Array[] = [];
-    let totalPercentage: u64 = 0;
-    for (let i = 0; i < args.value.length; i += 1) {
-      totalPercentage += args.value[i].percentage;
-      impacted.push(args.value[i].address!);
-      System.require(
-        args.value[i].percentage <= ONE_HUNDRED_PERCENT &&
-          totalPercentage <= ONE_HUNDRED_PERCENT,
-        "the percentages for royalties exceeded 100%"
-      );
-    }
-    this._royalties.put(args);
-    System.event("collections.royalties_event", this.callArgs!.args, impacted);
-  }
-
-  /**
    * Get balance of an account
    * @external
    * @readonly
@@ -383,12 +361,57 @@ export class NftContract extends Ownable {
     return false;
   }
 
+  _mint(args: nft.mint_args): void {
+    const tokenOwner = this.tokenOwners.get(args.token_id!)!;
+    System.require(!tokenOwner.account, "token already minted");
+    this.tokenOwners.put(args.token_id!, new common.address(args.to!));
+
+    const balance = this.balances.get(args.to!)!;
+    const supply = this.supply.get()!;
+    System.require(
+      supply.value <= u64.MAX_VALUE - 1,
+      "Mint would overflow supply"
+    );
+    balance.value += 1;
+    supply.value += 1;
+    this.balances.put(args.to!, balance);
+    this.supply.put(supply);
+
+    System.event(
+      "collections.mint_event",
+      Protobuf.encode<nft.mint_args>(args, nft.mint_args.encode),
+      [args.to!]
+    );
+  }
+
+  /**
+   * Set royalties
+   * @external
+   * @event collections.royalties_event nft.royalties
+   */
+  set_royalties(args: nft.royalties): void {
+    System.require(this.only_owner(), "not authorized by the owner");
+    const impacted: Uint8Array[] = [];
+    let totalPercentage: u64 = 0;
+    for (let i = 0; i < args.value.length; i += 1) {
+      totalPercentage += args.value[i].percentage;
+      impacted.push(args.value[i].address!);
+      System.require(
+        args.value[i].percentage <= ONE_HUNDRED_PERCENT &&
+          totalPercentage <= ONE_HUNDRED_PERCENT,
+        "the percentages for royalties exceeded 100%"
+      );
+    }
+    this._royalties.put(args);
+    System.event("collections.royalties_event", this.callArgs!.args, impacted);
+  }
+
   /**
    * Function to define if the user has a smart contract wallet or not
-   * to resolve the authority when making transfers or burns. This contract
-   * replaces allowances and signatures.
-   * @external
-   * @event set_authority_contract nft.set_authority_contract_args
+   * to resolve the authority when making transfers or burns.
+   *
+   * Note: This is a temporary function while a new System call is
+   * developed in koinos to get the contract metadata
    */
   set_authority_contract(args: nft.set_authority_contract_args): void {
     const isAuthorized = this.check_authority(
@@ -526,27 +549,7 @@ export class NftContract extends Ownable {
    */
   mint(args: nft.mint_args): void {
     System.require(this.only_owner(), "not authorized by the owner");
-
-    const tokenOwner = this.tokenOwners.get(args.token_id!)!;
-    System.require(!tokenOwner.account, "token already minted");
-    this.tokenOwners.put(args.token_id!, new common.address(args.to!));
-
-    const balance = this.balances.get(args.to!)!;
-    const supply = this.supply.get()!;
-    System.require(
-      supply.value <= u64.MAX_VALUE - 1,
-      "Mint would overflow supply"
-    );
-    balance.value += 1;
-    supply.value += 1;
-    this.balances.put(args.to!, balance);
-    this.supply.put(supply);
-
-    System.event(
-      "collections.mint_event",
-      Protobuf.encode<nft.mint_args>(args, nft.mint_args.encode),
-      [args.to!]
-    );
+    this._mint(args);
   }
 
   /**
