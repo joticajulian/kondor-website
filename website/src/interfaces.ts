@@ -34,5 +34,17 @@ export interface NftContractClass extends Contract {
         result?: T;
         receipt?: TransactionReceipt;
       }>;
+
+    getCredit: <T = { value: string }>(
+        args?: {
+          account: string;
+        },
+        opts?: CallContractOptions
+      ) => Promise<{
+        operation: OperationJson;
+        transaction?: TransactionJsonWait;
+        result?: T;
+        receipt?: TransactionReceipt;
+      }>;
   }
 }
