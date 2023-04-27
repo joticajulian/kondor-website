@@ -143,7 +143,7 @@ export class AuctionNftContract extends NftContract {
     // check min bid
     const lastBid = auct.bid!.koin_amount + auct.bid!.credit_amount;
     const newBid = args.koin_amount + args.credit_amount;
-    const minBid = lastBid + lastBid / 100;
+    const minBid = auct.started ? lastBid + lastBid / 100 : lastBid;
     System.require(newBid >= minBid, `the bid must be at least ${minBid}`);
 
     // substract user credit
