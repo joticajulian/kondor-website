@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { Contract, Provider, utils } from 'koilib'
 import * as kondor from "kondor-js"
 import * as abi from '../../../contracts/build/nftcontract-abi.json'
@@ -39,92 +40,67 @@ function deltaTimeToString(milliseconds: number) {
   return "auction ends in " + interval + " seconds";
 }
 
-const nftNames = [
-  "Afghanistan",
-  "Algeria",
-  "United States",
-  "test_x1",
-  "Angola",
-  "Angola",
-  "test_x2",
-  "Angola",
-  "test_x3",
-  "test_x5",
-  "test_x6",
-  "test_x7",
-  "test_x8",
-  "Angola",
-  "test_x4",
-  "Algeria",
-];
-
-const nftToBuy = ref({} as NftCard);
+const rpcNodes = import.meta.env.VITE_RPC_NODES.split(",");
+const nftContractId = import.meta.env.VITE_NFT_CONTRACT_ID;
+const name = useRouter().currentRoute.value.params.id as string;
 const showModal = ref(false);
 const account = ref("");
 const credit = ref("");
-const provider = new Provider(["http://harbinger-api.koinos.io"]);
+const provider = new Provider(rpcNodes);
 const contract = ref(new Contract({
-  id: "1LrqPKYNpUK4B5b4W1gnpeRmLqjai3i7hP",
+  id: nftContractId,
   provider,
   abi,
 }) as NftContractClass)
 
-const nfts = ref(nftNames.map(name => {
-  const nft = new NftCard();
-  nft.image = `/nfts/${name.replaceAll(" ","_")}-Kondor.png`;
-  nft.name = name;
-  nft.alt = name;
-  nft.classCard = { offchain: true };
+const nft = ref({
+  image: `/nfts/${name}-Kondor.png`,
+  name,
+  alt: name,
+  classCard: { offchain: true},
+  tokenId: utf8ToHex(name),
+} as unknown as NftCard);
 
-  if (["Colombia", "United States", "United Kingdom", "Rebel Alliance"].includes(nft.name)) {
-    nft.classInfo = { "special-info": true }
-    nft.classCard = { "special-card": true, offchain: true };
-  }
-
-  return nft;
-}));   
+if (["Colombia", "United States", "United Kingdom", "Rebel Alliance"].includes(nft.name)) {
+  nft.value.classInfo = { "special-info": true }
+  nft.value.classCard = { "special-card": true, offchain: true };
+}
 
 onMounted(async () => {
-  const { result: auctions } = await contract.value.functions.listAuctions<Auctions>({
-    start: "",
-    limit: 20,
-    direction: 0,
+  const { result: auction } = await contract.value.functions.getAuction({ 
+    value: nft.value.tokenId,
   });
-  auctions!.value.forEach(auction => {
-    const nft = nfts.value.find(n => n.name === hexToUtf8(auction.bid.token_id));
-    if (!nft) return;
-    nft.onChain = true;
-    nft.tokenId = auction.bid.token_id;
-    nft.classCard.offchain = false;
-    const timeBid = Number(auction.time_bid);
-    nft.bidTime = new Date(timeBid).toISOString();
-    const koinAmount = auction.bid.koin_amount ? Number(auction.bid.koin_amount) : 0;
-    const creditAmount = auction.bid.credit_amount ? Number(auction.bid.credit_amount) : 0;
-    nft.bidAmount = `${utils.formatUnits((koinAmount+creditAmount).toString(), 8)} KOIN`;
-    nft.bidAccount = auction.bid.account;
-    if (auction.started) {
-      if (auction.sold) {
-        nft.status = "sold";
-      } else {
-        nft.status = "started";
-        clearInterval(nft.interval);
-        nft.interval = setInterval(() => {
-          const remainingTime = timeBid + ONE_WEEK - Date.now();
-          if (remainingTime < 3600_000) nft.classTime = { "time-red": true };
-          else if (remainingTime < 24 * 3600_000) nft.classTime = { "time-orange": true };
-          else nft.classTime = { "time-blue": true };
-          nft.bidRemainingTime = deltaTimeToString(remainingTime);
-        }, 1000);
-      }
+  if (!auction) throw new Error("auction not found");
+  nft.value.onChain = true;
+  nft.value.classCard.offchain = false;
+  const timeBid = Number(auction.time_bid);
+  nft.value.bidTime = new Date(timeBid).toISOString();
+  const koinAmount = auction.bid.koin_amount ? Number(auction.bid.koin_amount) : 0;
+  const creditAmount = auction.bid.credit_amount ? Number(auction.bid.credit_amount) : 0;
+  nft.value.bidAmount = `${utils.formatUnits((koinAmount+creditAmount).toString(), 8)} KOIN`;
+  nft.value.bidAccount = auction.bid.account;
+  if (auction.started) {
+    if (auction.sold) {
+      nft.value.status = "sold";
     } else {
-      nft.bidRemainingTime = "available";
-      nft.classTime = { "time-blue": true };
+      nft.value.status = "started";
+      clearInterval(nft.value.interval);
+      nft.value.interval = setInterval(() => {
+        const remainingTime = timeBid + ONE_WEEK - Date.now();
+        if (remainingTime < 3600_000) nft.value.classTime = { "time-red": true };
+        else if (remainingTime < 24 * 3600_000) nft.value.classTime = { "time-orange": true };
+        else nft.value.classTime = { "time-blue": true };
+        nft.value.bidRemainingTime = deltaTimeToString(remainingTime);
+      }, 1000);
     }
-  });    
+  } else {
+    nft.value.bidRemainingTime = "available";
+    nft.value.classTime = { "time-blue": true };
+  }    
 });
 
-function bidNft(nft: NftCard) {
-  nftToBuy.value = nft;
+function bidNft() {
+  
   showModal.value = true;
 }
 
@@ -145,28 +121,26 @@ async function setAccount(address: string) {
     <Modal 
       v-if="showModal"
       :contract="contract"
-      :nft="nftToBuy"
+      :nft="nft"
       @close="showModal = false"
     />
     <div v-if="credit" class="credit">Good news! You have a discount of&nbsp;<span>{{ credit }} KOIN</span>&nbsp;in any NFT 🥳</div>
-    <div class="all-nfts">
-      <div v-for="(nft, i) in nfts" :key="'nft'+i" class="nft-card" :class="nft.classCard">
-        <router-link :to="'/kondor-nft/'+nft.name.replaceAll(' ','_')" class="image">
-          <img :src="nft.image" :alt="nft.alt">
-        </router-link>
-        <div class="info" :class="nft.classInfo">
-          <div class="name">{{ nft.name }}</div>
-          <div class="amount">{{ nft.bidAmount }}</div>
-          <div v-if="nft.bidAccount" class="account">bidder</div>
-          <div class="account">{{ nft.bidAccount }}</div>
-          <div v-if="nft.status === 'started'" class="time" :class="nft.classTime">{{ nft.bidRemainingTime }}</div>
-          <div v-if="nft.status === 'sold'" class="sold">SOLD</div>
-          <button 
-            v-if="nft.onChain && nft.status !== 'sold'"
-            class="button"
-            @click="bidNft(nft)"
-          >BID</button>
-        </div>
+    <div class="nft-card" :class="nft.classCard">
+      <router-link :to="'/kondor-nft/'+nft.name.toLowerCase().replaceAll(' ','_')" class="image">
+        <img :src="nft.image" :alt="nft.alt">
+      </router-link>
+      <div class="info" :class="nft.classInfo">
+        <div class="name">{{ nft.name }}</div>
+        <div class="amount">{{ nft.bidAmount }}</div>
+        <div v-if="nft.bidAccount" class="account">bidder</div>
+        <div class="account">{{ nft.bidAccount }}</div>
+        <div v-if="nft.status === 'started'" class="time" :class="nft.classTime">{{ nft.bidRemainingTime }}</div>
+        <div v-if="nft.status === 'sold'" class="sold">SOLD</div>
+        <button 
+          v-if="nft.onChain && nft.status !== 'sold'"
+          class="button"
+          @click="bidNft()"
+        >BID</button>
       </div>
     </div>
   </div>
@@ -188,17 +162,13 @@ async function setAccount(address: string) {
   font-weight: bold;
 }
 
-.all-nfts {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-around;
-}
 .nft-card {
-  width: 15em;
+  width: 100%;
+  max-width: 35em;
   display: flex;
   flex-direction: column;
   padding: 0.5em;
-  margin: 0 0 1em 0em;
+  margin: auto;
 }
 
 .special-card {

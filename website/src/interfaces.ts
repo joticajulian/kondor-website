@@ -1,5 +1,6 @@
 import { Contract } from "koilib";
 import { CallContractOptions, ContractTransactionOptions, OperationJson, TransactionJsonWait, TransactionReceipt } from "koilib/lib/interface";
+import { Auctions, Auction } from "../../contracts/build/nftcontractTypes"
 
 export class NftCard {
   image = "";
@@ -38,6 +39,32 @@ export interface NftContractClass extends Contract {
     getCredit: <T = { value: string }>(
         args?: {
           account: string;
+        },
+        opts?: CallContractOptions
+      ) => Promise<{
+        operation: OperationJson;
+        transaction?: TransactionJsonWait;
+        result?: T;
+        receipt?: TransactionReceipt;
+      }>;
+    
+    listAuctions: <T = Auctions>(
+        args?: {
+          start: string;
+          limit: number;
+          direction: number;
+        },
+        opts?: CallContractOptions
+      ) => Promise<{
+        operation: OperationJson;
+        transaction?: TransactionJsonWait;
+        result?: T;
+        receipt?: TransactionReceipt;
+      }>;
+
+    getAuction: <T = Auction>(
+        args?: {
+          value: string;
         },
         opts?: CallContractOptions
       ) => Promise<{

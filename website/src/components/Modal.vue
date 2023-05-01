@@ -31,7 +31,11 @@ onMounted(async () => {
   const contract = props.contract as NftContractClass;
   const account = contract.signer!.getAddress();
   const { result } = await contract.functions.getCredit({ account });
-  credit.value = result!.value;
+  if (result) {
+    credit.value = result!.value;
+  } else {
+    credit.value = "";
+  }
   updateCreditAmount();
 })
 
