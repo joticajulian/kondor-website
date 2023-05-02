@@ -6,10 +6,11 @@ import * as kondor from "kondor-js"
 import * as abi from '../../../contracts/build/nftcontract-abi.json'
 import { Auctions, Auction } from "../../../contracts/build/nftcontractTypes"
 import HeaderProject from "../components/HeaderProject.vue"
+import Alert from "../components/Alert.vue"
 import Modal from "../components/Modal.vue"
 import { NftCard, NftContractClass } from "../interfaces"
 
-const ONE_WEEK = 7 * 24 * 3600 * 1000;
+const ONE_WEEK = 5*60_000;// 7 * 24 * 3600 * 1000;
 
 function hexToUtf8(hex: string) {
   const buffer = utils.toUint8Array(hex.slice(2));
@@ -51,7 +52,13 @@ const contract = ref(new Contract({
   id: nftContractId,
   provider,
   abi,
-}) as NftContractClass)
+}) as NftContractClass);
+
+let alertData = ref({
+  type: "",
+  show: false,
+  message: "",
+});
 
 const nft = ref({
   image: `/nfts/${name}-Kondor.png`,
@@ -82,16 +89,22 @@ onMounted(async () => {
   if (auction.started) {
     if (auction.sold) {
       nft.value.status = "sold";
+      console.log(contract.value.functions);
+      const { result: onwerToken } = await contract.value.functions.owner_of({ token_id: nft.value.tokenId });
+      nft.value.owner = onwerToken ? onwerToken.account : "unknown owner";
     } else {
       nft.value.status = "started";
       clearInterval(nft.value.interval);
-      nft.value.interval = setInterval(() => {
+      const fnInterval = () => {
         const remainingTime = timeBid + ONE_WEEK - Date.now();
-        if (remainingTime < 3600_000) nft.value.classTime = { "time-red": true };
+        if (remainingTime <= 0) nft.value.status = "readyToClaim";
+        else if (remainingTime < 3600_000) nft.value.classTime = { "time-red": true };
         else if (remainingTime < 24 * 3600_000) nft.value.classTime = { "time-orange": true };
         else nft.value.classTime = { "time-blue": true };
         nft.value.bidRemainingTime = deltaTimeToString(remainingTime);
-      }, 1000);
+      };
+      fnInterval();
+      nft.value.interval = setInterval(fnInterval, 1000);
     }
   } else {
     nft.value.bidRemainingTime = "available";
@@ -100,8 +113,35 @@ onMounted(async () => {
 });
 
 function bidNft() {
-  
   showModal.value = true;
+}
+
+async function claimNft() {
+  try {
+    const account = contract.value.signer!.getAddress();
+    const manaAvailable = await contract.value.provider!.getAccountRc(account);
+    const rcLimit = Math.min(10_0000_0000, Number(manaAvailable)).toString();
+    const { transaction } = await contract.value.functions.claimToken({ value: nft.value.tokenId }, { rcLimit });
+    alertData.value = {
+      type: "info",
+      show: true,
+      message: `Transaction submitted. Waiting to be mined`,
+    }
+    if (!transaction) throw new Error("Error submitting the transaction");
+    await transaction.wait();
+    alertData.value = {
+      type: "success",
+      show: true,
+      message: `Transaction mined. Wait some seconds and refresh the page`,
+    }
+  } catch (error) {
+    alertData.value = {
+      type: "danger",
+      show: true,
+      message: (error as Error).message,
+    };
+    throw error;
+  }
 }
 
 async function setAccount(address: string) {
@@ -131,18 +171,27 @@ async function setAccount(address: string) {
       </router-link>
       <div class="info" :class="nft.classInfo">
         <div class="name">{{ nft.name }}</div>
-        <div class="amount">{{ nft.bidAmount }}</div>
-        <div v-if="nft.bidAccount" class="account">bidder</div>
-        <div class="account">{{ nft.bidAccount }}</div>
+        <div v-if="nft.status !== 'sold'" class="amount">{{ nft.bidAmount }}</div>
+        <div v-if="nft.bidAccount && nft.status !== 'sold'" class="account">bidder</div>
+        <div v-if= "nft.owner" class="owner">{{ nft.owner }}</div>
+        <div v-else class="account">{{ nft.bidAccount }}</div>
         <div v-if="nft.status === 'started'" class="time" :class="nft.classTime">{{ nft.bidRemainingTime }}</div>
-        <div v-if="nft.status === 'sold'" class="sold">SOLD</div>
         <button 
-          v-if="nft.onChain && nft.status !== 'sold'"
+          v-if="nft.onChain && nft.status !== 'sold' && nft.status !== 'readyToClaim'"
           class="button"
           @click="bidNft()"
         >BID</button>
+        <button 
+          v-if="nft.onChain && nft.status === 'readyToClaim'"
+          class="button"
+          @click="claimNft()"
+        >CLAIM</button>
       </div>
     </div>
+    <Alert
+      :data="alertData"
+      @close="alertData.show = false"
+    />
   </div>
 </template>
 
@@ -214,6 +263,11 @@ async function setAccount(address: string) {
   font-weight: bold;
   margin-bottom: 0.5em;
   text-transform: uppercase;
+}
+
+.info .owner {
+  margin: auto;
+  font-size: 1.2em;
 }
 
 .info .account {

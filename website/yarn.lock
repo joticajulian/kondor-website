@@ -461,10 +461,10 @@ koilib@^5.5.5:
     multibase "^4.0.6"
     protobufjs "^7.0.0"
 
-kondor-js@^0.4.1:
-  version "0.4.1"
-  resolved "https://registry.yarnpkg.com/kondor-js/-/kondor-js-0.4.1.tgz#697681c02a02ee05c235b22fde5d3cc55378b4f0"
-  integrity sha512-l7hgQj6YdcFS5WQ8aHTvZacKho7PW8hwCtFBwVFkMkARJUWB9LaS1y5IdXPMD1UeJkCGRm8MI0PQgZS6oW7rdA==
+kondor-js@^0.4.2:
+  version "0.4.2"
+  resolved "https://registry.yarnpkg.com/kondor-js/-/kondor-js-0.4.2.tgz#579523e19d0cedc7d10bfe62ef3b8622f65df874"
+  integrity sha512-3pxkhhXbrDJ1ktpaw7Dgb771pxnMyYcX6upDELqolKTYav9w1TLUCNSEq1znlEFOgXpja0lw/nHpbKFmQyeXJA==
   dependencies:
     koilib "^5.2.0"
 

@@ -7,6 +7,7 @@ export class NftCard {
   name = "";
   alt = "";
   tokenId = "";
+  owner = "";
   onChain = false;
   bidAccount = ""
   bidAmount = ""
@@ -27,6 +28,30 @@ export interface NftContractClass extends Contract {
           token_id: string;
           koin_amount: string;
           credit_amount: string;
+        },
+        opts?: CallContractOptions
+      ) => Promise<{
+        operation: OperationJson;
+        transaction?: TransactionJsonWait;
+        result?: T;
+        receipt?: TransactionReceipt;
+      }>;
+
+    claimToken: <T = {}>(
+        args?: {
+          value: string;
+        },
+        opts?: CallContractOptions
+      ) => Promise<{
+        operation: OperationJson;
+        transaction?: TransactionJsonWait;
+        result?: T;
+        receipt?: TransactionReceipt;
+      }>;
+
+    owner_of: <T = { account: string }>(
+        args?: {
+          token_id: string;
         },
         opts?: CallContractOptions
       ) => Promise<{

@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "koilib": "^5.5.5",
-    "kondor-js": "^0.4.1",
+    "kondor-js": "^0.4.2",
     "vue": "^3.2.47",
     "vue-router": "4"
   },

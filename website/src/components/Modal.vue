@@ -56,6 +56,8 @@ async function bid() {
   try {
     const contract = props.contract as NftContractClass;
     const account = contract.signer!.getAddress();
+    const manaAvailable = await contract.provider!.getAccountRc(account);
+    const rcLimit = Math.min(10_0000_0000, Number(manaAvailable)).toString();
     const { result: credit } = await contract.functions.getCredit({ account });
 
     let bid = Number(utils.parseUnits(bidAmount.value.toFixed(8), 8));
@@ -68,7 +70,19 @@ async function bid() {
       token_id: props.nft!.tokenId,
       koin_amount: (bid - credUsed).toString(),
       credit_amount: credUsed.toString(),
-    });
+    }, { rcLimit });
+    alertData.value = {
+      type: "info",
+      show: true,
+      message: `Transaction submitted. Waiting to be mined`,
+    }
+    if (!transaction) throw new Error("Error submitting the transaction");
+    await transaction.wait();
+    alertData.value = {
+      type: "success",
+      show: true,
+      message: `Transaction mined. Wait some seconds and refresh the page`,
+    }
     emit("close");
   } catch (error) {
     alertData.value = {
