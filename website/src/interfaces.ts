@@ -6,6 +6,7 @@ export class NftCard {
   image = "";
   name = "";
   alt = "";
+  description = "";
   tokenId = "";
   owner = "";
   onChain = false;

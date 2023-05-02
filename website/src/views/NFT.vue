@@ -62,15 +62,18 @@ let alertData = ref({
 
 const nft = ref({
   image: `/nfts/${name}-Kondor.png`,
-  name,
+  name: name.replaceAll("_", " "),
   alt: name,
   classCard: { offchain: true},
   tokenId: utf8ToHex(name),
 } as unknown as NftCard);
 
-if (["Colombia", "United States", "United Kingdom", "Rebel Alliance"].includes(nft.name)) {
+if (["Colombia", "United States", "United Kingdom", "Rebel Alliance"].includes(nft.value.name)) {
   nft.value.classInfo = { "special-info": true }
-  nft.value.classCard = { "special-card": true, offchain: true };
+  nft.value.classCard = { "special-card": true, offchain: false };
+  if (nft.value.name === "United States") {
+    nft.value.description = `"The black and gold Kondor is otorgued to United States due the invaluable contribution of Koinos Group for creating the Koinos Blockchain. For this reason this token is one of the most important NFTs in the Kondor collection." JGA`
+  }
 }
 
 onMounted(async () => {
@@ -171,6 +174,7 @@ async function setAccount(address: string) {
       </router-link>
       <div class="info" :class="nft.classInfo">
         <div class="name">{{ nft.name }}</div>
+        <div v-if="nft.description" class="description">{{ nft.description }}</div>
         <div v-if="nft.status !== 'sold'" class="amount">{{ nft.bidAmount }}</div>
         <div v-if="nft.bidAccount && nft.status !== 'sold'" class="account">bidder</div>
         <div v-if= "nft.owner" class="owner">{{ nft.owner }}</div>
@@ -196,7 +200,6 @@ async function setAccount(address: string) {
 </template>
 
 <style scoped>
-
 .credit {
   display: flex;
   justify-content: center;
@@ -218,10 +221,11 @@ async function setAccount(address: string) {
   flex-direction: column;
   padding: 0.5em;
   margin: auto;
+  margin-top: 3em;
 }
 
 .special-card {
-  width: 25em;
+  /* width: 25em; */
 }
 
 .offchain {
@@ -263,6 +267,10 @@ async function setAccount(address: string) {
   font-weight: bold;
   margin-bottom: 0.5em;
   text-transform: uppercase;
+}
+
+.info .description {
+  font-style: italic;
 }
 
 .info .owner {

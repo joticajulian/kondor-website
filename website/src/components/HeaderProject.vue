@@ -19,16 +19,19 @@ async function connect() {
 <template>
   <div class="header">
     <div class="logo"><img src="/koinosbox.svg" alt="koinosbox"></div>
-    <div class="project">Kondor NFTs</div>
+    <router-link to="/kondor-nft" class="project">Kondor NFTs</router-link>
     <button @click="connect">{{account ? account : "Connect"}}</button>
   </div>
 </template>
 
 <style scoped>
+
 .header{
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 0 1em;
+  background: white;
 }
 
 .logo img {
