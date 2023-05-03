@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { ref, defineProps} from "vue"
+import { ref, defineProps, onMounted, watch} from "vue"
 import { Contract, utils } from "koilib";
-import * as kondor from "kondor-js"
 import Alert from "./Alert.vue"
 import { NftCard, NftContractClass } from "../interfaces"
 
@@ -13,30 +12,77 @@ const props = defineProps({
 const emit = defineEmits(["close"]);
 
 let recommendedBid = Number(props.nft!.bidAmount.replace("KOIN","").trim());
-console.log(props.nft)
 if (props.nft!.status === "started") {
   recommendedBid *= 1.01;
 }
 
 let bidAmount = ref(recommendedBid);
+let creditUsed = ref("");
 let alertData = ref({
   type: "",
   show: false,
   message: "",
 });
+const credit = ref("");
+
+watch(bidAmount, () => { updateCreditAmount(); })
+
+onMounted(async () => {
+  const contract = props.contract as NftContractClass;
+  const account = contract.signer!.getAddress();
+  const { result } = await contract.functions.getCredit({ account });
+  if (result) {
+    credit.value = result!.value;
+  } else {
+    credit.value = "";
+  }
+  updateCreditAmount();
+})
+
+function updateCreditAmount() {
+  if (!credit.value) {
+    creditUsed.value = "";
+    return;
+  }
+  const bid = Number(utils.parseUnits(bidAmount.value.toFixed(8), 8));
+  const cred = credit.value ? Number(credit.value) : 0;
+  let credUsed = 0;
+  if (bid >= cred) credUsed = cred;
+  else credUsed = bid;
+  creditUsed.value = utils.formatUnits(credUsed.toString(),8);
+}
 
 async function bid() {
   try {
-    const accounts = await kondor.getAccounts() as unknown as { name: string; address: string}[];
-    const signer = kondor.getSigner(accounts[0].address, { network: "harbinger" });
     const contract = props.contract as NftContractClass;
-    contract.signer = signer;
+    const account = contract.signer!.getAddress();
+    const manaAvailable = await contract.provider!.getAccountRc(account);
+    const rcLimit = Math.min(10_0000_0000, Number(manaAvailable)).toString();
+    const { result: credit } = await contract.functions.getCredit({ account });
+
+    let bid = Number(utils.parseUnits(bidAmount.value.toFixed(8), 8));
+    let cred = 0;
+    if (credit && credit.value) cred = Number(credit.value);
+    let credUsed = bid >= cred ? cred : bid;
+    
     const { transaction } = await contract.functions.bid({
-      account: signer.getAddress(),
+      account,
       token_id: props.nft!.tokenId,
-      koin_amount: utils.parseUnits(bidAmount.value.toFixed(8), 8),
-      credit_amount: "0",
-    });
+      koin_amount: (bid - credUsed).toString(),
+      credit_amount: credUsed.toString(),
+    }, { rcLimit });
+    alertData.value = {
+      type: "info",
+      show: true,
+      message: `Transaction submitted. Waiting to be mined`,
+    }
+    if (!transaction) throw new Error("Error submitting the transaction");
+    await transaction.wait();
+    alertData.value = {
+      type: "success",
+      show: true,
+      message: `Transaction mined. Wait some seconds and refresh the page`,
+    }
     emit("close");
   } catch (error) {
     alertData.value = {
@@ -56,6 +102,7 @@ async function bid() {
       <div class="modal-container">
         <div class="name">{{ $props.nft!.name }}</div>
         <input v-model="bidAmount" type="number"/>
+        <div v-if="creditUsed" class="credit">A discount of {{ creditUsed }} KOIN will be applied</div>
         <div class="buttons">
           <button @click="bid">Bid</button>
           <button class="modal-default-button" @click="$emit('close')">Cancel</button>
@@ -99,6 +146,14 @@ async function bid() {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
   transition: all 0.3s ease;
   font-family: Helvetica, Arial, sans-serif;
+}
+
+.credit {
+  color: blue;
+  padding: 0.3em;
+  background: #a1aff3;
+  margin-bottom: 1em;
+  margin-top: -1em;
 }
 
 .name {

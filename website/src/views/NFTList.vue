@@ -1,18 +1,23 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { Contract, Provider, utils } from 'koilib'
+import * as kondor from "kondor-js"
 import * as abi from '../../../contracts/build/nftcontract-abi.json'
 import { Auctions, Auction } from "../../../contracts/build/nftcontractTypes"
-import * as kondor from "kondor-js";
 import HeaderProject from "../components/HeaderProject.vue"
 import Modal from "../components/Modal.vue"
-import { NftCard } from "../interfaces"
+import { NftCard, NftContractClass } from "../interfaces"
 
 const ONE_WEEK = 7 * 24 * 3600 * 1000;
 
 function hexToUtf8(hex: string) {
   const buffer = utils.toUint8Array(hex.slice(2));
   return new TextDecoder().decode(buffer);
+}
+
+function utf8ToHex(utf8: string) {
+  const buffer = new TextEncoder().encode(utf8);
+  return `0x${utils.toHexString(buffer)}`;
 }
 
 function deltaTimeToString(milliseconds: number) {
@@ -44,19 +49,29 @@ const nftNames = [
   "test_x2",
   "Angola",
   "test_x3",
+  "test_x5",
+  "test_x6",
+  "test_x7",
+  "test_x8",
+  "test_x9",
+  "test_x10",
+  "test_x11",
+  "test_x12",
   "Angola",
   "test_x4",
   "Algeria",
 ];
 
-let nftToBuy = ref({} as NftCard);
+const nftToBuy = ref({} as NftCard);
 const showModal = ref(false);
+const account = ref("");
+const credit = ref("");
 const provider = new Provider(["http://harbinger-api.koinos.io"]);
-let contract = ref(new Contract({
+const contract = ref(new Contract({
   id: "1LrqPKYNpUK4B5b4W1gnpeRmLqjai3i7hP",
   provider,
   abi,
-}))
+}) as NftContractClass)
 
 const nfts = ref(nftNames.map(name => {
   const nft = new NftCard();
@@ -71,13 +86,7 @@ const nfts = ref(nftNames.map(name => {
   }
 
   return nft;
-}));
-
-
-
-nfts.value.forEach(nft => {
-  
-});    
+}));   
 
 onMounted(async () => {
   const { result: auctions } = await contract.value.functions.listAuctions<Auctions>({
@@ -85,16 +94,17 @@ onMounted(async () => {
     limit: 20,
     direction: 0,
   });
-  //console.log(JSON.stringify(auctions,null,2));
   auctions!.value.forEach(auction => {
     const nft = nfts.value.find(n => n.name === hexToUtf8(auction.bid.token_id));
-    if (!nft) return;console.log(nft.name);
+    if (!nft) return;
     nft.onChain = true;
     nft.tokenId = auction.bid.token_id;
     nft.classCard.offchain = false;
     const timeBid = Number(auction.time_bid);
     nft.bidTime = new Date(timeBid).toISOString();
-    nft.bidAmount = `${utils.formatUnits(auction.bid.koin_amount, 8)} KOIN`;
+    const koinAmount = auction.bid.koin_amount ? Number(auction.bid.koin_amount) : 0;
+    const creditAmount = auction.bid.credit_amount ? Number(auction.bid.credit_amount) : 0;
+    nft.bidAmount = `${utils.formatUnits((koinAmount+creditAmount).toString(), 8)} KOIN`;
     nft.bidAccount = auction.bid.account;
     if (auction.started) {
       if (auction.sold) {
@@ -121,22 +131,33 @@ function bidNft(nft: NftCard) {
   nftToBuy.value = nft;
   showModal.value = true;
 }
+
+async function setAccount(address: string) {
+  account.value = address;
+  contract.value.signer = kondor.getSigner(address, { network: "harbinger" });
+  const { result } = await contract.value.functions.getCredit({ account: address });
+  if (result && result.value) credit.value = utils.formatUnits(result.value, 8);
+  else credit.value = "";
+}
 </script>
 
 <template>
   <div>
-    <HeaderProject/>
+    <HeaderProject
+      @account="setAccount"
+    />
     <Modal 
       v-if="showModal"
       :contract="contract"
       :nft="nftToBuy"
       @close="showModal = false"
     />
+    <div v-if="credit" class="credit">Good news! You have a discount of&nbsp;<span>{{ credit }} KOIN</span>&nbsp;in any NFT 🥳</div>
     <div class="all-nfts">
       <div v-for="(nft, i) in nfts" :key="'nft'+i" class="nft-card" :class="nft.classCard">
-        <div class="image">
+        <router-link :to="'/kondor-nft/'+nft.name.replaceAll(' ','_')" class="image">
           <img :src="nft.image" :alt="nft.alt">
-        </div>
+        </router-link>
         <div class="info" :class="nft.classInfo">
           <div class="name">{{ nft.name }}</div>
           <div class="amount">{{ nft.bidAmount }}</div>
@@ -157,6 +178,20 @@ function bidNft(nft: NftCard) {
 
 <style scoped>
 
+.credit {
+  display: flex;
+  justify-content: center;
+  font-size: 1.2em;
+  margin: 0.5em;
+  color: blue;
+  padding: 0.3em;
+  background: #a1aff3;
+}
+
+.credit span {
+  font-weight: bold;
+}
+
 .all-nfts {
   display: flex;
   flex-wrap: wrap;
@@ -171,7 +206,7 @@ function bidNft(nft: NftCard) {
 }
 
 .special-card {
-  width: 20em;
+  width: 25em;
 }
 
 .offchain {
