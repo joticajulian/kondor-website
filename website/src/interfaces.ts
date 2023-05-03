@@ -9,6 +9,7 @@ export class NftCard {
   description = "";
   tokenId = "";
   owner = "";
+  ownerMessage = "";
   onChain = false;
   bidAccount = ""
   bidAmount = ""

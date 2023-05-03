@@ -69,11 +69,14 @@ const nft = ref({
   tokenId: utf8ToHex(name),
 } as unknown as NftCard);
 
-if (["Colombia", "United States", "United Kingdom", "Rebel Alliance"].includes(nft.value.name)) {
+if (["Colombia", "United States", "United Kingdom", "Rebel Alliance", "test x3"].includes(nft.value.name)) {
   nft.value.classInfo = { "special-info": true }
-  nft.value.classCard = { "special-card": true, offchain: false };
+  nft.value.classCard = { "special-card": true, offchain: true };
   if (nft.value.name === "United States") {
     nft.value.description = `"The black and gold Kondor is otorgued to United States due the invaluable contribution of Koinos Group for creating the Koinos Blockchain. For this reason this token is one of the most important NFTs in the Kondor collection." JGA`
+  }
+  if (nft.value.name === "test x3") {
+    nft.value.description = `"Lorem ip sum Lorem ip sum Lorem ip sum Lorem ip sum Lorem ip sum Lorem ip sum Lorem ip sum Lorem ip sum Lorem ip sum Lorem ip sum Lorem ip sum Lorem ip sum Lorem ip sum Lorem ip sum Lorem ip sum Lorem ip sum Lorem ip sum." JGA`
   }
 }
 
@@ -170,16 +173,17 @@ async function setAccount(address: string) {
     />
     <div v-if="credit" class="credit">Good news! You have a discount of&nbsp;<span>{{ credit }} KOIN</span>&nbsp;in any NFT 🥳</div>
     <div class="nft-card" :class="nft.classCard">
-      <router-link :to="'/kondor-nft/'+nft.name.toLowerCase().replaceAll(' ','_')" class="image">
+      <div class="image">
         <img :src="nft.image" :alt="nft.alt">
-      </router-link>
+      </div>
       <div class="info" :class="nft.classInfo">
         <div class="name">{{ nft.name }}</div>
         <div v-if="nft.description" class="description">{{ nft.description }}</div>
         <div v-if="nft.status !== 'sold'" class="amount">{{ nft.bidAmount }}</div>
         <div v-if="nft.bidAccount && nft.status !== 'sold'" class="account">bidder</div>
-        <div v-if= "nft.owner" class="owner">{{ nft.owner }}</div>
+        <div v-if="nft.owner" class="owner">{{ nft.owner }}</div>
         <div v-else class="account">{{ nft.bidAccount }}</div>
+        <div v-if="nft.ownerMessage" class="description">{{ nft.ownerMessage }}</div>
         <div v-if="nft.status === 'started'" class="time" :class="nft.classTime">{{ nft.bidRemainingTime }}</div>
         <button 
           v-if="nft.onChain && nft.status !== 'sold' && nft.status !== 'readyToClaim'"
@@ -251,7 +255,7 @@ async function setAccount(address: string) {
 }
 
 .nft-card:hover {
-  background: #e6e6e6;
+  /* background: #e6e6e6; */
 }
 
 .nft-card:hover .special-info {
@@ -294,6 +298,7 @@ async function setAccount(address: string) {
 .info .owner {
   margin: auto;
   font-size: 1.2em;
+  margin-top: 2em;
 }
 
 .info .account {

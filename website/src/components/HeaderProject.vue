@@ -18,8 +18,10 @@ async function connect() {
 
 <template>
   <div class="header">
-    <div class="logo"><img src="/koinosbox.svg" alt="koinosbox"></div>
-    <router-link to="/kondor-nft" class="project">Kondor NFTs</router-link>
+    <div class="brand">
+      <div class="logo"><img src="/koinosbox.svg" alt="koinosbox"></div>
+      <router-link to="/kondor-nft" class="project">Kondor NFTs</router-link>
+    </div>
     <button @click="connect">{{account ? account : "Connect"}}</button>
   </div>
 </template>
@@ -34,12 +36,22 @@ async function connect() {
   background: white;
 }
 
+.brand {
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  display: flex;
+  margin-right: 1.5em;
+}
+
 .logo img {
   width: 3em;
 }
 
 .project {
-  font-size: 3.2em;
+  font-size: 3em;
   font-weight: bold;
 }
 

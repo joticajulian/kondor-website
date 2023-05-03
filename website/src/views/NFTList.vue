@@ -196,6 +196,7 @@ async function setAccount(address: string) {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-around;
+  padding-top: 3em;
 }
 .nft-card {
   width: 15em;
