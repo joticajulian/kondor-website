@@ -6,6 +6,7 @@ import * as kondor from "kondor-js"
 import * as abi from '../../../contracts/build/nftcontract-abi.json'
 import { Auctions, Auction } from "../../../contracts/build/nftcontractTypes"
 import HeaderProject from "../components/HeaderProject.vue"
+import FootProject from "../components/FootProject.vue"
 import Alert from "../components/Alert.vue"
 import Modal from "../components/Modal.vue"
 import { NftCard, NftContractClass } from "../interfaces"
@@ -157,7 +158,7 @@ async function setAccount(address: string) {
 </script>
 
 <template>
-  <div>
+  <div class="page">
     <HeaderProject
       @account="setAccount"
     />
@@ -196,10 +197,20 @@ async function setAccount(address: string) {
       :data="alertData"
       @close="alertData.show = false"
     />
+    <FootProject/>
   </div>
 </template>
 
 <style scoped>
+
+.page {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.8)), url(/newyork.jpg);
+  width: 100%;
+  height: auto;
+  background-repeat: no-repeat !important;
+  background-size: cover !important;
+  background-position: center !important;
+}
 .credit {
   display: flex;
   justify-content: center;
@@ -222,6 +233,13 @@ async function setAccount(address: string) {
   padding: 0.5em;
   margin: auto;
   margin-top: 3em;
+}
+
+@media only screen and (max-width: 600px) {
+  .nft-card {
+    width: unset;
+    max-width: 80%;
+  }
 }
 
 .special-card {
