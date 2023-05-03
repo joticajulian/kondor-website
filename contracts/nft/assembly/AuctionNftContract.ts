@@ -5,7 +5,7 @@ import { nft } from "./proto/nft";
 import { NftContract } from "./NftContract";
 
 // export const AUCTION_PERIOD: u64 = 7 * 24 * 60 * 60 * 1000;
-export const AUCTION_PERIOD: u64 = 5 * 60 * 1000;
+export const AUCTION_PERIOD: u64 = 60 * 60 * 1000;
 
 export class AuctionNftContract extends NftContract {
   auctions: Storage.Map<Uint8Array, auction.auction>;
@@ -91,7 +91,9 @@ export class AuctionNftContract extends NftContract {
    * @readonly
    */
   getAuction(tokenId: auction.token_id): auction.auction {
-    return this.auctions.get(tokenId.value!)!;
+    const auct = this.auctions.get(tokenId.value!);
+    if (!auct) return new auction.auction();
+    return auct;
   }
 
   /**
