@@ -5,6 +5,7 @@ import * as kondor from "kondor-js"
 import * as abi from '../../../contracts/build/nftcontract-abi.json'
 import { Auctions, Auction } from "../../../contracts/build/nftcontractTypes"
 import HeaderProject from "../components/HeaderProject.vue"
+import FootProject from "../components/FootProject.vue"
 import Modal from "../components/Modal.vue"
 import { NftCard, NftContractClass } from "../interfaces"
 
@@ -153,6 +154,7 @@ async function setAccount(address: string) {
       @close="showModal = false"
     />
     <div v-if="credit" class="credit">Good news! You have a discount of&nbsp;<span>{{ credit }} KOIN</span>&nbsp;in any NFT 🥳</div>
+    <div class="description-collection">The free blockchain is around the world!</div>
     <div class="all-nfts">
       <div v-for="(nft, i) in nfts" :key="'nft'+i" class="nft-card" :class="nft.classCard">
         <router-link :to="'/kondor-nft/'+nft.name.replaceAll(' ','_')" class="image">
@@ -165,14 +167,15 @@ async function setAccount(address: string) {
           <div class="account">{{ nft.bidAccount }}</div>
           <div v-if="nft.status === 'started'" class="time" :class="nft.classTime">{{ nft.bidRemainingTime }}</div>
           <div v-if="nft.status === 'sold'" class="sold">SOLD</div>
-          <button 
+          <!-- <button 
             v-if="nft.onChain && nft.status !== 'sold'"
             class="button"
             @click="bidNft(nft)"
-          >BID</button>
+          >BID</button> -->
         </div>
       </div>
     </div>
+    <FootProject/>
   </div>
 </template>
 
@@ -190,6 +193,41 @@ async function setAccount(address: string) {
 
 .credit span {
   font-weight: bold;
+}
+
+.description-collection {
+  display: flex;
+  justify-content: center;
+  font-size: 5em;
+  margin: 0.5em;
+  text-align: center;
+  font-style: italic;
+  font-weight: bold;
+  background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+  background-size: 400% 400%;
+  animation: gradient 15s ease infinite;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-fill-color: transparent;
+}
+
+@keyframes gradient {
+	0% {
+		background-position: 0% 50%;
+	}
+	50% {
+		background-position: 100% 50%;
+	}
+	100% {
+		background-position: 0% 50%;
+	}
+}
+
+@media only screen and (max-width: 600px) {
+  .description-collection {
+    font-size: 3em;
+  }
 }
 
 .all-nfts {

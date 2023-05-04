@@ -32,8 +32,8 @@ async function connect() {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 1em;
-  background: white;
+  padding: 0.5em 1em;
+  background: linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 65%, rgba(223,223,223,1) 100%);
 }
 
 .brand {
@@ -47,11 +47,11 @@ async function connect() {
 }
 
 .logo img {
-  width: 3em;
+  width: 2em;
 }
 
 .project {
-  font-size: 3em;
+  font-size: 2em;
   font-weight: bold;
 }
 
@@ -61,7 +61,7 @@ async function connect() {
 
 @media only screen and (max-width: 600px) {
   .project {
-    font-size: 2em;
+    font-size: 1.2em;
   }
 }
 </style>    

@@ -71,7 +71,7 @@ const nft = ref({
   tokenId: utf8ToHex(name),
 } as unknown as NftCard);
 
-if (["Colombia", "United States", "United Kingdom", "Rebel Alliance", "test x3"].includes(nft.value.name)) {
+if (["Colombia", "United States", "United Kingdom", "Rebel Alliance", "tests x3"].includes(nft.value.name)) {
   nft.value.classInfo = { "special-info": true }
   nft.value.classCard = { "special-card": true, offchain: true };
   if (nft.value.name === "United States") {
@@ -199,7 +199,7 @@ async function setAccount(address: string) {
         <div v-if="nft.bidAccount && nft.status !== 'sold'" class="account">bidder</div>
         <div v-if="nft.owner" class="owner">{{ nft.owner }}</div>
         <div v-else class="account">{{ nft.bidAccount }}</div>
-        <div v-if="nft.ownerMessage" class="description">{{ nft.ownerMessage }}</div>
+        <div v-if="nft.ownerMessage" class="description2">{{ nft.ownerMessage }}</div>
         <div v-if="nft.status === 'started'" class="time" :class="nft.classTime">{{ nft.bidRemainingTime }}</div>
         <button 
           v-if="nft.onChain && nft.status !== 'sold' && nft.status !== 'readyToClaim'"
@@ -229,7 +229,7 @@ async function setAccount(address: string) {
 <style scoped>
 
 .page {
-  background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.8)), url(/newyork.jpg);
+  background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 1)), url(/newyork.jpg);
   width: 100%;
   height: auto;
   background-repeat: no-repeat !important;
@@ -316,6 +316,11 @@ async function setAccount(address: string) {
   font-style: italic;
 }
 
+.info .description2 {
+  font-style: italic;
+  margin: 1em 0 0 0;
+}
+
 .info .owner {
   margin: auto;
   font-size: 1.2em;
@@ -362,5 +367,9 @@ async function setAccount(address: string) {
   color: red;
   margin-top: 0.5em;
   border: solid;
+}
+
+.button {
+  margin-top: 1em;
 }
 </style>
