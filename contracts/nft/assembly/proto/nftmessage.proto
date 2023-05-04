@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package nftmessage;
+
+import "koinos/options.proto";
+
+message onwer_message {
+   bytes token_id = 1 [(koinos.btype) = HEX];
+   string message = 2;
+}

@@ -1,8 +1,8 @@
 import { System, Storage, Base58 } from "@koinos/sdk-as";
-import { AuctionNftContract } from "./AuctionNftContract";
+import { NftWithMessage } from "./NftWithMessage";
 import { common } from "./proto/common";
 
-export class NftContract2 extends AuctionNftContract {
+export class NftContract2 extends NftWithMessage {
   dataPatched1: Storage.Obj<common.boole>;
 
   constructor() {

@@ -90,8 +90,8 @@ export class AuctionNftContract extends NftContract {
    * @external
    * @readonly
    */
-  getAuction(tokenId: auction.token_id): auction.auction {
-    const auct = this.auctions.get(tokenId.value!);
+  getAuction(args: nft.token): auction.auction {
+    const auct = this.auctions.get(args.token_id!);
     if (!auct) return new auction.auction();
     return auct;
   }
@@ -201,9 +201,9 @@ export class AuctionNftContract extends NftContract {
    * Claim the NFT token
    * @external
    */
-  claimToken(tokenId: auction.token_id): void {
+  claimToken(args: nft.token): void {
     // check the auction and bid period
-    const auctionToken = this.auctions.get(tokenId.value!);
+    const auctionToken = this.auctions.get(args.token_id!);
     System.require(auctionToken, "this token is not listed for auction");
     const auct = auctionToken!;
     System.require(auct.started, "this auction has not started");
@@ -214,9 +214,9 @@ export class AuctionNftContract extends NftContract {
       now - auct.time_bid >= AUCTION_PERIOD,
       "the auction period has not ended for this token"
     );
-    this._mint(new nft.mint_args(auct.bid!.account, tokenId.value!));
+    this._mint(new nft.mint_args(auct.bid!.account, args.token_id!));
     auct.sold = true;
-    this.auctions.put(tokenId.value!, auct);
+    this.auctions.put(args.token_id!, auct);
   }
 
   /**

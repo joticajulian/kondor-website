@@ -22,10 +22,6 @@ message auctions {
    repeated auction value = 1;
 }
 
-message token_id {
-   bytes value = 1 [(koinos.btype) = HEX];
-}
-
 message userKoin {
    bytes account = 1 [(koinos.btype) = ADDRESS];
    uint64 amount = 2 [jstype = JS_STRING];

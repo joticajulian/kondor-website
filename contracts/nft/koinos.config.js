@@ -3,12 +3,13 @@ require("dotenv").config({ path: path.join(__dirname, "../.env") });
 
 module.exports = {
   class: "NftContract2",
-  proto: ["./proto/nft.proto", "./proto/common.proto", "./proto/auction.proto"],
+  proto: ["./proto/nft.proto", "./proto/common.proto", "./proto/auction.proto", "./proto/nftmessage.proto"],
   files: [
     "./NftContract.ts",
     "./NftContract2.ts",
     "./Ownable.ts",
     "./AuctionNftContract.ts",
+    "./NftWithMessage.ts",
   ],
   sourceDir: "./assembly",
   buildDir: "./build",
