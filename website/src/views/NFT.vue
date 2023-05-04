@@ -9,6 +9,7 @@ import HeaderProject from "../components/HeaderProject.vue"
 import FootProject from "../components/FootProject.vue"
 import Alert from "../components/Alert.vue"
 import Modal from "../components/Modal.vue"
+import ModalMessage from "../components/ModalMessage.vue"
 import { NftCard, NftContractClass } from "../interfaces"
 
 const ONE_WEEK = 5*60_000;// 7 * 24 * 3600 * 1000;
@@ -46,6 +47,7 @@ const rpcNodes = import.meta.env.VITE_RPC_NODES.split(",");
 const nftContractId = import.meta.env.VITE_NFT_CONTRACT_ID;
 const name = useRouter().currentRoute.value.params.id as string;
 const showModal = ref(false);
+const showModalMessage = ref(false);
 const account = ref("");
 const credit = ref("");
 const provider = new Provider(rpcNodes);
@@ -82,7 +84,7 @@ if (["Colombia", "United States", "United Kingdom", "Rebel Alliance", "test x3"]
 
 onMounted(async () => {
   const { result: auction } = await contract.value.functions.getAuction({ 
-    value: nft.value.tokenId,
+    token_id: nft.value.tokenId,
   });
   if (!auction) throw new Error("auction not found");
   nft.value.onChain = true;
@@ -116,11 +118,18 @@ onMounted(async () => {
   } else {
     nft.value.bidRemainingTime = "available";
     nft.value.classTime = { "time-blue": true };
-  }    
+  }
+  
+  const { result: message } = await contract.value.functions.getOwnerMessage({ token_id: nft.value.tokenId });
+  if (message && message.value) nft.value.ownerMessage = message.value;
 });
 
 function bidNft() {
   showModal.value = true;
+}
+
+function setMessage() {
+  showModalMessage.value = true;
 }
 
 async function claimNft() {
@@ -128,7 +137,7 @@ async function claimNft() {
     const account = contract.value.signer!.getAddress();
     const manaAvailable = await contract.value.provider!.getAccountRc(account);
     const rcLimit = Math.min(10_0000_0000, Number(manaAvailable)).toString();
-    const { transaction } = await contract.value.functions.claimToken({ value: nft.value.tokenId }, { rcLimit });
+    const { transaction } = await contract.value.functions.claimToken({ token_id: nft.value.tokenId }, { rcLimit });
     alertData.value = {
       type: "info",
       show: true,
@@ -171,6 +180,13 @@ async function setAccount(address: string) {
       :nft="nft"
       @close="showModal = false"
     />
+    <ModalMessage 
+      v-if="showModalMessage"
+      :contract="contract"
+      :nft="nft"
+      :message="nft.ownerMessage"
+      @close="showModalMessage = false"
+    />
     <div v-if="credit" class="credit">Good news! You have a discount of&nbsp;<span>{{ credit }} KOIN</span>&nbsp;in any NFT 🥳</div>
     <div class="nft-card" :class="nft.classCard">
       <div class="image">
@@ -190,6 +206,11 @@ async function setAccount(address: string) {
           class="button"
           @click="bidNft()"
         >BID</button>
+        <button
+          v-if="[nft.owner, nft.bidAccount].includes(account)"
+          class="button"
+          @click="setMessage()"
+        >SET MESSAGE</button>
         <button 
           v-if="nft.onChain && nft.status === 'readyToClaim'"
           class="button"

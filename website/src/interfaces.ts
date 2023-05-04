@@ -41,7 +41,7 @@ export interface NftContractClass extends Contract {
 
     claimToken: <T = {}>(
         args?: {
-          value: string;
+          token_id: string;
         },
         opts?: CallContractOptions
       ) => Promise<{
@@ -91,7 +91,7 @@ export interface NftContractClass extends Contract {
 
     getAuction: <T = Auction>(
         args?: {
-          value: string;
+          token_id: string;
         },
         opts?: CallContractOptions
       ) => Promise<{
@@ -100,5 +100,30 @@ export interface NftContractClass extends Contract {
         result?: T;
         receipt?: TransactionReceipt;
       }>;
+
+    getOwnerMessage: <T = { value: string; }>(
+      args?: {
+        token_id: string;
+      },
+      opts?: CallContractOptions
+    ) => Promise<{
+      operation: OperationJson;
+      transaction?: TransactionJsonWait;
+      result?: T;
+      receipt?: TransactionReceipt;
+    }>;
+
+    setOwnerMessage: <T = {}>(
+      args?: {
+        token_id: string;
+        message: string;
+      },
+      opts?: CallContractOptions
+    ) => Promise<{
+      operation: OperationJson;
+      transaction?: TransactionJsonWait;
+      result?: T;
+      receipt?: TransactionReceipt;
+    }>;
   }
 }
