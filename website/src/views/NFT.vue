@@ -65,16 +65,16 @@ let alertData = ref({
 
 const nft = ref({
   image: `/nfts/${name}-Kondor.png`,
-  name: name.replaceAll("_", " "),
+  name: name.replaceAll("-", " "),
   alt: name,
-  classCard: { offchain: true},
+  classCard: { offchain: false},
   tokenId: utf8ToHex(name),
   status: "notStarted",
 } as unknown as NftCard);
 
 if (["Colombia", "United States", "United Kingdom", "Rebel Alliance", "tests x3"].includes(nft.value.name)) {
   nft.value.classInfo = { "special-info": true }
-  nft.value.classCard = { "special-card": true, offchain: true };
+  nft.value.classCard = { "special-card": true, offchain: false };
   if (nft.value.name === "United States") {
     nft.value.description = `"The black and gold Kondor is otorgued to United States due the invaluable contribution of Koinos Group for creating the Koinos Blockchain. For this reason this token is one of the most important NFTs in the Kondor collection." JGA`
   }
