@@ -69,6 +69,7 @@ const nft = ref({
   alt: name,
   classCard: { offchain: true},
   tokenId: utf8ToHex(name),
+  status: "notStarted",
 } as unknown as NftCard);
 
 if (["Colombia", "United States", "United Kingdom", "Rebel Alliance", "tests x3"].includes(nft.value.name)) {
@@ -207,10 +208,12 @@ async function setAccount(address: string) {
           @click="bidNft()"
         >BID</button>
         <button
-          v-if="[nft.owner, nft.bidAccount].includes(account)"
+          v-if="nft.status === 'notStarted' || [nft.owner, nft.bidAccount].includes(account)"
           class="button"
+          :class="{buttonDisabled: nft.status === 'notStarted'}"
+          :disabled="nft.status === 'notStarted'"
           @click="setMessage()"
-        >SET MESSAGE</button>
+        >SHARE A MESSAGE TO THE WORLD</button>
         <button 
           v-if="nft.onChain && nft.status === 'readyToClaim'"
           class="button"
@@ -371,5 +374,9 @@ async function setAccount(address: string) {
 
 .button {
   margin-top: 1em;
+}
+
+.buttonDisabled {
+  opacity: 0.5;
 }
 </style>

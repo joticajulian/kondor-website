@@ -80,6 +80,7 @@ const nfts = ref(nftNames.map(name => {
   nft.name = name;
   nft.alt = name;
   nft.classCard = { offchain: true };
+  nft.status = "notStarted";
 
   if (["Colombia", "United States", "United Kingdom", "Rebel Alliance"].includes(nft.name)) {
     nft.classInfo = { "special-info": true }
@@ -154,7 +155,8 @@ async function setAccount(address: string) {
       @close="showModal = false"
     />
     <div v-if="credit" class="credit">Good news! You have a discount of&nbsp;<span>{{ credit }} KOIN</span>&nbsp;in any NFT 🥳</div>
-    <div class="description-collection">The free blockchain is around the world!</div>
+    <div class="slogan">The free blockchain is around the world!</div>
+    <!-- <div class="description-collection"></div> -->
     <div class="all-nfts">
       <div v-for="(nft, i) in nfts" :key="'nft'+i" class="nft-card" :class="nft.classCard">
         <router-link :to="'/kondor-nft/'+nft.name.replaceAll(' ','_')" class="image">
@@ -195,7 +197,7 @@ async function setAccount(address: string) {
   font-weight: bold;
 }
 
-.description-collection {
+.slogan {
   display: flex;
   justify-content: center;
   font-size: 5em;
@@ -212,6 +214,10 @@ async function setAccount(address: string) {
   text-fill-color: transparent;
 }
 
+.description-collection {
+  color: black;
+}
+
 @keyframes gradient {
 	0% {
 		background-position: 0% 50%;
@@ -225,7 +231,7 @@ async function setAccount(address: string) {
 }
 
 @media only screen and (max-width: 600px) {
-  .description-collection {
+  .slogan {
     font-size: 3em;
   }
 }
