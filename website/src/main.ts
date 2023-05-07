@@ -8,6 +8,7 @@ import NFT from './views/NFT.vue'
 const router = createRouter({
   history: createWebHashHistory(),
   routes: [
+    { path: '/', redirect: 'kondor-nft' },
     { path: '/kondor-nft', name: 'Kondor-NFT-List', component: NFTList },
     { path: '/kondor-nft/:id', name: 'Kondor-NFT', component: NFT }
   ],

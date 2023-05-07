@@ -90,7 +90,7 @@ const nftNames = [
   "Hungary",
   "India",
   "Indonesia",
-  "Irag",
+  "Iraq",
   "Iran",
   "Israel",
   "Italy",
@@ -179,6 +179,7 @@ const contract = ref(new Contract({
 const nfts = ref(nftNames.map(name => {
   const nft = new NftCard();
   nft.image = `/nfts/${name.replaceAll(" ","-")}-Kondor.png`;
+  nft.thumbnail = `/nfts-thumbnail/${name.replaceAll(" ","-")}-Kondor.jpg`;
   nft.name = name;
   nft.alt = name;
   nft.classCard = { offchain: false };
@@ -187,6 +188,7 @@ const nfts = ref(nftNames.map(name => {
   if (["Colombia", "United States", "United Kingdom", "Rebel Alliance"].includes(nft.name)) {
     nft.classInfo = { "special-info": true }
     nft.classCard = { "special-card": true, offchain: false };
+    nft.special = true;
   }
 
   return nft;
@@ -257,13 +259,13 @@ async function setAccount(address: string) {
       @close="showModal = false"
     />
     <div v-if="credit" class="credit">Good news! You have a discount of&nbsp;<span>{{ credit }} KOIN</span>&nbsp;in any NFT 🥳</div>
-    <div class="slogan">The free blockchain is around the world!</div>
+    <div class="slogan">Koinos blockchain spanning the world!</div>
     <!-- <div class="description-collection"></div> -->
     <div class="all-nfts">
       <div v-for="(nft, i) in nfts" :key="'nft'+i" class="nft-card" :class="nft.classCard">
-        <div class="body-nft-card">
+        <div :class="{'body-nft-card': !nft.special, 'body-nft-card-special': nft.special}">
           <router-link :to="'/kondor-nft/'+nft.name.replaceAll(' ','-')" class="image">
-            <img :src="nft.image" :alt="nft.alt">
+            <img :src="nft.thumbnail" :alt="nft.alt">
           </router-link>
           <div class="info" :class="nft.classInfo">
             <div class="name">{{ nft.name }}</div>
@@ -338,6 +340,10 @@ async function setAccount(address: string) {
   .slogan {
     font-size: 3em;
   }
+
+  /*.nft-card {
+    width: 10em;
+  }*/
 }
 
 .all-nfts {
@@ -347,10 +353,17 @@ async function setAccount(address: string) {
   padding-top: 3em;
 }
 .nft-card {
-  width: 15em;
+  width: 17em;
 }
 
 .body-nft-card {
+  display: flex;
+  flex-direction: column;
+  padding: 0.5em;
+  margin: 0 0 1em 0em;
+}
+
+.body-nft-card-special {
   display: flex;
   flex-direction: column;
   padding: 0.5em;
@@ -367,6 +380,10 @@ async function setAccount(address: string) {
 
 .body-nft-card:hover {
   background: #e6e6e6;
+}
+
+.body-nft-card-special:hover {
+  background: #fff6a1;
 }
 
 .nft-card:hover .special-info {

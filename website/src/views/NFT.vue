@@ -171,7 +171,7 @@ async function setAccount(address: string) {
 </script>
 
 <template>
-  <div class="page">
+  <div class="page" :style="`background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 1)), url(/nfts-bg/${nft.name.replaceAll(' ','-')}.jpg);`">
     <HeaderProject
       @account="setAccount"
     />
@@ -232,7 +232,7 @@ async function setAccount(address: string) {
 <style scoped>
 
 .page {
-  background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 1)), url(/newyork.jpg);
+  /* background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 1)), url(/newyork.jpg); */
   width: 100%;
   height: auto;
   background-repeat: no-repeat !important;
