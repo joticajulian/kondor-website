@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { Contract, Provider, utils } from 'koilib'
+import { Contract, Provider, Signer, utils } from 'koilib'
 import * as kondor from "kondor-js"
+import MyKoinosWallet from '@roamin/my-koinos-wallet-sdk'
 import * as abi from '../../../contracts/build/nftcontract-abi.json'
 import { Auctions, Auction } from "../../../contracts/build/nftcontractTypes"
 import HeaderProject from "../components/HeaderProject.vue"
@@ -161,10 +162,10 @@ async function claimNft() {
   }
 }
 
-async function setAccount(address: string) {
-  account.value = address;
-  contract.value.signer = kondor.getSigner(address, { network: "harbinger" });
-  const { result } = await contract.value.functions.getCredit({ account: address });
+async function setSigner(signer: Signer) {
+  account.value = signer.getAddress();
+  contract.value.signer = signer;
+  const { result } = await contract.value.functions.getCredit({ account: account.value });
   if (result && result.value) credit.value = utils.formatUnits(result.value, 8);
   else credit.value = "";
 }
@@ -173,7 +174,7 @@ async function setAccount(address: string) {
 <template>
   <div class="page" :style="`background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 1)), url(/nfts-bg/${nft.name.replaceAll(' ','-')}.jpg);`">
     <HeaderProject
-      @account="setAccount"
+      @signer="setSigner"
     />
     <Modal 
       v-if="showModal"

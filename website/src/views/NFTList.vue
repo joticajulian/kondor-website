@@ -245,12 +245,20 @@ async function setAccount(address: string) {
   if (result && result.value) credit.value = utils.formatUnits(result.value, 8);
   else credit.value = "";
 }
+
+async function disconnect() {
+  account.value = "";
+  contract.value.signer = undefined;
+  credit.value = "";
+}
+
 </script>
 
 <template>
   <div>
     <HeaderProject
       @account="setAccount"
+      @disconnect="disconnect"
     />
     <Modal 
       v-if="showModal"

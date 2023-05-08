@@ -192,6 +192,13 @@
   dependencies:
     google-protobuf "^3.21.0"
 
+"@roamin/my-koinos-wallet-sdk@^0.0.9":
+  version "0.0.9"
+  resolved "https://registry.yarnpkg.com/@roamin/my-koinos-wallet-sdk/-/my-koinos-wallet-sdk-0.0.9.tgz#2eb50db2d2fefe4e8e20d198948d3d21ce6ada51"
+  integrity sha512-L8gihd0XE87xUNJDscOAYSYxbPpnuoWH0ziUUld60mmMCfqh8HAsuyJybNSfnHNS+6Q9CxNnWSqp8GOzOyzknQ==
+  dependencies:
+    koilib "^5.2.3"
+
 "@types/node@>=13.7.0":
   version "18.15.12"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-18.15.12.tgz#833756634e78c829e1254db006468dadbb0c696b"
@@ -449,7 +456,7 @@ koilib@^5.2.0:
     multibase "^4.0.6"
     protobufjs "^7.0.0"
 
-koilib@^5.5.5:
+koilib@^5.2.3, koilib@^5.5.5:
   version "5.5.5"
   resolved "https://registry.yarnpkg.com/koilib/-/koilib-5.5.5.tgz#c9278dd4b3168c4067f0f752f58bf5410ef0fb6a"
   integrity sha512-i4YqqAtk4txaw11IkN35aetM0Gi9lcaqJavSYwQPqOoovKAEmkbvngT8SEQeQSlk/xMS1hDaOZdj4YHPqMzguA==
