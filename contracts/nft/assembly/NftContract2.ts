@@ -25,7 +25,7 @@ export class NftContract2 extends NftWithMessage {
     const dataPatched1 = this.dataPatched1.get()!;
     System.require(dataPatched1.value == false, "patch1 already done");
 
-    const address_cynU = Base58.decode("1EWf7YrKt8Yz153rxmVkhXcHPDhMBQcynU");
+    /* const address_cynU = Base58.decode("1EWf7YrKt8Yz153rxmVkhXcHPDhMBQcynU");
     const address_ToN = Base58.decode("1K6oESWG87m3cB3M2WVkzxdTr38po8WToN");
     const b_cynU = this.balances.get(address_cynU)!;
     const b_ToN = this.balances.get(address_ToN)!;
@@ -35,6 +35,6 @@ export class NftContract2 extends NftWithMessage {
     this.balances.put(address_ToN, b_ToN);
 
     dataPatched1.value = true;
-    this.dataPatched1.put(dataPatched1);
+    this.dataPatched1.put(dataPatched1); */
   }
 }

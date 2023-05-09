@@ -31,7 +31,10 @@ export class NftWithMessage extends AuctionNftContract {
     } else {
       const auctionToken = this.auctions.get(args.token_id!);
       System.require(auctionToken, "this token is not listed for auction");
-      System.require(auctionToken!.started, "no bidder, this auction has not started");
+      System.require(
+        auctionToken!.started,
+        "no bidder, this auction has not started"
+      );
       System.require(auctionToken!.bid, "internal error: no bid in auction");
       System.require(auctionToken!.bid!.account!, "internal error: no bidder");
       account = auctionToken!.bid!.account!;
