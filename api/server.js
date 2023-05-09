@@ -46,7 +46,7 @@ const validNames = [
   "Hungary",
   "India",
   "Indonesia",
-  "Irag",
+  "Iraq",
   "Iran",
   "Israel",
   "Italy",
@@ -113,7 +113,7 @@ const validNames = [
   "Vietnam",
   "Yemen",
   "Zambia",
-  "Zimbabwe"
+  "Zimbabwe",
 ]
 
 async function getMetadata(id) {
