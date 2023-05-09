@@ -41,33 +41,135 @@ function deltaTimeToString(milliseconds: number) {
 }
 
 const nftNames = [
-  "Afghanistan",
-  "Algeria",
-  "United States",
-  "test_x1",
-  "Angola",
-  "Angola",
-  "test_x2",
-  "Angola",
   "test_x3",
   "test_x5",
   "test_x6",
   "test_x7",
+  "Afghanistan",
+  "Algeria",
+  "Angola",
+  "Argentina",
+  "Australia",
+  "Austria",
+  "Azerbaijan",
+  "Bangladesh",
+  "Belarus",
+  "Belgium",
+  "Benin",
+  "Bolivia",
+  "Brazil",
+  "Burkina Faso",
+  "Burundi",
+  "Cambodia",
+  "Cameroon",
+  "Canada",
+  "Chad",
+  "Chile",
+  "China",
+  "Colombia",
+  "Croatia",
+  "Cuba",
+  "Czech Republic",
+  "Denmark",
+  "Dominican Republic",
+  "DR Congo",
+  "Ecuador",
+  "Egypt",
+  "El Salvador",
+  "Ethiopia",
+  "Finland",
+  "France",
+  "Germany",
+  "Ghana",
+  "Greece",
+  "Guatemala",
+  "Guinea",
+  "Haiti",
+  "Honduras",
+  "Hong Kong",
+  "Hungary",
+  "India",
+  "Indonesia",
+  "Iraq",
+  "Iran",
+  "Israel",
+  "Italy",
+  "Ivory Coast",
+  "Japan",
+  "Jordan",
+  "Kazakhstan",
+  "Kenya",
+  "Luxembourg",
+  "Madagascar",
+  "Malawi",
+  "Malaysia",
+  "Mali",
+  "Mexico",
+  "Morocco",
+  "Mozambique",
+  "Myanmar",
+  "Nepal",
+  "Netherands",
+  "Niger",
+  "Nigeria",
+  "North Korea",
+  "Norway",
+  "Pakistan",
+  "Panama",
+  "Papua New Guinea",
+  "Paraguay",
+  "Peru",
+  "Philippines",
+  "Poland",
+  "Portugal",
+  "Qatar",
+  "Rebel Alliance",
+  "Romania",
+  "Rusia",
+  "Rwanda",
+  "Saudi Arabia",
+  "Senegal",
+  "Singapore",
+  "Somalia",
+  "South Africa",
+  "South Korea",
+  "South Sudan",
+  "Spain",
+  "Sri Lanka",
+  "Sudan",
+  "Sweden",
+  "Switzerland",
+  "Syria",
+  "Taiwan",
+  "Tajikistan",
+  "Tanzania",
+  "Thailand",
+  "Tunisia",
+  "Turkey",
+  "Uganda",
+  "Ukraine",
+  "United Arab Emirates",
+  "United Kingdom",
+  "United States",
+  "Uruguay",
+  "Uzbekistan",
+  "Venezuela",
+  "Vietnam",
+  "Yemen",
+  "Zambia",
+  "Zimbabwe",
   "test_x8",
   "test_x9",
   "test_x10",
   "test_x11",
   "test_x12",
-  "Angola",
-  "test_x4",
-  "Algeria",
 ];
 
 const nftToBuy = ref({} as NftCard);
 const showModal = ref(false);
 const account = ref("");
 const credit = ref("");
-const provider = new Provider(["http://harbinger-api.koinos.io"]);
+const provider = new Provider(["https://harbinger-api.koinos.io"]);
 const contract = ref(new Contract({
   id: "1LrqPKYNpUK4B5b4W1gnpeRmLqjai3i7hP",
   provider,
@@ -76,15 +178,17 @@ const contract = ref(new Contract({
 
 const nfts = ref(nftNames.map(name => {
   const nft = new NftCard();
-  nft.image = `/nfts/${name.replaceAll(" ","_")}-Kondor.png`;
+  nft.image = `/nfts/${name.replaceAll(" ","-")}-Kondor.png`;
+  nft.thumbnail = `/nfts-thumbnail/${name.replaceAll(" ","-")}-Kondor.jpg`;
   nft.name = name;
   nft.alt = name;
-  nft.classCard = { offchain: true };
+  nft.classCard = { offchain: false };
   nft.status = "notStarted";
 
   if (["Colombia", "United States", "United Kingdom", "Rebel Alliance"].includes(nft.name)) {
     nft.classInfo = { "special-info": true }
-    nft.classCard = { "special-card": true, offchain: true };
+    nft.classCard = { "special-card": true, offchain: false };
+    nft.special = true;
   }
 
   return nft;
@@ -141,12 +245,20 @@ async function setAccount(address: string) {
   if (result && result.value) credit.value = utils.formatUnits(result.value, 8);
   else credit.value = "";
 }
+
+async function disconnect() {
+  account.value = "";
+  contract.value.signer = undefined;
+  credit.value = "";
+}
+
 </script>
 
 <template>
   <div>
     <HeaderProject
       @account="setAccount"
+      @disconnect="disconnect"
     />
     <Modal 
       v-if="showModal"
@@ -155,25 +267,27 @@ async function setAccount(address: string) {
       @close="showModal = false"
     />
     <div v-if="credit" class="credit">Good news! You have a discount of&nbsp;<span>{{ credit }} KOIN</span>&nbsp;in any NFT 🥳</div>
-    <div class="slogan">The free blockchain is around the world!</div>
+    <div class="slogan">Koinos blockchain spanning the world!</div>
     <!-- <div class="description-collection"></div> -->
     <div class="all-nfts">
       <div v-for="(nft, i) in nfts" :key="'nft'+i" class="nft-card" :class="nft.classCard">
-        <router-link :to="'/kondor-nft/'+nft.name.replaceAll(' ','_')" class="image">
-          <img :src="nft.image" :alt="nft.alt">
-        </router-link>
-        <div class="info" :class="nft.classInfo">
-          <div class="name">{{ nft.name }}</div>
-          <div class="amount">{{ nft.bidAmount }}</div>
-          <div v-if="nft.bidAccount" class="account">bidder</div>
-          <div class="account">{{ nft.bidAccount }}</div>
-          <div v-if="nft.status === 'started'" class="time" :class="nft.classTime">{{ nft.bidRemainingTime }}</div>
-          <div v-if="nft.status === 'sold'" class="sold">SOLD</div>
-          <!-- <button 
-            v-if="nft.onChain && nft.status !== 'sold'"
-            class="button"
-            @click="bidNft(nft)"
-          >BID</button> -->
+        <div :class="{'body-nft-card': !nft.special, 'body-nft-card-special': nft.special}">
+          <router-link :to="'/kondor-nft/'+nft.name.replaceAll(' ','-')" class="image">
+            <img :src="nft.thumbnail" :alt="nft.alt">
+          </router-link>
+          <div class="info" :class="nft.classInfo">
+            <div class="name">{{ nft.name }}</div>
+            <div class="amount">{{ nft.bidAmount }}</div>
+            <div v-if="nft.bidAccount" class="account">bidder</div>
+            <div class="account">{{ nft.bidAccount }}</div>
+            <div v-if="nft.status === 'started'" class="time" :class="nft.classTime">{{ nft.bidRemainingTime }}</div>
+            <div v-if="nft.status === 'sold'" class="sold">SOLD</div>
+            <!-- <button 
+              v-if="nft.onChain && nft.status !== 'sold'"
+              class="button"
+              @click="bidNft(nft)"
+            >BID</button> -->
+          </div>
         </div>
       </div>
     </div>
@@ -234,6 +348,10 @@ async function setAccount(address: string) {
   .slogan {
     font-size: 3em;
   }
+
+  /*.nft-card {
+    width: 10em;
+  }*/
 }
 
 .all-nfts {
@@ -243,7 +361,17 @@ async function setAccount(address: string) {
   padding-top: 3em;
 }
 .nft-card {
-  width: 15em;
+  width: 17em;
+}
+
+.body-nft-card {
+  display: flex;
+  flex-direction: column;
+  padding: 0.5em;
+  margin: 0 0 1em 0em;
+}
+
+.body-nft-card-special {
   display: flex;
   flex-direction: column;
   padding: 0.5em;
@@ -258,8 +386,12 @@ async function setAccount(address: string) {
   opacity: 0.5;
 }
 
-.nft-card:hover {
+.body-nft-card:hover {
   background: #e6e6e6;
+}
+
+.body-nft-card-special:hover {
+  background: #fff6a1;
 }
 
 .nft-card:hover .special-info {

@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { Contract, Provider, utils } from 'koilib'
+import { Contract, Provider, Signer, utils } from 'koilib'
 import * as kondor from "kondor-js"
+import MyKoinosWallet from '@roamin/my-koinos-wallet-sdk'
 import * as abi from '../../../contracts/build/nftcontract-abi.json'
 import { Auctions, Auction } from "../../../contracts/build/nftcontractTypes"
 import HeaderProject from "../components/HeaderProject.vue"
@@ -65,16 +66,16 @@ let alertData = ref({
 
 const nft = ref({
   image: `/nfts/${name}-Kondor.png`,
-  name: name.replaceAll("_", " "),
+  name: name.replaceAll("-", " "),
   alt: name,
-  classCard: { offchain: true},
+  classCard: { offchain: false},
   tokenId: utf8ToHex(name),
   status: "notStarted",
 } as unknown as NftCard);
 
 if (["Colombia", "United States", "United Kingdom", "Rebel Alliance", "tests x3"].includes(nft.value.name)) {
   nft.value.classInfo = { "special-info": true }
-  nft.value.classCard = { "special-card": true, offchain: true };
+  nft.value.classCard = { "special-card": true, offchain: false };
   if (nft.value.name === "United States") {
     nft.value.description = `"The black and gold Kondor is otorgued to United States due the invaluable contribution of Koinos Group for creating the Koinos Blockchain. For this reason this token is one of the most important NFTs in the Kondor collection." JGA`
   }
@@ -161,19 +162,19 @@ async function claimNft() {
   }
 }
 
-async function setAccount(address: string) {
-  account.value = address;
-  contract.value.signer = kondor.getSigner(address, { network: "harbinger" });
-  const { result } = await contract.value.functions.getCredit({ account: address });
+async function setSigner(signer: Signer) {
+  account.value = signer.getAddress();
+  contract.value.signer = signer;
+  const { result } = await contract.value.functions.getCredit({ account: account.value });
   if (result && result.value) credit.value = utils.formatUnits(result.value, 8);
   else credit.value = "";
 }
 </script>
 
 <template>
-  <div class="page">
+  <div class="page" :style="`background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 1)), url(/nfts-bg/${nft.name.replaceAll(' ','-')}.jpg);`">
     <HeaderProject
-      @account="setAccount"
+      @signer="setSigner"
     />
     <Modal 
       v-if="showModal"
@@ -232,7 +233,7 @@ async function setAccount(address: string) {
 <style scoped>
 
 .page {
-  background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 1)), url(/newyork.jpg);
+  /* background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 1)), url(/newyork.jpg); */
   width: 100%;
   height: auto;
   background-repeat: no-repeat !important;

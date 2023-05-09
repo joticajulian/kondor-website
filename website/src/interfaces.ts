@@ -4,6 +4,7 @@ import { Auctions, Auction } from "../../contracts/build/nftcontractTypes"
 
 export class NftCard {
   image = "";
+  thumbnail = "";
   name = "";
   alt = "";
   description = "";
@@ -16,6 +17,7 @@ export class NftCard {
   bidTime = ""
   bidRemainingTime = ""
   status = ""
+  special = false;
   interval = setInterval(() => {}, 3600_000);
   classTime: { [x: string]: boolean} = {};
   classInfo: { [x: string]: boolean} = {};
