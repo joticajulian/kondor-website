@@ -1,6 +1,6 @@
-import { System, Storage, Protobuf, Token } from "@koinos/sdk-as";
+import { System, Storage, Protobuf, Token, StringBytes } from "@koinos/sdk-as";
 import { common } from "./proto/common";
-import { auction } from "./proto/auction";
+import { auctionnft } from "./proto/auctionnft";
 import { nft } from "./proto/nft";
 import { NftContract } from "./NftContract";
 
@@ -8,7 +8,7 @@ import { NftContract } from "./NftContract";
 export const AUCTION_PERIOD: u64 = 60 * 60 * 1000;
 
 export class AuctionNftContract extends NftContract {
-  auctions: Storage.Map<Uint8Array, auction.auction>;
+  auctions: Storage.Map<Uint8Array, auctionnft.auction>;
 
   credits: Storage.Map<Uint8Array, common.uint64>;
 
@@ -20,8 +20,8 @@ export class AuctionNftContract extends NftContract {
     this.auctions = new Storage.Map(
       this.contractId,
       200,
-      auction.auction.decode,
-      auction.auction.encode,
+      auctionnft.auction.decode,
+      auctionnft.auction.encode,
       null
     );
 
@@ -56,7 +56,7 @@ export class AuctionNftContract extends NftContract {
    * Create a new auction for a token id
    * @external
    */
-  createAuction(args: auction.bid): void {
+  createAuction(args: auctionnft.bid): void {
     System.require(this.only_owner(), "not authorized by the owner");
     // check if the token is already minted
     const tokenOwner = this.tokenOwners.get(args.token_id!)!;
@@ -66,8 +66,8 @@ export class AuctionNftContract extends NftContract {
     const auctionToken = this.auctions.get(args.token_id!);
     System.require(!auctionToken, "this token is already listed for auction");
     const now = System.getHeadInfo().head_block_time;
-    const auct = new auction.auction(
-      new auction.bid(
+    const auct = new auctionnft.auction(
+      new auctionnft.bid(
         null,
         args.token_id,
         args.koin_amount,
@@ -79,8 +79,8 @@ export class AuctionNftContract extends NftContract {
     );
     this.auctions.put(args.token_id!, auct);
     System.event(
-      "auction.auction",
-      Protobuf.encode<auction.auction>(auct, auction.auction.encode),
+      "auctionnft.auction",
+      Protobuf.encode<auctionnft.auction>(auct, auctionnft.auction.encode),
       []
     );
   }
@@ -90,9 +90,9 @@ export class AuctionNftContract extends NftContract {
    * @external
    * @readonly
    */
-  getAuction(args: nft.token): auction.auction {
+  getAuction(args: nft.token): auctionnft.auction {
     const auct = this.auctions.get(args.token_id!);
-    if (!auct) return new auction.auction();
+    if (!auct) return new auctionnft.auction();
     return auct;
   }
 
@@ -101,7 +101,7 @@ export class AuctionNftContract extends NftContract {
    * @external
    * @readonly
    */
-  listAuctions(args: common.list_args): auction.auctions {
+  listAuctions(args: common.list_args): auctionnft.auctions {
     const direction =
       args.direction == common.direction.ascending
         ? Storage.Direction.Ascending
@@ -111,14 +111,14 @@ export class AuctionNftContract extends NftContract {
       args.limit,
       direction
     );
-    return new auction.auctions(auctions);
+    return new auctionnft.auctions(auctions);
   }
 
   /**
    * Submit a new bid
    * @external
    */
-  bid(args: auction.bid): void {
+  bid(args: auctionnft.bid): void {
     this.reentrantLock();
 
     // check the auction and bid period
@@ -187,11 +187,11 @@ export class AuctionNftContract extends NftContract {
     }
 
     // update auction
-    const auctionUpdated = new auction.auction(args, now, true, false);
+    const auctionUpdated = new auctionnft.auction(args, now, true, false);
     this.auctions.put(args.token_id!, auctionUpdated);
     System.event(
-      "auction.auction",
-      Protobuf.encode<auction.auction>(auctionUpdated, auction.auction.encode),
+      "auctionnft.auction",
+      Protobuf.encode<auctionnft.auction>(auctionUpdated, auctionnft.auction.encode),
       impacted
     );
     this.reentrantUnlock();
@@ -223,7 +223,7 @@ export class AuctionNftContract extends NftContract {
    * Add credit to an user
    * @external
    */
-  addCredit(args: auction.userKoin): void {
+  addCredit(args: auctionnft.userKoin): void {
     System.require(this.only_owner(), "not authorized by the owner");
     const userCredit = this.credits.get(args.account!)!;
     System.require(

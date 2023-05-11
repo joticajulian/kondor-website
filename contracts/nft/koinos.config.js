@@ -6,7 +6,7 @@ module.exports = {
   proto: [
     "./proto/nft.proto",
     "./proto/common.proto",
-    "./proto/auction.proto",
+    "./proto/auctionnft.proto",
     "./proto/nftmessage.proto",
   ],
   files: [

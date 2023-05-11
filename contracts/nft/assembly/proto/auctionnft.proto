@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package auction;
+package auctionnft;
 
 import "koinos/options.proto";
 
