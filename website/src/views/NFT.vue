@@ -2,10 +2,7 @@
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { Contract, Provider, Signer, utils } from 'koilib'
-import * as kondor from "kondor-js"
-import MyKoinosWallet from '@roamin/my-koinos-wallet-sdk'
 import * as abi from '../../../contracts/build/nftcontract-abi.json'
-import { Auctions, Auction } from "../../../contracts/build/nftcontractTypes"
 import HeaderProject from "../components/HeaderProject.vue"
 import FootProject from "../components/FootProject.vue"
 import Alert from "../components/Alert.vue"
@@ -13,7 +10,7 @@ import Modal from "../components/Modal.vue"
 import ModalMessage from "../components/ModalMessage.vue"
 import { NftCard, NftContractClass } from "../interfaces"
 
-const ONE_WEEK = 5*60_000;// 7 * 24 * 3600 * 1000;
+const ONE_WEEK = 60*60_000;// 7 * 24 * 3600 * 1000;
 
 function hexToUtf8(hex: string) {
   const buffer = utils.toUint8Array(hex.slice(2));
@@ -68,23 +65,29 @@ const nft = ref({
   image: `/nfts/${name}-Kondor.png`,
   name: name.replaceAll("-", " "),
   alt: name,
-  classCard: { offchain: false},
+  classCard: { offchain: true},
   tokenId: utf8ToHex(name),
   status: "notStarted",
 } as unknown as NftCard);
 
 if (["Colombia", "United States", "United Kingdom", "Rebel Alliance", "tests x3"].includes(nft.value.name)) {
   nft.value.classInfo = { "special-info": true }
-  nft.value.classCard = { "special-card": true, offchain: false };
-  if (nft.value.name === "United States") {
-    nft.value.description = `"The black and gold Kondor is otorgued to United States due the invaluable contribution of Koinos Group for creating the Koinos Blockchain. For this reason this token is one of the most important NFTs in the Kondor collection." JGA`
+  nft.value.classCard = { "special-card": true, offchain: true };
+  if (nft.value.name === "Colombia") {
+    nft.value.description = `"This black and gold kondor is otorgued to Colombia. I'm very proud to be one of the main community developers in the koinos blockchain and at the same time represent my country". JGA`
+  } else if (nft.value.name === "United States") {
+    nft.value.description = `"The black and gold Kondor is otorgued to United States due the invaluable contribution of Koinos Group for creating the Koinos Blockchain. For this reason this token is one of the most important NFTs in the Kondor collection". JGA`
+  } else if (nft.value.name === "United Kingdom") {
+    nft.value.description = `"This black and gold kondor is otorgued to United Kingdom thanks to Karlos for his great contribution in the design of this collection of NFTs". JGA`;
+  } else if (nft.value.name === "Rebel Alliance") {
+    nft.value.description = `"May the force be with you!"`
   }
   if (nft.value.name === "test x3") {
     nft.value.description = `"Lorem ip sum Lorem ip sum Lorem ip sum Lorem ip sum Lorem ip sum Lorem ip sum Lorem ip sum Lorem ip sum Lorem ip sum Lorem ip sum Lorem ip sum Lorem ip sum Lorem ip sum Lorem ip sum Lorem ip sum Lorem ip sum Lorem ip sum." JGA`
   }
 }
 
-onMounted(async () => {
+async function getNft() {
   const { result: auction } = await contract.value.functions.getAuction({ 
     token_id: nft.value.tokenId,
   });
@@ -124,6 +127,10 @@ onMounted(async () => {
   
   const { result: message } = await contract.value.functions.getOwnerMessage({ token_id: nft.value.tokenId });
   if (message && message.value) nft.value.ownerMessage = message.value;
+}
+
+onMounted(async () => {
+  await getNft();
 });
 
 function bidNft() {
@@ -169,6 +176,16 @@ async function setSigner(signer: Signer) {
   if (result && result.value) credit.value = utils.formatUnits(result.value, 8);
   else credit.value = "";
 }
+
+function closeModalBid() {
+  showModal.value = false;
+  getNft();
+}
+
+function closeModalMessage() {
+  showModalMessage.value = false;
+  getNft();
+}
 </script>
 
 <template>
@@ -180,14 +197,14 @@ async function setSigner(signer: Signer) {
       v-if="showModal"
       :contract="contract"
       :nft="nft"
-      @close="showModal = false"
+      @close="closeModalBid()"
     />
     <ModalMessage 
       v-if="showModalMessage"
       :contract="contract"
       :nft="nft"
       :message="nft.ownerMessage"
-      @close="showModalMessage = false"
+      @close="closeModalMessage()"
     />
     <div v-if="credit" class="credit">Good news! You have a discount of&nbsp;<span>{{ credit }} KOIN</span>&nbsp;in any NFT 🥳</div>
     <div class="nft-card" :class="nft.classCard">

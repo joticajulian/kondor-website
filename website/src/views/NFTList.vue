@@ -9,7 +9,7 @@ import FootProject from "../components/FootProject.vue"
 import Modal from "../components/Modal.vue"
 import { NftCard, NftContractClass } from "../interfaces"
 
-const ONE_WEEK = 7 * 24 * 3600 * 1000;
+const ONE_WEEK = 60 * 60_000; //7 * 24 * 3600 * 1000;
 
 function hexToUtf8(hex: string) {
   const buffer = utils.toUint8Array(hex.slice(2));
@@ -41,10 +41,6 @@ function deltaTimeToString(milliseconds: number) {
 }
 
 const nftNames = [
-  "test_x3",
-  "test_x5",
-  "test_x6",
-  "test_x7",
   "Afghanistan",
   "Algeria",
   "Angola",
@@ -158,20 +154,17 @@ const nftNames = [
   "Yemen",
   "Zambia",
   "Zimbabwe",
-  "test_x8",
-  "test_x9",
-  "test_x10",
-  "test_x11",
-  "test_x12",
 ];
 
+const rpcNodes = import.meta.env.VITE_RPC_NODES.split(",");
+const nftContractId = import.meta.env.VITE_NFT_CONTRACT_ID;
 const nftToBuy = ref({} as NftCard);
 const showModal = ref(false);
 const account = ref("");
 const credit = ref("");
-const provider = new Provider(["https://harbinger-api.koinos.io"]);
+const provider = new Provider(rpcNodes);
 const contract = ref(new Contract({
-  id: "1LrqPKYNpUK4B5b4W1gnpeRmLqjai3i7hP",
+  id: nftContractId,
   provider,
   abi,
 }) as NftContractClass)
@@ -182,12 +175,12 @@ const nfts = ref(nftNames.map(name => {
   nft.thumbnail = `/nfts-thumbnail/${name.replaceAll(" ","-")}-Kondor.jpg`;
   nft.name = name;
   nft.alt = name;
-  nft.classCard = { offchain: false };
+  nft.classCard = { offchain: true };
   nft.status = "notStarted";
 
   if (["Colombia", "United States", "United Kingdom", "Rebel Alliance"].includes(nft.name)) {
     nft.classInfo = { "special-info": true }
-    nft.classCard = { "special-card": true, offchain: false };
+    nft.classCard = { "special-card": true, offchain: true };
     nft.special = true;
   }
 
@@ -197,10 +190,10 @@ const nfts = ref(nftNames.map(name => {
 onMounted(async () => {
   const { result: auctions } = await contract.value.functions.listAuctions<Auctions>({
     start: "",
-    limit: 20,
+    limit: 200,
     direction: 0,
   });
-  auctions!.value.forEach(auction => {
+  auctions!.value.forEach(auction => {console.log(hexToUtf8(auction.bid.token_id))
     const nft = nfts.value.find(n => n.name === hexToUtf8(auction.bid.token_id));
     if (!nft) return;
     nft.onChain = true;
@@ -349,9 +342,13 @@ async function disconnect() {
     font-size: 3em;
   }
 
-  /*.nft-card {
-    width: 10em;
-  }*/
+  .nft-card {
+    width: 15em !important;
+  }
+
+  .nft-card.special-card {
+    width: 20em !important;
+  }
 }
 
 .all-nfts {
