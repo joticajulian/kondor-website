@@ -1,7 +1,12 @@
+<script setup lang="ts">
+  import { ref } from "vue";
+  const version = ref(import.meta.env.VITE_WEBSITE_VERSION);
+</script>
+
 <template>
   <div class="footer">
     <div class="logo"><img src="/koinosbox.svg" alt="koinosbox"></div>
-    <div class="name">Koinos Box by <a href="https://github.com/sponsors/joticajulian">@joticajulian</a></div>
+    <div class="name">Koinos Box {{version}} by <a href="https://github.com/sponsors/joticajulian">@joticajulian</a></div>
   </div>
 </template>
 

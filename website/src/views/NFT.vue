@@ -43,7 +43,7 @@ function deltaTimeToString(milliseconds: number) {
 
 const rpcNodes = import.meta.env.VITE_RPC_NODES.split(",");
 const nftContractId = import.meta.env.VITE_NFT_CONTRACT_ID;
-const name = useRouter().currentRoute.value.params.id as string;
+const name = (useRouter().currentRoute.value.params.id as string).replace("-", " ");
 const showModal = ref(false);
 const showModalMessage = ref(false);
 const account = ref("");
@@ -62,8 +62,8 @@ let alertData = ref({
 });
 
 const nft = ref({
-  image: `/nfts/${name}-Kondor.png`,
-  name: name.replaceAll("-", " "),
+  image: `/nfts/${name.replaceAll(" ", "-")}-Kondor.png`,
+  name: name,
   alt: name,
   classCard: { offchain: true},
   tokenId: utf8ToHex(name),
@@ -81,9 +81,6 @@ if (["Colombia", "United States", "United Kingdom", "Rebel Alliance", "tests x3"
     nft.value.description = `"This black and gold kondor is otorgued to United Kingdom thanks to Karlos for his great contribution in the design of this collection of NFTs". JGA`;
   } else if (nft.value.name === "Rebel Alliance") {
     nft.value.description = `"May the force be with you!"`
-  }
-  if (nft.value.name === "test x3") {
-    nft.value.description = `"Lorem ip sum Lorem ip sum Lorem ip sum Lorem ip sum Lorem ip sum Lorem ip sum Lorem ip sum Lorem ip sum Lorem ip sum Lorem ip sum Lorem ip sum Lorem ip sum Lorem ip sum Lorem ip sum Lorem ip sum Lorem ip sum Lorem ip sum." JGA`
   }
 }
 
@@ -301,7 +298,7 @@ function closeModalMessage() {
 }
 
 .nft-card:hover .special-info {
-  background: linear-gradient(180deg, #6d6d6d, #39edff);
+  background: linear-gradient(180deg, #231e22, #39edff);
 }
 
 .nft-card .image {
@@ -323,7 +320,7 @@ function closeModalMessage() {
 }
 
 .special-info {
-  background: linear-gradient(180deg, #6d6d6d, #6ab4ff);
+  background: linear-gradient(180deg, #231e22, #6ab4ff);
 }
 
 .info .name {
