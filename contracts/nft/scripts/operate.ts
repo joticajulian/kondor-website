@@ -54,7 +54,7 @@ async function main() {
   const { receipt, transaction } = await contract.functions.addCredit(
     {
       account: user1.address,
-      amount: "10",
+      amount: "100000000000",
     },
     {
       rcLimit: "10000000000",

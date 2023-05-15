@@ -14,9 +14,8 @@ function humanFileSize(size) {
 const [contract] = process.argv.slice(2);
 const filePath = path.join(
   __dirname,
-  "contracts",
   contract,
-  "build/release/contract.wasm"
+  `build/release/${contract}.wasm`
 );
 const data = fs.readFileSync(filePath);
 const hash = crypto.createHash("sha256").update(data).digest("hex");

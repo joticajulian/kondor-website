@@ -32,6 +32,7 @@
     "nft:createAuctions": "ts-node nft/scripts/createAuctions.ts",
     "nft:operate": "ts-node nft/scripts/operate.ts",
     "nft:info": "node getSha256.js nft",
+    "nft:docker": "docker build --no-cache --progress=plain --build-arg CONTRACT=nft -t temp-image . && docker rmi temp-image",
     "testwallet:asbuild": "asc testwallet/build/index.ts --config testwallet/asconfig.json --use abort= --target release",
     "testwallet:precompile": "koinos-precompiler-as testwallet",
     "testwallet:build": "yarn testwallet:precompile && yarn testwallet:asbuild",
