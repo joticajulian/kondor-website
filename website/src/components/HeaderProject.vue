@@ -86,7 +86,7 @@ async function useMKW() {
 <template>
   <div class="header">
     <div class="brand">
-      <div class="logo"><img src="/koinosbox.svg" alt="koinosbox"></div>
+      <div class="logo"><img src="/koinosbox-white.png" alt="koinosbox"></div>
       <router-link to="/kondor-nft" class="project">Kondor NFTs</router-link>
     </div>
     <button @click="connect">{{account ? account : "Connect"}}</button>

@@ -9,7 +9,7 @@ import FootProject from "../components/FootProject.vue"
 import Modal from "../components/Modal.vue"
 import { NftCard, NftContractClass } from "../interfaces"
 
-const ONE_WEEK = 7 * 24 * 3600 * 1000;
+const ONE_WEEK = 60 * 60_000; //7 * 24 * 3600 * 1000;
 
 function hexToUtf8(hex: string) {
   const buffer = utils.toUint8Array(hex.slice(2));
@@ -29,22 +29,22 @@ function deltaTimeToString(milliseconds: number) {
 
   let interval = seconds / 86400;
   if (interval > 2) return "auction ends in " + Math.floor(interval) + " days";
-
+  
   interval = seconds / 3600;
   if (interval > 2) return "auction ends in " + Math.floor(interval) + " hours";
-
+  
   interval = seconds / 60;
   if (interval > 2) return "auction ends in " + Math.floor(interval) + " minutes";
-
+  
   interval = seconds;  
   return "auction ends in " + interval + " seconds";
 }
 
 const nftNames = [
-  "test_x3",
-  "test_x5",
-  "test_x6",
-  "test_x7",
+  "Colombia",
+  "United Kingdom",
+  "United States",
+  "Rebel Alliance",
   "Afghanistan",
   "Algeria",
   "Angola",
@@ -66,7 +66,6 @@ const nftNames = [
   "Chad",
   "Chile",
   "China",
-  "Colombia",
   "Croatia",
   "Cuba",
   "Czech Republic",
@@ -123,7 +122,6 @@ const nftNames = [
   "Poland",
   "Portugal",
   "Qatar",
-  "Rebel Alliance",
   "Romania",
   "Rusia",
   "Rwanda",
@@ -149,8 +147,6 @@ const nftNames = [
   "Uganda",
   "Ukraine",
   "United Arab Emirates",
-  "United Kingdom",
-  "United States",
   "Uruguay",
   "Uzbekistan",
   "Venezuela",
@@ -158,20 +154,17 @@ const nftNames = [
   "Yemen",
   "Zambia",
   "Zimbabwe",
-  "test_x8",
-  "test_x9",
-  "test_x10",
-  "test_x11",
-  "test_x12",
 ];
 
+const rpcNodes = import.meta.env.VITE_RPC_NODES.split(",");
+const nftContractId = import.meta.env.VITE_NFT_CONTRACT_ID;
 const nftToBuy = ref({} as NftCard);
 const showModal = ref(false);
 const account = ref("");
 const credit = ref("");
-const provider = new Provider(["https://harbinger-api.koinos.io"]);
+const provider = new Provider(rpcNodes);
 const contract = ref(new Contract({
-  id: "1LrqPKYNpUK4B5b4W1gnpeRmLqjai3i7hP",
+  id: nftContractId,
   provider,
   abi,
 }) as NftContractClass)
@@ -182,27 +175,32 @@ const nfts = ref(nftNames.map(name => {
   nft.thumbnail = `/nfts-thumbnail/${name.replaceAll(" ","-")}-Kondor.jpg`;
   nft.name = name;
   nft.alt = name;
-  nft.classCard = { offchain: false };
+  nft.classCard = { offchain: true };
   nft.status = "notStarted";
 
   if (["Colombia", "United States", "United Kingdom", "Rebel Alliance"].includes(nft.name)) {
     nft.classInfo = { "special-info": true }
-    nft.classCard = { "special-card": true, offchain: false };
+    nft.classCard = { "special-card": true, offchain: true };
     nft.special = true;
   }
 
   return nft;
-}));   
+}));
+
+const nftsSpecial = ref(nfts.value.splice(0, 4));
 
 onMounted(async () => {
   const { result: auctions } = await contract.value.functions.listAuctions<Auctions>({
     start: "",
-    limit: 20,
+    limit: 200,
     direction: 0,
   });
   auctions!.value.forEach(auction => {
-    const nft = nfts.value.find(n => n.name === hexToUtf8(auction.bid.token_id));
-    if (!nft) return;
+    let nft = nfts.value.find(n => n.name === hexToUtf8(auction.bid.token_id));
+    if (!nft) {
+      nft = nftsSpecial.value.find(n => n.name === hexToUtf8(auction.bid.token_id));
+      if (!nft) return;
+    };
     nft.onChain = true;
     nft.tokenId = auction.bid.token_id;
     nft.classCard.offchain = false;
@@ -269,6 +267,28 @@ async function disconnect() {
     <div v-if="credit" class="credit">Good news! You have a discount of&nbsp;<span>{{ credit }} KOIN</span>&nbsp;in any NFT 🥳</div>
     <div class="slogan">Koinos blockchain spanning the world!</div>
     <!-- <div class="description-collection"></div> -->
+    <div class="all-nfts">
+      <div v-for="(nft, i) in nftsSpecial" :key="'nft'+i" class="nft-card" :class="nft.classCard">
+        <div :class="{'body-nft-card': !nft.special, 'body-nft-card-special': nft.special}">
+          <router-link :to="'/kondor-nft/'+nft.name.replaceAll(' ','-')" class="image">
+            <img :src="nft.thumbnail" :alt="nft.alt">
+          </router-link>
+          <div class="info" :class="nft.classInfo">
+            <div class="name">{{ nft.name }}</div>
+            <div class="amount">{{ nft.bidAmount }}</div>
+            <div v-if="nft.bidAccount" class="account">bidder</div>
+            <div class="account">{{ nft.bidAccount }}</div>
+            <div v-if="nft.status === 'started'" class="time" :class="nft.classTime">{{ nft.bidRemainingTime }}</div>
+            <div v-if="nft.status === 'sold'" class="sold">SOLD</div>
+            <!-- <button 
+              v-if="nft.onChain && nft.status !== 'sold'"
+              class="button"
+              @click="bidNft(nft)"
+            >BID</button> -->
+          </div>
+        </div>
+      </div>
+    </div>
     <div class="all-nfts">
       <div v-for="(nft, i) in nfts" :key="'nft'+i" class="nft-card" :class="nft.classCard">
         <div :class="{'body-nft-card': !nft.special, 'body-nft-card-special': nft.special}">
@@ -349,9 +369,13 @@ async function disconnect() {
     font-size: 3em;
   }
 
-  /*.nft-card {
-    width: 10em;
-  }*/
+  .nft-card {
+    width: 15em !important;
+  }
+
+  .nft-card.special-card {
+    width: 20em !important;
+  }
 }
 
 .all-nfts {
@@ -395,7 +419,7 @@ async function disconnect() {
 }
 
 .nft-card:hover .special-info {
-  background: linear-gradient(180deg, #6d6d6d, #39edff);
+  background: linear-gradient(180deg, #231e22, #39edff);
 }
 
 .nft-card .image {
@@ -417,7 +441,7 @@ async function disconnect() {
 }
 
 .special-info {
-  background: linear-gradient(180deg, #6d6d6d, #6ab4ff);
+  background: linear-gradient(180deg, #231e22, #6ab4ff);
 }
 
 .info .name {
