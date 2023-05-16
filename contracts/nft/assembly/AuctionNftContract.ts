@@ -172,6 +172,7 @@ export class AuctionNftContract extends NftContract {
     if (auct.bid!.account) {
       const user2Credit = this.credits.get(auct.bid!.account!)!;
       user2Credit.value += auct.bid!.credit_amount;
+      this.credits.put(auct.bid!.account!, user2Credit);
       if (auct.bid!.koin_amount > 0) {
         const transferStatus = koin.transfer(
           this.contractId,
@@ -191,7 +192,10 @@ export class AuctionNftContract extends NftContract {
     this.auctions.put(args.token_id!, auctionUpdated);
     System.event(
       "auctionnft.auction",
-      Protobuf.encode<auctionnft.auction>(auctionUpdated, auctionnft.auction.encode),
+      Protobuf.encode<auctionnft.auction>(
+        auctionUpdated,
+        auctionnft.auction.encode
+      ),
       impacted
     );
     this.reentrantUnlock();
