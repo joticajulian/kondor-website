@@ -10,7 +10,7 @@ import Modal from "../components/Modal.vue"
 import ModalMessage from "../components/ModalMessage.vue"
 import { NftCard, NftContractClass } from "../interfaces"
 
-const ONE_WEEK = 60*60_000;// 7 * 24 * 3600 * 1000;
+const auctionPeriod = Number(import.meta.env.VITE_AUCTION_PERIOD);
 
 function hexToUtf8(hex: string) {
   const buffer = utils.toUint8Array(hex.slice(2));
@@ -107,7 +107,7 @@ async function getNft() {
       nft.value.status = "started";
       clearInterval(nft.value.interval);
       const fnInterval = () => {
-        const remainingTime = timeBid + ONE_WEEK - Date.now();
+        const remainingTime = timeBid + auctionPeriod - Date.now();
         if (remainingTime <= 0) nft.value.status = "readyToClaim";
         else if (remainingTime < 3600_000) nft.value.classTime = { "time-red": true };
         else if (remainingTime < 24 * 3600_000) nft.value.classTime = { "time-orange": true };

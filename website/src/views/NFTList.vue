@@ -9,7 +9,7 @@ import FootProject from "../components/FootProject.vue"
 import Modal from "../components/Modal.vue"
 import { NftCard, NftContractClass } from "../interfaces"
 
-const ONE_WEEK = 60 * 60_000; //7 * 24 * 3600 * 1000;
+const auctionPeriod = Number(import.meta.env.VITE_AUCTION_PERIOD);
 
 function hexToUtf8(hex: string) {
   const buffer = utils.toUint8Array(hex.slice(2));
@@ -217,11 +217,11 @@ onMounted(async () => {
         nft.status = "started";
         clearInterval(nft.interval);
         nft.interval = setInterval(() => {
-          const remainingTime = timeBid + ONE_WEEK - Date.now();
-          if (remainingTime < 3600_000) nft.classTime = { "time-red": true };
-          else if (remainingTime < 24 * 3600_000) nft.classTime = { "time-orange": true };
-          else nft.classTime = { "time-blue": true };
-          nft.bidRemainingTime = deltaTimeToString(remainingTime);
+          const remainingTime = timeBid + auctionPeriod - Date.now();
+          if (remainingTime < 3600_000) nft!.classTime = { "time-red": true };
+          else if (remainingTime < 24 * 3600_000) nft!.classTime = { "time-orange": true };
+          else nft!.classTime = { "time-blue": true };
+          nft!.bidRemainingTime = deltaTimeToString(remainingTime);
         }, 1000);
       }
     } else {
@@ -265,7 +265,7 @@ async function disconnect() {
       @close="showModal = false"
     />
     <div v-if="credit" class="credit">Good news! You have a discount of&nbsp;<span>{{ credit }} KOIN</span>&nbsp;in any NFT 🥳</div>
-    <div class="slogan">Koinos blockchain spanning the world!</div>
+    <div class="slogan">Koinos blockchain spanning the World!</div>
     <!-- <div class="description-collection"></div> -->
     <div class="all-nfts">
       <div v-for="(nft, i) in nftsSpecial" :key="'nft'+i" class="nft-card" :class="nft.classCard">

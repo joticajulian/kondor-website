@@ -141,6 +141,7 @@ async function useMKW() {
 .project {
   font-size: 2em;
   font-weight: bold;
+  color: #4c4c4c;
 }
 
 .logo-koinos img {
