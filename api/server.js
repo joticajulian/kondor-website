@@ -65,7 +65,7 @@ const validNames = [
   "Mozambique",
   "Myanmar",
   "Nepal",
-  "Netherands",
+  "Netherlands",
   "Niger",
   "Nigeria",
   "North Korea",

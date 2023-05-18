@@ -113,7 +113,7 @@ async function main() {
     "Mozambique",
     "Myanmar",
     "Nepal",
-    "Netherands",
+    "Netherlands",
     "Niger",
     "Nigeria",
     "North Korea",

@@ -74,11 +74,11 @@ if (["Colombia", "United States", "United Kingdom", "Rebel Alliance", "tests x3"
   nft.value.classInfo = { "special-info": true }
   nft.value.classCard = { "special-card": true, offchain: true };
   if (nft.value.name === "Colombia") {
-    nft.value.description = `"This black and gold kondor is otorgued to Colombia. I'm very proud to be one of the main community developers in the koinos blockchain and at the same time represent my country". JGA`
+    nft.value.description = `"This black and gold kondor is dedicated to Colombia. I'm very proud to be one of the main community developers in the koinos blockchain and at the same time represent my country". JGA`
   } else if (nft.value.name === "United States") {
-    nft.value.description = `"The black and gold Kondor is otorgued to United States due the invaluable contribution of Koinos Group for creating the Koinos Blockchain. For this reason this token is one of the most important NFTs in the Kondor collection". JGA`
+    nft.value.description = `"The black and gold Kondor is dedicated to United States due the invaluable contribution of Koinos Group for creating the Koinos Blockchain. For this reason this token is one of the most important NFTs in the Kondor collection". JGA`
   } else if (nft.value.name === "United Kingdom") {
-    nft.value.description = `"This black and gold kondor is otorgued to United Kingdom thanks to Karlos for his great contribution in the design of this collection of NFTs". JGA`;
+    nft.value.description = `"This black and gold kondor is dedicated to United Kingdom thanks to Karlos for his great contribution in the design of this collection of NFTs". JGA`;
   } else if (nft.value.name === "Rebel Alliance") {
     nft.value.description = `"May the force be with you!"`
   }
