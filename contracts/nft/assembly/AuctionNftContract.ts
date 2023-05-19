@@ -1,11 +1,11 @@
-import { System, Storage, Protobuf, Token, StringBytes } from "@koinos/sdk-as";
+import { System, Storage, Protobuf, Token } from "@koinos/sdk-as";
 import { common } from "./proto/common";
 import { auctionnft } from "./proto/auctionnft";
 import { nft } from "./proto/nft";
 import { NftContract } from "./NftContract";
 
-// export const AUCTION_PERIOD: u64 = 7 * 24 * 60 * 60 * 1000;
-export const AUCTION_PERIOD: u64 = 60 * 60 * 1000;
+export const AUCTION_PERIOD: u64 = 7 * 24 * 60 * 60 * 1000;
+// export const AUCTION_PERIOD: u64 = 60 * 60 * 1000;
 
 export class AuctionNftContract extends NftContract {
   auctions: Storage.Map<Uint8Array, auctionnft.auction>;
