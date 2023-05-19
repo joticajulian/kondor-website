@@ -30,6 +30,7 @@
     "nft:test": "asp --verbose --config nft/as-pect.config.js",
     "nft:deploy": "ts-node nft/scripts/deployment.ts",
     "nft:createAuctions": "ts-node nft/scripts/createAuctions.ts",
+    "nft:addCredit": "ts-node nft/scripts/addCredit.ts",
     "nft:operate": "ts-node nft/scripts/operate.ts",
     "nft:info": "node getSha256.js nft",
     "nft:docker": "docker build --no-cache --progress=plain --build-arg CONTRACT=nft -t temp-image . && docker rmi temp-image",

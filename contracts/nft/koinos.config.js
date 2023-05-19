@@ -43,6 +43,7 @@ module.exports = {
           privateKey: process.env.HARBINGER_USER2_PRIVATE_KEY,
         },
       },
+      credits: process.env.HARBINGER_CREDITS,
     },
     mainnet: {
       rpcNodes: ["https://api.koinos.io", "https://api.koinosblocks.com"],
@@ -64,6 +65,7 @@ module.exports = {
           privateKey: process.env.MAINNET_USER2_PRIVATE_KEY,
         },
       },
+      credits: process.env.MAINNET_CREDITS,
     },
   },
 };
