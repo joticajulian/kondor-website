@@ -123,7 +123,7 @@ const nftNames = [
   "Portugal",
   "Qatar",
   "Romania",
-  "Rusia",
+  "Russia",
   "Rwanda",
   "Saudi Arabia",
   "Senegal",
@@ -238,7 +238,7 @@ function bidNft(nft: NftCard) {
 
 async function setAccount(address: string) {
   account.value = address;
-  contract.value.signer = kondor.getSigner(address, { network: "harbinger" });
+  contract.value.signer = kondor.getSigner(address, { network: "mainnet" });
   const { result } = await contract.value.functions.getCredit({ account: address });
   if (result && result.value) credit.value = utils.formatUnits(result.value, 8);
   else credit.value = "";

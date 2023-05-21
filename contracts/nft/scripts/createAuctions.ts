@@ -128,7 +128,7 @@ async function main() {
     "Portugal",
     "Qatar",
     "Romania",
-    "Rusia",
+    "Russia",
     "Rwanda",
     "Saudi Arabia",
     "Senegal",

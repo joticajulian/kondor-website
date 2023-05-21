@@ -81,7 +81,7 @@ const validNames = [
   "Qatar",
   "Rebel Alliance",
   "Romania",
-  "Rusia",
+  "Russia",
   "Rwanda",
   "Saudi Arabia",
   "Senegal",

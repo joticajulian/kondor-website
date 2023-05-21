@@ -15,7 +15,7 @@ onMounted(async () => {
   account.value = `${address.slice(0,4)}...${address.slice(30)}`;
   wallet.value = walletName;
   if (wallet.value === "kondor") {
-    const signer = kondor.getSigner(address, { network: "harbinger" });
+    const signer = kondor.getSigner(address, { network: "mainnet" });
     emit("signer", signer);
   } else if (wallet.value === "mkw") {
     const walletConnectorUrl = 'https://my-koinos-wallet.vercel.app/embed/wallet-connector'
@@ -52,7 +52,7 @@ async function useKondor() {
     wallet: "kondor",
     address,
   }));
-  const signer = kondor.getSigner(address, { network: "harbinger" });
+  const signer = kondor.getSigner(address, { network: "mainnet" });
   emit("signer", signer);
   showDropdown.value = false;
 }
