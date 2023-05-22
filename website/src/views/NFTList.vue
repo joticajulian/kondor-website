@@ -267,7 +267,24 @@ async function disconnect() {
     />
     <div v-if="credit" class="credit">Good news! You have a discount of&nbsp;<span>{{ credit }} KOIN</span>&nbsp;in any NFT 🥳</div>
     <div class="slogan">Koinos blockchain spanning the World!</div>
-    <!-- <div class="description-collection"></div> -->
+    <div class="description-collection">
+      <h1>Kondor NFTs</h1>
+      <p>We are recharging batteries 🔋 to continue the development of <a href="https://chrome.google.com/webstore/detail/kondor/ghipkefkpgkladckmlmdnadmcchefhjl">Kondor Wallet</a>. Help us to reach this goal by buying one of these NFTs.</p>
+      <p>We are continuosly contributing to Koinos Blockchain in many topics with our great experience in the
+        development of smart contracts.
+        With this collection we are also proposing a new standard for NFTs, which increases the security of the tokens 🔒. Read more on <a href="https://github.com/joticajulian/kondor-website/tree/main/contracts">Kondor NFT Contract</a>.</p>
+      <h1>Auction</h1>
+      <p>Each NFT is minted through auctions with a period of 7 days. For each new bid the period is extended to give time to other members to react.
+        Once the NFT is minted it will be listed in <a :href="`https://kollection.app/collection/${nftContractId}`">Kollection</a>.
+      </p>
+      <h1>Promote yourself</h1>
+      <p>By buying one of these NFTs you will also be able to store a message on it, which will be integrated in the future in the
+        Kondor Wallet. This means you could use it to promote yourself or your projects in Kondor 🔥. <br> <span class="small">Note:
+          This is an experimental feature subject to change or removal depending on the security or funding of the wallet.
+        </span>
+      </p>
+
+    </div>
     <div class="all-nfts">
       <div v-for="(nft, i) in nftsSpecial" :key="'nft'+i" class="nft-card" :class="nft.classCard">
         <div :class="{'body-nft-card': !nft.special, 'body-nft-card-special': nft.special}">
@@ -350,7 +367,18 @@ async function disconnect() {
 }
 
 .description-collection {
+  margin: auto;
+  width: 50%;
+  min-width: 17em;
   color: black;
+}
+
+.description-collection h1 {
+  font-size: 1.3em;
+}
+
+.description-collection .small {
+  font-size: 0.7em;
 }
 
 @keyframes gradient {

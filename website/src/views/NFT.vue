@@ -80,7 +80,7 @@ if (["Colombia", "United States", "United Kingdom", "Rebel Alliance", "tests x3"
   } else if (nft.value.name === "United Kingdom") {
     nft.value.description = `"This black and gold kondor is dedicated to United Kingdom thanks to Karlos for his great contribution in the design of this collection of NFTs". JGA`;
   } else if (nft.value.name === "Rebel Alliance") {
-    nft.value.description = `"May the force be with you!"`
+    nft.value.description = `"This NFT is not yet available. Stay tuned. May the force be with you!"`
   }
 }
 
