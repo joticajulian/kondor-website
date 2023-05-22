@@ -3,7 +3,7 @@ import { onMounted, ref } from 'vue'
 import { Contract, Provider, utils } from 'koilib'
 import * as kondor from "kondor-js"
 import * as abi from '../../../contracts/build/nftcontract-abi.json'
-import { Auctions, Auction } from "../../../contracts/build/nftcontractTypes"
+import { Auctions } from "../../../contracts/build/nftcontractTypes"
 import HeaderProject from "../components/HeaderProject.vue"
 import FootProject from "../components/FootProject.vue"
 import Modal from "../components/Modal.vue"
@@ -158,6 +158,7 @@ const nftNames = [
 
 const rpcNodes = import.meta.env.VITE_RPC_NODES.split(",");
 const nftContractId = import.meta.env.VITE_NFT_CONTRACT_ID;
+const network = import.meta.env.VITE_NETWORK;
 const nftToBuy = ref({} as NftCard);
 const showModal = ref(false);
 const account = ref("");
@@ -238,7 +239,7 @@ function bidNft(nft: NftCard) {
 
 async function setAccount(address: string) {
   account.value = address;
-  contract.value.signer = kondor.getSigner(address, { network: "mainnet" });
+  contract.value.signer = kondor.getSigner(address, { network });
   const { result } = await contract.value.functions.getCredit({ account: address });
   if (result && result.value) credit.value = utils.formatUnits(result.value, 8);
   else credit.value = "";
