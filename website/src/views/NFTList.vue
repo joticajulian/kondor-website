@@ -229,7 +229,30 @@ onMounted(async () => {
       nft.bidRemainingTime = "available";
       nft.classTime = { "time-blue": true };
     }
-  });    
+  });
+  
+  nfts.value.sort((a,b) => {
+    const bidA = Number(a.bidAmount.replace(" KOIN",""));
+    const bidB = Number(b.bidAmount.replace(" KOIN",""));
+    const actionA = a.status !== "notStarted";
+    const actionB = b.status !== "notStarted";
+    if (actionA) {
+      if (actionB) {
+        if (bidA !== bidB) return bidB - bidA;
+        if (a.name < b.name) return -1;
+        if (a.name > b.name) return 1;
+        return 0;
+      }
+      return -1;
+    }
+    if (actionB) {
+      return 1;
+    }
+
+    if (a.name < b.name) return -1;
+    if (a.name > b.name) return 1;
+    return 0;
+  });
 });
 
 function bidNft(nft: NftCard) {
