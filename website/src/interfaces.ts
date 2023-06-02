@@ -129,3 +129,111 @@ export interface NftContractClass extends Contract {
     }>;
   }
 }
+
+export interface PollParams {
+  title: string;
+  summary: string;
+  url: string;
+  creator: string;
+  start_date: string;
+  end_date: string;
+  tiers: { value: string; }[];
+};
+
+export interface PollData {
+  id: number;
+  params: PollParams;
+  yes_vhp_votes: string;
+  total_vhp_votes: string;
+  total_vhp_supply: string;
+  last_update: string;
+};
+
+export interface PollCard extends PollData {
+  yes_percentage: string;
+  no_percentage: string;
+  yes_vhp: string;
+  no_vhp: string;
+  participation: string;
+  start_date: string;
+  end_date: string;
+}
+
+export interface PollContractClass extends Contract {
+  functions: {
+    getPolls: <T = {
+      polls: PollData[];
+    }>(
+        args?: {
+          start: number;
+          limit: number;
+          direction: number;
+        },
+        opts?: CallContractOptions
+      ) => Promise<{
+        operation: OperationJson;
+        transaction?: TransactionJsonWait;
+        result?: T;
+        receipt?: TransactionReceipt;
+      }>;
+
+    createPoll: <T = {}>(
+        args?: PollParams,
+        opts?: CallContractOptions
+      ) => Promise<{
+        operation: OperationJson;
+        transaction?: TransactionJsonWait;
+        result?: T;
+        receipt?: TransactionReceipt;
+      }>;
+
+    getVotes: <T = {
+      vhp_votes: {
+        voter: string;
+        vote: number;
+        vhp: string;
+      }[];
+    }>(
+        args?: {
+          poll_id: number;
+          tier_id: number;
+          start: string;
+          limit: string;
+          direction: number;
+        },
+        opts?: CallContractOptions
+      ) => Promise<{
+        operation: OperationJson;
+        transaction?: TransactionJsonWait;
+        result?: T;
+        receipt?: TransactionReceipt;
+      }>;
+
+    vote: <T = {}>(
+        args?: {
+          poll_id: number;
+          voter: string;
+          vote: number;
+        },
+        opts?: CallContractOptions
+      ) => Promise<{
+        operation: OperationJson;
+        transaction?: TransactionJsonWait;
+        result?: T;
+        receipt?: TransactionReceipt;
+      }>;
+
+    updateVotes: <T = {}>(
+        args?: {
+          poll_id: number;
+          tier_id: number;
+        },
+        opts?: CallContractOptions
+      ) => Promise<{
+        operation: OperationJson;
+        transaction?: TransactionJsonWait;
+        result?: T;
+        receipt?: TransactionReceipt;
+      }>;
+  }
+}
