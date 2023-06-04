@@ -16,7 +16,7 @@ defineProps<{
     class="alert"
     :class="{
       success: data.type === 'success',
-      danger: data.type === 'danger',
+      error: data.type === 'error',
       info: data.type === 'info',
       show: data.show,
     }"
@@ -61,7 +61,7 @@ defineProps<{
 .message {
   padding: 2em 0;
 }
-.danger {
+.error {
   border-bottom: 3px solid red;
 }
 .info {

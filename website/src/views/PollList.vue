@@ -5,7 +5,14 @@ import * as abi from '../../../contracts/build/pollcontract-abi.json'
 import HeaderProject from "../components/HeaderProject.vue"
 import FootProject from "../components/FootProject.vue"
 import ModalNewPoll from "../components/ModalNewPoll.vue"
+import Alert from "../components/Alert.vue"
 import { PollCard, PollContractClass } from "../interfaces"
+
+let alertData = ref({
+  type: "",
+  show: false,
+  message: "",
+});
 
 const rpcNodes = import.meta.env.VITE_RPC_NODES.split(",");
 const pollContractId = import.meta.env.VITE_POLL_CONTRACT_ID;
@@ -21,7 +28,9 @@ const contract = ref(new Contract({
 const account = ref("");
 const polls = ref([] as PollCard[]);
 
-onMounted(async () => {
+onMounted(getPolls);
+
+async function getPolls() {
   const { result } = await contract.value.functions.getPolls({
     start: 0,
     limit: 100,
@@ -47,14 +56,48 @@ onMounted(async () => {
       participation: percentage(totalVotes, totalSupply),
       start_date: new Date(Number(poll.params.start_date)).toISOString().slice(0,-14),
       end_date: new Date(Number(poll.params.end_date)).toISOString().slice(0,-14),
+      ended: Date.now() > Number(poll.params.end_date),
     };
     return pollCard;
   });
-});
+}
 
 async function setSigner(signer: Signer) {
   account.value = signer.getAddress();
   contract.value.signer = signer;
+}
+
+async function vote(pollId: number, vote: number) {
+  try {
+    if(!account.value) throw new Error("Connect your wallet");
+    const manaAvailable = await contract.value.provider!.getAccountRc(account.value);
+    const rcLimit = Math.min(10_0000_0000, Number(manaAvailable)).toString();
+
+    const { transaction } = await contract.value.functions.vote({
+      poll_id: pollId,
+      voter: account.value,
+      vote
+    }, { rcLimit });
+    alertData.value = {
+      type: "info",
+      show: true,
+      message: `Transaction submitted. Waiting to be mined`,
+    }
+    if (!transaction) throw new Error("Error submitting the transaction");
+    await transaction.wait();
+    alertData.value = {
+      type: "success",
+      show: true,
+      message: `Transaction mined.`,
+    }
+    await getPolls();
+  } catch (error) {
+    alertData.value = {
+      type: "error",
+      show: true,
+      message: (error as Error).message
+    }
+  }
 }
 
 </script>
@@ -92,7 +135,7 @@ async function setSigner(signer: Signer) {
     </div>
     <div class="all-polls">
       <div v-for="(poll, i) in polls" :key="'poll'+i" class="poll-card">
-        <router-link :to="'/polls/'+(poll.id ?? 0)" class="title">{{ poll.params.title }}</router-link>
+        <div class="title">{{ poll.params.title }}</div>
         <div class="summary">{{ poll.params.summary }}</div>
         <a :href="poll.params.url">{{ poll.params.url }}</a>
         <div class="creator">created by {{ poll.params.creator }}</div>
@@ -105,9 +148,18 @@ async function setSigner(signer: Signer) {
           <div class="no">NO ❌ {{ poll.no_percentage }} ({{ poll.no_vhp }} VHP)</div>
           <div class="participation">Participation {{ poll.participation }}</div>
         </div>
+        <div class="buttons">
+          <button v-if="!poll.ended" @click="vote(poll.id, 1)">Vote YES ✔️</button>
+          <button v-if="!poll.ended" @click="vote(poll.id, 2)">Vote NO ❌</button>
+          <button @click="$router.push('/polls/'+(poll.id ?? 0))">View VOTES 🗳️</button>
+        </div>
       </div>
     </div>
     <FootProject/>
+    <Alert
+      :data="alertData"
+      @close="alertData.show = false"
+    />
   </div>
 </template>
 
@@ -125,14 +177,19 @@ async function setSigner(signer: Signer) {
 .create {
     
 }
-.all_polls {
+.all-polls {
   padding-top: 3em;
+  margin: auto;
+  width: 70%;
+  min-width: 17em;
 }
 
 .poll-card {
-  width: 100%;
   color: black;
-  margin: 2em 3em;
+  margin: 2em 0em;
+  background: #f3f3f3;
+  padding: 2em;
+  border-radius: 1em;
 }
 
 .title {
@@ -144,7 +201,7 @@ async function setSigner(signer: Signer) {
 }
 
 .creator{
-  font-size: 0.8em;
+  font-size: 0.7em;
 }
 
 .dates{
@@ -164,5 +221,13 @@ async function setSigner(signer: Signer) {
 }
 .participation{
 
+}
+
+.buttons {
+  margin-top: 1em;
+}
+
+.buttons button{
+  margin-right: 1em;
 }
 </style>

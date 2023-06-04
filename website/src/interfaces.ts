@@ -157,6 +157,7 @@ export interface PollCard extends PollData {
   participation: string;
   start_date: string;
   end_date: string;
+  ended: boolean;
 }
 
 export interface PollContractClass extends Contract {

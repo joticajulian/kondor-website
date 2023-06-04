@@ -61,7 +61,7 @@ async function create() {
     emit("close");
   } catch (error) {
     alertData.value = {
-      type: "danger",
+      type: "error",
       show: true,
       message: (error as Error).message,
     };
