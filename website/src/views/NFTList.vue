@@ -2,7 +2,7 @@
 import { onMounted, ref } from 'vue'
 import { Contract, Provider, utils } from 'koilib'
 import * as kondor from "kondor-js"
-import * as abi from '../../../contracts/build/nftcontract-abi.json'
+import * as abi from '../assets/nftcontract-abi.json'
 import { Auctions } from "../../../contracts/build/nftcontractTypes"
 import HeaderProject from "../components/HeaderProject.vue"
 import FootProject from "../components/FootProject.vue"
