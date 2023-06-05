@@ -3,11 +3,10 @@ import { onMounted, ref } from 'vue'
 import { Contract, Provider, utils } from 'koilib'
 import * as kondor from "kondor-js"
 import * as abi from '../assets/nftcontract-abi.json'
-import { Auctions } from "../../../contracts/build/nftcontractTypes"
 import HeaderProject from "../components/HeaderProject.vue"
 import FootProject from "../components/FootProject.vue"
 import Modal from "../components/Modal.vue"
-import { NftCard, NftContractClass } from "../interfaces"
+import { NftCard, NftContractClass, Auctions } from "../interfaces"
 
 const auctionPeriod = Number(import.meta.env.VITE_AUCTION_PERIOD);
 
