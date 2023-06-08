@@ -205,7 +205,7 @@ export interface PollContractClass extends Contract {
         receipt?: TransactionReceipt;
       }>;
 
-    getVotes: <T = {
+    getVotesByPoll: <T = {
       vhp_votes: {
         voter: string;
         vote: number;
@@ -218,6 +218,26 @@ export interface PollContractClass extends Contract {
           start: string;
           limit: string;
           direction: number;
+        },
+        opts?: CallContractOptions
+      ) => Promise<{
+        operation: OperationJson;
+        transaction?: TransactionJsonWait;
+        result?: T;
+        receipt?: TransactionReceipt;
+      }>;
+
+    getVotesByUser: <T = {
+        vhp_votes: {
+          voter: string;
+          vote: number;
+          vhp: string;
+        }[];
+      }>(
+        args?: {
+          voter: string;
+          poll_start: number;
+          poll_end: number;
         },
         opts?: CallContractOptions
       ) => Promise<{

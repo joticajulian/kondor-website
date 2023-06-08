@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue'
 import { Contract, Provider, Signer, utils } from 'koilib'
-import * as abi from '../../../contracts/build/pollcontract-abi.json'
+import * as abi from '../assets/pollcontract-abi.json'
 import HeaderProject from "../components/HeaderProject.vue"
 import FootProject from "../components/FootProject.vue"
 import ModalNewPoll from "../components/ModalNewPoll.vue"
@@ -33,6 +33,7 @@ const polls = ref([] as PollCard[]);
 
 watch(blockProducer, async (newValue) => {
   getNodeOperator(newValue);
+  getVotesByUser(newValue);
   // TODO: get votes of block producer
 });
 
@@ -55,6 +56,15 @@ async function getNodeOperator(bp: string) {
   } catch (error) {
     nodeOperator.value = (error as Error).message;
   }
+}
+
+async function getVotesByUser(bp: string) {
+  const { result } = await contract.value.functions.getVotesByUser({
+    voter: bp,
+    poll_start: 0,
+    poll_end: 1,
+  });
+  console.log(result);
 }
 
 async function getPolls() {

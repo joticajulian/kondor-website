@@ -1,0 +1,484 @@
+{
+  "methods": {
+    "authorize": {
+      "argument": "common.nothing",
+      "return": "common.boole",
+      "description": "Authorize function",
+      "entry_point": 1244511632,
+      "entry-point": "0x4a2dbd90",
+      "read_only": false,
+      "read-only": false
+    },
+    "getPolls": {
+      "argument": "poll.poll_list_args",
+      "return": "poll.polls",
+      "description": "Get list of polls",
+      "entry_point": 628467107,
+      "entry-point": "0x2575a5a3",
+      "read_only": true,
+      "read-only": true
+    },
+    "createPoll": {
+      "argument": "poll.poll_params",
+      "return": "common.nothing",
+      "description": "Create a new Poll",
+      "entry_point": 2649245356,
+      "entry-point": "0x9de846ac",
+      "read_only": false,
+      "read-only": false
+    },
+    "getVotesByUser": {
+      "argument": "poll.get_votes_by_user_args",
+      "return": "poll.vhp_votes",
+      "description": "Get list of votes given a user",
+      "entry_point": 993223859,
+      "entry-point": "0x3b3364b3",
+      "read_only": true,
+      "read-only": true
+    },
+    "getVotesByPoll": {
+      "argument": "poll.poll_tier_list_args",
+      "return": "poll.vhp_votes",
+      "description": "Get list of votes given a poll and tier",
+      "entry_point": 987936617,
+      "entry-point": "0x3ae2b769",
+      "read_only": true,
+      "read-only": true
+    },
+    "vote": {
+      "argument": "poll.vote_args",
+      "return": "common.nothing",
+      "description": "Vote in a poll",
+      "entry_point": 2871477364,
+      "entry-point": "0xab274474",
+      "read_only": false,
+      "read-only": false
+    },
+    "updateVotes": {
+      "argument": "poll.poll_tier",
+      "return": "common.nothing",
+      "description": "Update the VHP balances and compute the votes",
+      "entry_point": 3636993821,
+      "entry-point": "0xd8c81f1d",
+      "read_only": false,
+      "read-only": false
+    }
+  },
+  "types": "CrgNCgpwb2xsLnByb3RvEgRwb2xsGhRrb2lub3Mvb3B0aW9ucy5wcm90byJgCgl2b3RlX2FyZ3MSFwoHcG9sbF9pZBgBIAEoDVIGcG9sbElkEhoKBXZvdGVyGAIgASgMQgSAtRgGUgV2b3RlchIeCgR2b3RlGAMgASgOMgoucG9sbC52b3RlUgR2b3RlIkUKDnZvdGVfcGF0aF9hcmdzEhcKB3BvbGxfaWQYASABKA1SBnBvbGxJZBIaCgV2b3RlchgCIAEoDEIEgLUYBlIFdm90ZXIiIgoHcG9sbF9pZBIXCgdwb2xsX2lkGAEgASgNUgZwb2xsSWQiPQoJcG9sbF90aWVyEhcKB3BvbGxfaWQYASABKA1SBnBvbGxJZBIXCgd0aWVyX2lkGAIgASgNUgZ0aWVySWQiXAoIdmhwX3ZvdGUSGgoFdm90ZXIYASABKAxCBIC1GAZSBXZvdGVyEh4KBHZvdGUYAiABKA4yCi5wb2xsLnZvdGVSBHZvdGUSFAoDdmhwGAMgASgEQgIwAVIDdmhwIjgKCXZocF92b3RlcxIrCgl2aHBfdm90ZXMYASADKAsyDi5wb2xsLnZocF92b3RlUgh2aHBWb3RlcyJuChZnZXRfdm90ZXNfYnlfdXNlcl9hcmdzEhoKBXZvdGVyGAEgASgMQgSAtRgGUgV2b3RlchIdCgpwb2xsX3N0YXJ0GAIgASgNUglwb2xsU3RhcnQSGQoIcG9sbF9lbmQYAyABKA1SB3BvbGxFbmQiIgoGdWludDY0EhgKBXZhbHVlGAEgASgEQgIwAVIFdmFsdWUi1QEKC3BvbGxfcGFyYW1zEhQKBXRpdGxlGAEgASgJUgV0aXRsZRIYCgdzdW1tYXJ5GAIgASgJUgdzdW1tYXJ5EhAKA3VybBgDIAEoCVIDdXJsEh4KB2NyZWF0b3IYBCABKAxCBIC1GAZSB2NyZWF0b3ISIQoKc3RhcnRfZGF0ZRgFIAEoBEICMAFSCXN0YXJ0RGF0ZRIdCghlbmRfZGF0ZRgGIAEoBEICMAFSB2VuZERhdGUSIgoFdGllcnMYByADKAsyDC5wb2xsLnVpbnQ2NFIFdGllcnMi7QEKCXBvbGxfZGF0YRIOCgJpZBgBIAEoDVICaWQSKQoGcGFyYW1zGAIgASgLMhEucG9sbC5wb2xsX3BhcmFtc1IGcGFyYW1zEiYKDXllc192aHBfdm90ZXMYAyABKARCAjABUgt5ZXNWaHBWb3RlcxIqCg90b3RhbF92aHBfdm90ZXMYBCABKARCAjABUg10b3RhbFZocFZvdGVzEiwKEHRvdGFsX3ZocF9zdXBwbHkYBSABKARCAjABUg50b3RhbFZocFN1cHBseRIjCgtsYXN0X3VwZGF0ZRgGIAEoBEICMAFSCmxhc3RVcGRhdGUi7QEKEnVwZGF0ZV92b3Rlc19ldmVudBIXCgdwb2xsX2lkGAEgASgNUgZwb2xsSWQSFwoHdGllcl9pZBgCIAEoDVIGdGllcklkEiMKDXZvdGVzX3VwZGF0ZWQYAyABKA1SDHZvdGVzVXBkYXRlZBImCg15ZXNfdmhwX3ZvdGVzGAQgASgEQgIwAVILeWVzVmhwVm90ZXMSKgoPdG90YWxfdmhwX3ZvdGVzGAUgASgEQgIwAVINdG90YWxWaHBWb3RlcxIsChB0b3RhbF92aHBfc3VwcGx5GAYgASgEQgIwAVIOdG90YWxWaHBTdXBwbHkiawoOcG9sbF9saXN0X2FyZ3MSFAoFc3RhcnQYASABKA1SBXN0YXJ0EhQKBWxpbWl0GAIgASgNUgVsaW1pdBItCglkaXJlY3Rpb24YAyABKA4yDy5wb2xsLmRpcmVjdGlvblIJZGlyZWN0aW9uIi4KBXBvbGxzEiUKBXBvbGxzGAEgAygLMg8ucG9sbC5wb2xsX2RhdGFSBXBvbGxzIqgBChNwb2xsX3RpZXJfbGlzdF9hcmdzEhcKB3BvbGxfaWQYASABKA1SBnBvbGxJZBIXCgd0aWVyX2lkGAIgASgNUgZ0aWVySWQSGgoFc3RhcnQYAyABKAxCBIC1GAZSBXN0YXJ0EhQKBWxpbWl0GAQgASgNUgVsaW1pdBItCglkaXJlY3Rpb24YBSABKA4yDy5wb2xsLmRpcmVjdGlvblIJZGlyZWN0aW9uKiIKBHZvdGUSCQoFdW5kZWYQABIHCgN5ZXMQARIGCgJubxACKioKCWRpcmVjdGlvbhINCglhc2NlbmRpbmcQABIOCgpkZXNjZW5kaW5nEAFiBnByb3RvMwrRAwoMY29tbW9uLnByb3RvEgZjb21tb24aFGtvaW5vcy9vcHRpb25zLnByb3RvIgkKB25vdGhpbmciGwoDc3RyEhQKBXZhbHVlGAEgASgJUgV2YWx1ZSIeCgZ1aW50MzISFAoFdmFsdWUYASABKA1SBXZhbHVlIiIKBnVpbnQ2NBIYCgV2YWx1ZRgBIAEoBEICMAFSBXZhbHVlIh0KBWJvb2xlEhQKBXZhbHVlGAEgASgIUgV2YWx1ZSIpCgdhZGRyZXNzEh4KB2FjY291bnQYASABKAxCBIC1GAZSB2FjY291bnQiGgoEZGF0YRISCgRkYXRhGAEgASgMUgRkYXRhIm4KCWxpc3RfYXJncxIaCgVzdGFydBgBIAEoDEIEgLUYBlIFc3RhcnQSFAoFbGltaXQYAiABKAVSBWxpbWl0Ei8KCWRpcmVjdGlvbhgDIAEoDjIRLmNvbW1vbi5kaXJlY3Rpb25SCWRpcmVjdGlvbiItCglhZGRyZXNzZXMSIAoIYWNjb3VudHMYASADKAxCBIC1GAZSCGFjY291bnRzKioKCWRpcmVjdGlvbhINCglhc2NlbmRpbmcQABIOCgpkZXNjZW5kaW5nEAFiBnByb3RvMw==",
+  "koilib_types": {
+    "nested": {
+      "poll": {
+        "nested": {
+          "vote": {
+            "values": {
+              "undef": 0,
+              "yes": 1,
+              "no": 2
+            }
+          },
+          "vote_args": {
+            "fields": {
+              "poll_id": {
+                "type": "uint32",
+                "id": 1
+              },
+              "voter": {
+                "type": "bytes",
+                "id": 2,
+                "options": {
+                  "(koinos.btype)": "ADDRESS"
+                }
+              },
+              "vote": {
+                "type": "vote",
+                "id": 3
+              }
+            }
+          },
+          "vote_path_args": {
+            "fields": {
+              "poll_id": {
+                "type": "uint32",
+                "id": 1
+              },
+              "voter": {
+                "type": "bytes",
+                "id": 2,
+                "options": {
+                  "(koinos.btype)": "ADDRESS"
+                }
+              }
+            }
+          },
+          "poll_id": {
+            "fields": {
+              "poll_id": {
+                "type": "uint32",
+                "id": 1
+              }
+            }
+          },
+          "poll_tier": {
+            "fields": {
+              "poll_id": {
+                "type": "uint32",
+                "id": 1
+              },
+              "tier_id": {
+                "type": "uint32",
+                "id": 2
+              }
+            }
+          },
+          "vhp_vote": {
+            "fields": {
+              "voter": {
+                "type": "bytes",
+                "id": 1,
+                "options": {
+                  "(koinos.btype)": "ADDRESS"
+                }
+              },
+              "vote": {
+                "type": "vote",
+                "id": 2
+              },
+              "vhp": {
+                "type": "uint64",
+                "id": 3,
+                "options": {
+                  "jstype": "JS_STRING"
+                }
+              }
+            }
+          },
+          "vhp_votes": {
+            "fields": {
+              "vhp_votes": {
+                "rule": "repeated",
+                "type": "vhp_vote",
+                "id": 1
+              }
+            }
+          },
+          "get_votes_by_user_args": {
+            "fields": {
+              "voter": {
+                "type": "bytes",
+                "id": 1,
+                "options": {
+                  "(koinos.btype)": "ADDRESS"
+                }
+              },
+              "poll_start": {
+                "type": "uint32",
+                "id": 2
+              },
+              "poll_end": {
+                "type": "uint32",
+                "id": 3
+              }
+            }
+          },
+          "uint64": {
+            "fields": {
+              "value": {
+                "type": "uint64",
+                "id": 1,
+                "options": {
+                  "jstype": "JS_STRING"
+                }
+              }
+            }
+          },
+          "poll_params": {
+            "fields": {
+              "title": {
+                "type": "string",
+                "id": 1
+              },
+              "summary": {
+                "type": "string",
+                "id": 2
+              },
+              "url": {
+                "type": "string",
+                "id": 3
+              },
+              "creator": {
+                "type": "bytes",
+                "id": 4,
+                "options": {
+                  "(koinos.btype)": "ADDRESS"
+                }
+              },
+              "start_date": {
+                "type": "uint64",
+                "id": 5,
+                "options": {
+                  "jstype": "JS_STRING"
+                }
+              },
+              "end_date": {
+                "type": "uint64",
+                "id": 6,
+                "options": {
+                  "jstype": "JS_STRING"
+                }
+              },
+              "tiers": {
+                "rule": "repeated",
+                "type": "poll.uint64",
+                "id": 7
+              }
+            }
+          },
+          "poll_data": {
+            "fields": {
+              "id": {
+                "type": "uint32",
+                "id": 1
+              },
+              "params": {
+                "type": "poll_params",
+                "id": 2
+              },
+              "yes_vhp_votes": {
+                "type": "uint64",
+                "id": 3,
+                "options": {
+                  "jstype": "JS_STRING"
+                }
+              },
+              "total_vhp_votes": {
+                "type": "uint64",
+                "id": 4,
+                "options": {
+                  "jstype": "JS_STRING"
+                }
+              },
+              "total_vhp_supply": {
+                "type": "uint64",
+                "id": 5,
+                "options": {
+                  "jstype": "JS_STRING"
+                }
+              },
+              "last_update": {
+                "type": "uint64",
+                "id": 6,
+                "options": {
+                  "jstype": "JS_STRING"
+                }
+              }
+            }
+          },
+          "update_votes_event": {
+            "fields": {
+              "poll_id": {
+                "type": "uint32",
+                "id": 1
+              },
+              "tier_id": {
+                "type": "uint32",
+                "id": 2
+              },
+              "votes_updated": {
+                "type": "uint32",
+                "id": 3
+              },
+              "yes_vhp_votes": {
+                "type": "uint64",
+                "id": 4,
+                "options": {
+                  "jstype": "JS_STRING"
+                }
+              },
+              "total_vhp_votes": {
+                "type": "uint64",
+                "id": 5,
+                "options": {
+                  "jstype": "JS_STRING"
+                }
+              },
+              "total_vhp_supply": {
+                "type": "uint64",
+                "id": 6,
+                "options": {
+                  "jstype": "JS_STRING"
+                }
+              }
+            }
+          },
+          "direction": {
+            "values": {
+              "ascending": 0,
+              "descending": 1
+            }
+          },
+          "poll_list_args": {
+            "fields": {
+              "start": {
+                "type": "uint32",
+                "id": 1
+              },
+              "limit": {
+                "type": "uint32",
+                "id": 2
+              },
+              "direction": {
+                "type": "direction",
+                "id": 3
+              }
+            }
+          },
+          "polls": {
+            "fields": {
+              "polls": {
+                "rule": "repeated",
+                "type": "poll_data",
+                "id": 1
+              }
+            }
+          },
+          "poll_tier_list_args": {
+            "fields": {
+              "poll_id": {
+                "type": "uint32",
+                "id": 1
+              },
+              "tier_id": {
+                "type": "uint32",
+                "id": 2
+              },
+              "start": {
+                "type": "bytes",
+                "id": 3,
+                "options": {
+                  "(koinos.btype)": "ADDRESS"
+                }
+              },
+              "limit": {
+                "type": "uint32",
+                "id": 4
+              },
+              "direction": {
+                "type": "direction",
+                "id": 5
+              }
+            }
+          }
+        }
+      },
+      "common": {
+        "nested": {
+          "nothing": {
+            "fields": {}
+          },
+          "str": {
+            "fields": {
+              "value": {
+                "type": "string",
+                "id": 1
+              }
+            }
+          },
+          "uint32": {
+            "fields": {
+              "value": {
+                "type": "uint32",
+                "id": 1
+              }
+            }
+          },
+          "uint64": {
+            "fields": {
+              "value": {
+                "type": "uint64",
+                "id": 1,
+                "options": {
+                  "jstype": "JS_STRING"
+                }
+              }
+            }
+          },
+          "boole": {
+            "fields": {
+              "value": {
+                "type": "bool",
+                "id": 1
+              }
+            }
+          },
+          "address": {
+            "fields": {
+              "account": {
+                "type": "bytes",
+                "id": 1,
+                "options": {
+                  "(koinos.btype)": "ADDRESS"
+                }
+              }
+            }
+          },
+          "data": {
+            "fields": {
+              "data": {
+                "type": "bytes",
+                "id": 1
+              }
+            }
+          },
+          "direction": {
+            "values": {
+              "ascending": 0,
+              "descending": 1
+            }
+          },
+          "list_args": {
+            "fields": {
+              "start": {
+                "type": "bytes",
+                "id": 1,
+                "options": {
+                  "(koinos.btype)": "ADDRESS"
+                }
+              },
+              "limit": {
+                "type": "int32",
+                "id": 2
+              },
+              "direction": {
+                "type": "direction",
+                "id": 3
+              }
+            }
+          },
+          "addresses": {
+            "fields": {
+              "accounts": {
+                "rule": "repeated",
+                "type": "bytes",
+                "id": 1,
+                "options": {
+                  "(koinos.btype)": "ADDRESS"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "events": {
+    "poll_created": {
+      "argument": "poll.poll_params"
+    },
+    "vote": {
+      "argument": "poll.vote_args"
+    },
+    "update_votes": {
+      "argument": "update_votes_event"
+    }
+  }
+}
