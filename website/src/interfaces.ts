@@ -1,6 +1,23 @@
 import { Contract } from "koilib";
 import { CallContractOptions, ContractTransactionOptions, OperationJson, TransactionJsonWait, TransactionReceipt } from "koilib/lib/interface";
-import { Auctions, Auction } from "../../contracts/build/nftcontractTypes"
+
+export interface Bid {
+  account: string;
+  token_id: string;
+  koin_amount: string;
+  credit_amount: string;
+}
+
+export interface Auction {
+  bid: Bid;
+  time_bid: string;
+  started: boolean;
+  sold: boolean;
+}
+
+export interface Auctions {
+  value: Auction[];
+}
 
 export class NftCard {
   image = "";

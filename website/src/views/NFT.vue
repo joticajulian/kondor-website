@@ -2,7 +2,7 @@
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { Contract, Provider, Signer, utils } from 'koilib'
-import * as abi from '../../../contracts/build/nftcontract-abi.json'
+import * as abi from '../assets/nftcontract-abi.json'
 import HeaderProject from "../components/HeaderProject.vue"
 import FootProject from "../components/FootProject.vue"
 import Alert from "../components/Alert.vue"
