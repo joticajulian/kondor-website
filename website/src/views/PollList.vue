@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { Contract, Provider, Signer, utils } from 'koilib'
 import * as abi from '../../../contracts/build/pollcontract-abi.json'
 import HeaderProject from "../components/HeaderProject.vue"
@@ -16,6 +16,7 @@ let alertData = ref({
 
 const rpcNodes = import.meta.env.VITE_RPC_NODES.split(",");
 const pollContractId = import.meta.env.VITE_POLL_CONTRACT_ID;
+const pobContractId = import.meta.env.VITE_POB_CONTRACT_ID;
 const network = import.meta.env.VITE_NETWORK;
 const showModalNewPoll = ref(false);
 const provider = new Provider(rpcNodes);
@@ -26,9 +27,35 @@ const contract = ref(new Contract({
 }) as PollContractClass);
 
 const account = ref("");
+const blockProducer = ref("");
+const nodeOperator = ref("");
 const polls = ref([] as PollCard[]);
 
+watch(blockProducer, async (newValue) => {
+  getNodeOperator(newValue);
+  // TODO: get votes of block producer
+});
+
 onMounted(getPolls);
+
+async function getNodeOperator(bp: string) {
+  const pobContract = new Contract({
+    id: pobContractId,
+    provider,
+  });
+  await pobContract.fetchAbi();
+  pobContract.abi!.methods.get_public_key.entry_point = 0x96634f68;
+  pobContract.abi!.methods.get_public_key.read_only = true;
+  try {
+    const { result } = await pobContract.functions.get_public_key<{ value: string; }>({
+      producer: bp,
+    });
+    const address = utils.bitcoinAddress(utils.decodeBase64url(result!.value));
+    nodeOperator.value = `Node operator: ${address}`;
+  } catch (error) {
+    nodeOperator.value = (error as Error).message;
+  }
+}
 
 async function getPolls() {
   const { result } = await contract.value.functions.getPolls({
@@ -75,7 +102,7 @@ async function vote(pollId: number, vote: number) {
 
     const { transaction } = await contract.value.functions.vote({
       poll_id: pollId,
-      voter: account.value,
+      voter: blockProducer.value,
       vote
     }, { rcLimit });
     alertData.value = {
@@ -134,6 +161,13 @@ async function vote(pollId: number, vote: number) {
       <button @click="showModalNewPoll = true">New Poll</button>
     </div>
     <div class="all-polls">
+      <div class="user-data">
+        <div class="group">
+          <label for="producer">Block producer</label>
+          <input type="text" v-model="blockProducer">
+          <span class="node-operator">{{ nodeOperator }}</span>
+        </div>
+      </div>
       <div v-for="(poll, i) in polls" :key="'poll'+i" class="poll-card">
         <div class="title">{{ poll.params.title }}</div>
         <div class="summary">{{ poll.params.summary }}</div>
@@ -175,13 +209,22 @@ async function vote(pollId: number, vote: number) {
 }
 
 .create {
-    
+  display: flex;
+  justify-content: center;
 }
 .all-polls {
   padding-top: 3em;
   margin: auto;
   width: 70%;
   min-width: 17em;
+}
+
+.all-polls input {
+  margin-bottom: 0;
+}
+
+.all-polls .node-operator {
+  font-size: 0.7em;
 }
 
 .poll-card {
