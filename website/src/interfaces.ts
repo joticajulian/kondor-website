@@ -190,6 +190,7 @@ export interface Vote {
 export interface VoteCard extends Vote {
   vhpParsed: string;
   votePercentage: string;
+  bpName: string;
 }
 
 export interface PollContractClass extends Contract {

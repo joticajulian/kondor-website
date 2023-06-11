@@ -21,6 +21,12 @@ let alertData = ref({
 
 const pollId = Number(useRouter().currentRoute.value.params.id as string);
 
+const bpNames: {
+  [x: string]: string
+} = import.meta.env.VITE_BP_NAMES
+  ? JSON.parse(import.meta.env.VITE_BP_NAMES)
+  : {};
+
 const rpcNodes = import.meta.env.VITE_RPC_NODES.split(",");
 const pollContractId = import.meta.env.VITE_POLL_CONTRACT_ID;
 const pobContractId = import.meta.env.VITE_POB_CONTRACT_ID;
@@ -114,6 +120,7 @@ async function getVotesByPoll() {
           ...vote,
           vhpParsed: utils.formatUnits(vote.vhp, 8),
           votePercentage: percentage(BigInt(vote.vhp), vhpProd),
+          bpName: bpNames[vote.voter] ?? "",
         };
         switch(vote.vote) {
           case 1: {
@@ -133,8 +140,6 @@ async function getVotesByPoll() {
       console.error(error);
     }
   }
-  console.log(yesVotes.value);
-  console.log(noVotes.value);
 }
 
 async function getVotesByUser(bp: string) {
@@ -303,6 +308,7 @@ async function vote(pollId: number, vote: number) {
         <h1>YES votes</h1>
         <div v-for="(vote, i) in yesVotes" :key="'vote'+i" class="vote-card">
           <div class="voter">{{ vote.voter }}</div>
+          <div class="voter">{{ vote.bpName }}</div>
           <div class="vhp">{{ vote.vhpParsed }} VHP ({{ vote.votePercentage }})</div>
         </div>
       </div>
@@ -310,6 +316,7 @@ async function vote(pollId: number, vote: number) {
         <h1>NO votes</h1>
         <div v-for="(vote, i) in noVotes" :key="'vote'+i" class="vote-card">
           <div class="voter">{{ vote.voter }}</div>
+          <div class="voter">{{ vote.bpName }}</div>
           <div class="vhp">{{ vote.vhpParsed }} VHP ({{ vote.votePercentage }})</div>
         </div>
       </div>
