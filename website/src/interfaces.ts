@@ -171,10 +171,25 @@ export interface PollCard extends PollData {
   no_percentage: string;
   yes_vhp: string;
   no_vhp: string;
+  yes_class: { "voted-yes": boolean };
+  no_class: { "voted-no": boolean };
+  yes_button_text: string;
+  no_button_text: string;
   participation: string;
   start_date: string;
   end_date: string;
   ended: boolean;
+}
+
+export interface Vote {
+  voter: string;
+  vote: number;
+  vhp: string;
+}
+
+export interface VoteCard extends Vote {
+  vhpParsed: string;
+  votePercentage: string;
 }
 
 export interface PollContractClass extends Contract {
@@ -206,17 +221,13 @@ export interface PollContractClass extends Contract {
       }>;
 
     getVotesByPoll: <T = {
-      vhp_votes: {
-        voter: string;
-        vote: number;
-        vhp: string;
-      }[];
+      vhp_votes: Vote[];
     }>(
         args?: {
           poll_id: number;
           tier_id: number;
           start: string;
-          limit: string;
+          limit: number;
           direction: number;
         },
         opts?: CallContractOptions
@@ -228,11 +239,7 @@ export interface PollContractClass extends Contract {
       }>;
 
     getVotesByUser: <T = {
-        vhp_votes: {
-          voter: string;
-          vote: number;
-          vhp: string;
-        }[];
+        vhp_votes: Vote[];
       }>(
         args?: {
           voter: string;

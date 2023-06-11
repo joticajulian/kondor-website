@@ -1,12 +1,17 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import { Contract, Provider, Signer, utils } from 'koilib'
 import * as abi from '../assets/pollcontract-abi.json'
 import HeaderProject from "../components/HeaderProject.vue"
 import FootProject from "../components/FootProject.vue"
-import ModalNewPoll from "../components/ModalNewPoll.vue"
 import Alert from "../components/Alert.vue"
-import { PollCard, PollContractClass } from "../interfaces"
+import { PollCard, VoteCard, PollContractClass } from "../interfaces"
+
+const percentage = (num: bigint, den: bigint): string => {
+  if (den === BigInt(0)) return "0.00%";
+  return `${(Number(num * BigInt(100_00) / den) / 100).toFixed(2)}%`;
+};
 
 let alertData = ref({
   type: "",
@@ -14,11 +19,12 @@ let alertData = ref({
   message: "",
 });
 
+const pollId = Number(useRouter().currentRoute.value.params.id as string);
+
 const rpcNodes = import.meta.env.VITE_RPC_NODES.split(",");
 const pollContractId = import.meta.env.VITE_POLL_CONTRACT_ID;
 const pobContractId = import.meta.env.VITE_POB_CONTRACT_ID;
 const network = import.meta.env.VITE_NETWORK;
-const showModalNewPoll = ref(false);
 const provider = new Provider(rpcNodes);
 const contract = ref(new Contract({
   id: pollContractId,
@@ -30,13 +36,18 @@ const account = ref("");
 const blockProducer = ref("");
 const nodeOperator = ref("");
 const polls = ref([] as PollCard[]);
+const yesVotes = ref([] as VoteCard[]);
+const noVotes = ref([] as VoteCard[]);
 
 watch(blockProducer, async (newValue) => {
   getNodeOperator(newValue);
   getVotesByUser(newValue);
 });
 
-onMounted(getPolls);
+onMounted(() => {
+  getPolls();
+  getVotesByPoll();
+});
 
 async function getNodeOperator(bp: string) {
   const pobContract = new Contract({
@@ -55,6 +66,46 @@ async function getNodeOperator(bp: string) {
   } catch (error) {
     nodeOperator.value = (error as Error).message;
   }
+}
+
+async function getVotesByPoll() {
+  yesVotes.value = [];
+  noVotes.value = [];
+  for (let tierId = 1; tierId <= 5; tierId += 1) {
+    try {
+      const { result } = await contract.value.functions.getVotesByPoll({
+        poll_id: pollId,
+        tier_id: tierId,
+        start: "",
+        limit: 1000,
+        direction: 0,
+      });console.log("result");console.log(result)
+      result?.vhp_votes.forEach(vote => {
+        const voteParsed: VoteCard = {
+          ...vote,
+          vhpParsed: utils.formatUnits(vote.vhp, 8),
+          votePercentage: percentage(BigInt(vote.vhp), BigInt(polls.value[0].total_vhp_supply)),
+        };
+        switch(vote.vote) {
+          case 1: {
+            yesVotes.value.push(voteParsed);
+            break;
+          }
+          case 2: {
+            noVotes.value.push(voteParsed);
+            break;
+          }
+          default:
+            break;
+        }
+      });
+    } catch (error) {
+      console.error(`Error in tier ${tierId}`);
+      console.error(error);
+    }
+  }
+  console.log(yesVotes.value);
+  console.log(noVotes.value);
 }
 
 async function getVotesByUser(bp: string) {
@@ -111,8 +162,8 @@ async function getVotesByUser(bp: string) {
 
 async function getPolls() {
   const { result } = await contract.value.functions.getPolls({
-    start: 0,
-    limit: 100,
+    start: pollId,
+    limit: 1,
     direction: 0,
   });
   if (!result) return;
@@ -122,10 +173,6 @@ async function getPolls() {
     const totalSupply = BigInt(poll.total_vhp_supply ?? "0");
     const noVotes = BigInt(totalVotes - yesVotes);
 
-    const percentage = (num: bigint, den: bigint): string => {
-      if (den === BigInt(0)) return "0.00%";
-      return `${(Number(num * BigInt(100_00) / den) / 100).toFixed(2)}%`;
-    };
     const pollCard: PollCard = {
       ...poll,
       yes_percentage: percentage(yesVotes, totalVotes),
@@ -188,32 +235,6 @@ async function vote(pollId: number, vote: number) {
     <HeaderProject
       @signer="setSigner"
     />
-    <ModalNewPoll
-      v-if="showModalNewPoll"
-      :contract="contract"
-      @close="showModalNewPoll = false"
-    />
-    <div class="description">
-      <p>
-        One of the features of Koinos Blockchain is the ability to perform
-        upgrades without hardforks. These upgrades are controlled by the governance
-        system which is managed by the community in a decentralized way.
-      </p>
-      <p>
-        The mission of Koinos Polls is to have a platform where the community can
-        get consensus around specific topics related to governance before submitting
-        the proposal in the governance system or developing code.
-      </p>
-      <p>
-        The votes are counted in the same way as the governance system:
-        1 VHP = 1 vote 🗳️ using the signature of the node operator (on behalf of
-        the block producer). That is, the more VHP you have the more votes
-        you have in the poll.
-      </p>
-    </div>
-    <div class="create">
-      <button @click="showModalNewPoll = true">New Poll</button>
-    </div>
     <div class="all-polls">
       <div class="user-data">
         <div class="group">
@@ -240,6 +261,22 @@ async function vote(pollId: number, vote: number) {
           <button v-if="!poll.ended" @click="vote(poll.id, 1)" :class="poll.yes_class">{{ poll.yes_button_text }}</button>
           <button v-if="!poll.ended" @click="vote(poll.id, 2)" :class="poll.no_class">{{ poll.no_button_text }}</button>
           <button @click="$router.push('/polls/'+(poll.id ?? 0))">View VOTES 🗳️</button>
+        </div>
+      </div>
+    </div>
+    <div class="all-votes">
+      <div class="yes-votes">
+        <h1>YES votes</h1>
+        <div v-for="(vote, i) in yesVotes" :key="'vote'+i" class="vote-card">
+          <div class="voter">{{ vote.voter }}</div>
+          <div class="vhp">{{ vote.vhpParsed }} VHP ({{ vote.votePercentage }})</div>
+        </div>
+      </div>
+      <div class="no-votes">
+        <h1>NO votes</h1>
+        <div v-for="(vote, i) in noVotes" :key="'vote'+i" class="vote-card">
+          <div class="voter">{{ vote.voter }}</div>
+          <div class="vhp">{{ vote.vhpParsed }} VHP ({{ vote.votePercentage }})</div>
         </div>
       </div>
     </div>
@@ -335,5 +372,29 @@ async function vote(pollId: number, vote: number) {
 
 .buttons button{
   margin-right: 1em;
+}
+
+.all-votes {
+  display: flex;
+  padding-top: 3em;
+  margin: auto;
+  width: 70%;
+  min-width: 17em;
+  justify-content: space-between;
+}
+
+.all-votes h1 {
+  font-size: 1.5em;  
+}
+
+.vote-card {
+  margin-bottom: 1em;
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+}
+
+.voter {
+  font-size: 0.7em;
 }
 </style>
