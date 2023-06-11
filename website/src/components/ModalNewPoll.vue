@@ -82,7 +82,7 @@ async function create() {
         </div>
         <div class="group">
           <div class="field">Summary</div>
-          <input v-model="summary" type="text"/>
+          <textarea v-model="summary" rows="4"></textarea>
         </div>
         <div class="group">
           <div class="field">URL</div>
@@ -153,19 +153,21 @@ async function create() {
 }
 
 .group {
-
+  width: 100%;
 }
 
 .field {
 
 }
 
-input {
+input, textarea {
   padding: 0.5em;
   border-radius: 0.4em;
   width: 100%;
-  margin-bottom: 2em;
+  margin-bottom: 0.8em;
   box-sizing: border-box;
+  border-width: thin;
+  font-family: sans-serif;
 }
 
 .buttons {

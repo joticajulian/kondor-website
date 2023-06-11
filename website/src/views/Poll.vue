@@ -299,7 +299,7 @@ async function vote(pollId: number, vote: number) {
         <div class="buttons">
           <button v-if="!poll.ended" @click="vote(poll.id, 1)" :class="poll.yes_class">{{ poll.yes_button_text }}</button>
           <button v-if="!poll.ended" @click="vote(poll.id, 2)" :class="poll.no_class">{{ poll.no_button_text }}</button>
-          <button @click="$router.push('/polls/'+(poll.id ?? 0))">View VOTES 🗳️</button>
+          <!-- <button @click="$router.push('/polls/'+(poll.id ?? 0))">View VOTES 🗳️</button> -->
         </div>
       </div>
     </div>
