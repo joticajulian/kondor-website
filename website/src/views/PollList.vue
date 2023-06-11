@@ -29,6 +29,7 @@ const contract = ref(new Contract({
 const account = ref("");
 const blockProducer = ref("");
 const nodeOperator = ref("");
+const vhpProducing = ref("");
 const polls = ref([] as PollCard[]);
 
 watch(blockProducer, async (newValue) => {
@@ -36,7 +37,35 @@ watch(blockProducer, async (newValue) => {
   getVotesByUser(newValue);
 });
 
-onMounted(getPolls);
+onMounted(() => {
+  getPolls();
+  getVhpProducing();
+});
+
+async function getVhpProducing() {
+  const pobContract = new Contract({
+    id: pobContractId,
+    provider,
+  });
+  await pobContract.fetchAbi();
+  pobContract.abi!.methods.get_public_key.entry_point = 0x96634f68;
+  pobContract.abi!.methods.get_public_key.read_only = true;
+  pobContract.abi!.methods.get_metadata.entry_point = 0xfcf7a68f;
+  pobContract.abi!.methods.get_metadata.read_only = true;
+  
+  try {
+    const { result } = await pobContract.functions.get_metadata({});
+    if (result) {
+      const difficulty = BigInt(`0x${utils.toHexString(utils.decodeBase64url(result.value.difficulty))}`);
+      const prod = difficulty / BigInt(300); // pobConsensusParams.target_block_interval / pobConsensusParams.quantum_length
+      vhpProducing.value = utils.formatUnits(prod.toString(), 8);
+    } else {
+      vhpProducing.value = "0";
+    }
+  } catch (error) {
+    console.error(error);
+  }
+}
 
 async function getNodeOperator(bp: string) {
   const pobContract = new Contract({
@@ -46,6 +75,8 @@ async function getNodeOperator(bp: string) {
   await pobContract.fetchAbi();
   pobContract.abi!.methods.get_public_key.entry_point = 0x96634f68;
   pobContract.abi!.methods.get_public_key.read_only = true;
+  pobContract.abi!.methods.get_metadata.entry_point = 0xfcf7a68f;
+  pobContract.abi!.methods.get_metadata.read_only = true;
   try {
     const { result } = await pobContract.functions.get_public_key<{ value: string; }>({
       producer: bp,
@@ -134,6 +165,8 @@ async function getPolls() {
       no_vhp: utils.formatUnits(noVotes.toString(),8),
       yes_button_text: "Vote YES ✔️",
       no_button_text: "Vote NO ❌",
+      yes_class: {"voted-yes": false},
+      no_class: {"voted-no": false},
       participation: percentage(totalVotes, totalSupply),
       start_date: new Date(Number(poll.params.start_date)).toISOString().slice(0,-14),
       end_date: new Date(Number(poll.params.end_date)).toISOString().slice(0,-14),
@@ -222,6 +255,9 @@ async function vote(pollId: number, vote: number) {
           <span class="node-operator">{{ nodeOperator }}</span>
         </div>
       </div>
+      <div class="vhp-producing">
+        Active block producers: {{ vhpProducing }} VHP
+      </div>
       <div v-for="(poll, i) in polls" :key="'poll'+i" class="poll-card">
         <div class="title">{{ poll.params.title }}</div>
         <div class="summary">{{ poll.params.summary }}</div>
@@ -279,6 +315,11 @@ async function vote(pollId: number, vote: number) {
 
 .all-polls .node-operator {
   font-size: 0.7em;
+}
+
+.all-polls .vhp-producing {
+  margin-top: 1em;
+  font-weight: bold;
 }
 
 .poll-card {

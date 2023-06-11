@@ -35,6 +35,7 @@ const contract = ref(new Contract({
 const account = ref("");
 const blockProducer = ref("");
 const nodeOperator = ref("");
+const vhpProducing = ref("");
 const polls = ref([] as PollCard[]);
 const yesVotes = ref([] as VoteCard[]);
 const noVotes = ref([] as VoteCard[]);
@@ -46,8 +47,33 @@ watch(blockProducer, async (newValue) => {
 
 onMounted(() => {
   getPolls();
-  getVotesByPoll();
+  getVhpProducing().then(getVotesByPoll);
 });
+
+async function getVhpProducing() {
+  const pobContract = new Contract({
+    id: pobContractId,
+    provider,
+  });
+  await pobContract.fetchAbi();
+  pobContract.abi!.methods.get_public_key.entry_point = 0x96634f68;
+  pobContract.abi!.methods.get_public_key.read_only = true;
+  pobContract.abi!.methods.get_metadata.entry_point = 0xfcf7a68f;
+  pobContract.abi!.methods.get_metadata.read_only = true;
+  
+  try {
+    const { result } = await pobContract.functions.get_metadata({});
+    if (result) {
+      const difficulty = BigInt(`0x${utils.toHexString(utils.decodeBase64url(result.value.difficulty))}`);
+      const prod = difficulty / BigInt(300); // pobConsensusParams.target_block_interval / pobConsensusParams.quantum_length
+      vhpProducing.value = utils.formatUnits(prod.toString(), 8);
+    } else {
+      vhpProducing.value = "0";
+    }
+  } catch (error) {
+    console.error(error);
+  }
+}
 
 async function getNodeOperator(bp: string) {
   const pobContract = new Contract({
@@ -57,6 +83,8 @@ async function getNodeOperator(bp: string) {
   await pobContract.fetchAbi();
   pobContract.abi!.methods.get_public_key.entry_point = 0x96634f68;
   pobContract.abi!.methods.get_public_key.read_only = true;
+  pobContract.abi!.methods.get_metadata.entry_point = 0xfcf7a68f;
+  pobContract.abi!.methods.get_metadata.read_only = true;
   try {
     const { result } = await pobContract.functions.get_public_key<{ value: string; }>({
       producer: bp,
@@ -71,6 +99,7 @@ async function getNodeOperator(bp: string) {
 async function getVotesByPoll() {
   yesVotes.value = [];
   noVotes.value = [];
+  const vhpProd = BigInt(utils.parseUnits(vhpProducing.value, 8));
   for (let tierId = 1; tierId <= 5; tierId += 1) {
     try {
       const { result } = await contract.value.functions.getVotesByPoll({
@@ -79,12 +108,12 @@ async function getVotesByPoll() {
         start: "",
         limit: 1000,
         direction: 0,
-      });console.log("result");console.log(result)
+      });
       result?.vhp_votes.forEach(vote => {
         const voteParsed: VoteCard = {
           ...vote,
           vhpParsed: utils.formatUnits(vote.vhp, 8),
-          votePercentage: percentage(BigInt(vote.vhp), BigInt(polls.value[0].total_vhp_supply)),
+          votePercentage: percentage(BigInt(vote.vhp), vhpProd),
         };
         switch(vote.vote) {
           case 1: {
@@ -181,6 +210,8 @@ async function getPolls() {
       no_vhp: utils.formatUnits(noVotes.toString(),8),
       yes_button_text: "Vote YES ✔️",
       no_button_text: "Vote NO ❌",
+      yes_class: {"voted-yes": false},
+      no_class: {"voted-no": false},
       participation: percentage(totalVotes, totalSupply),
       start_date: new Date(Number(poll.params.start_date)).toISOString().slice(0,-14),
       end_date: new Date(Number(poll.params.end_date)).toISOString().slice(0,-14),
@@ -242,6 +273,9 @@ async function vote(pollId: number, vote: number) {
           <input type="text" v-model="blockProducer">
           <span class="node-operator">{{ nodeOperator }}</span>
         </div>
+      </div>
+      <div class="vhp-producing">
+        Active block producers: {{ vhpProducing }} VHP
       </div>
       <div v-for="(poll, i) in polls" :key="'poll'+i" class="poll-card">
         <div class="title">{{ poll.params.title }}</div>
@@ -316,6 +350,11 @@ async function vote(pollId: number, vote: number) {
 
 .all-polls .node-operator {
   font-size: 0.7em;
+}
+
+.all-polls .vhp-producing {
+  margin-top: 1em;
+  font-weight: bold;
 }
 
 .poll-card {
