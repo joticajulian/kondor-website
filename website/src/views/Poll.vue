@@ -49,10 +49,16 @@ const noVotes = ref([] as VoteCard[]);
 watch(blockProducer, async (newValue) => {
   getNodeOperator(newValue);
   getVotesByUser(newValue);
+  window.localStorage.setItem("block_producer", newValue);
 });
 
 onMounted(() => {
-  getPolls();
+  const bp = window.localStorage.getItem("block_producer");
+  if (bp) {
+    blockProducer.value = bp;
+  }
+
+  getPolls().then(() => { if (bp) getVotesByUser(bp) });
   getVhpProducing().then(getVotesByPoll);
 });
 
@@ -102,6 +108,7 @@ async function getNodeOperator(bp: string) {
   }
 }
 
+// prerequisite: getVhpProducing
 async function getVotesByPoll() {
   yesVotes.value = [];
   noVotes.value = [];
@@ -142,6 +149,7 @@ async function getVotesByPoll() {
   }
 }
 
+// prerequisite: getPolls
 async function getVotesByUser(bp: string) {
   let userVotes: {
     vhp_votes: {

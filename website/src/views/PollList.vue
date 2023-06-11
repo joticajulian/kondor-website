@@ -35,10 +35,16 @@ const polls = ref([] as PollCard[]);
 watch(blockProducer, async (newValue) => {
   getNodeOperator(newValue);
   getVotesByUser(newValue);
+  window.localStorage.setItem("block_producer", newValue);
 });
 
 onMounted(() => {
-  getPolls();
+  const bp = window.localStorage.getItem("block_producer");
+  if (bp) {
+    blockProducer.value = bp;
+  }
+
+  getPolls().then(() => { if (bp) getVotesByUser(bp) });
   getVhpProducing();
 });
 
