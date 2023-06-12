@@ -278,6 +278,7 @@ async function disconnect() {
 <template>
   <div>
     <HeaderProject
+      title="Kondor NFTs"
       @account="setAccount"
       @disconnect="disconnect"
     />

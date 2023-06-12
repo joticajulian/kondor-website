@@ -229,6 +229,7 @@ async function vote(pollId: number, vote: number) {
 <template>
   <div>
     <HeaderProject
+      title="Polls"
       @signer="setSigner"
     />
     <ModalNewPoll

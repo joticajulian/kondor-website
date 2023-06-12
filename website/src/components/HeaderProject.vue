@@ -1,7 +1,11 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { onMounted, ref, defineProps } from "vue";
 import * as kondor from "kondor-js"
 import MyKoinosWallet from '@roamin/my-koinos-wallet-sdk'
+
+const props = defineProps({
+  title: String
+});
 
 const network = import.meta.env.VITE_NETWORK;
 
@@ -89,7 +93,7 @@ async function useMKW() {
   <div class="header">
     <div class="brand">
       <div class="logo"><img src="/koinosbox-white.png" alt="koinosbox"></div>
-      <router-link to="/kondor-nft" class="project">Kondor NFTs</router-link>
+      <router-link to="/kondor-nft" class="project">{{ props.title }}</router-link>
     </div>
     <button @click="connect">{{account ? account : "Connect"}}</button>
     <div

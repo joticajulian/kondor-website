@@ -188,6 +188,7 @@ function closeModalMessage() {
 <template>
   <div class="page" :style="`background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 1)), url(/nfts-bg/${nft.name.replaceAll(' ','-')}.jpg);`">
     <HeaderProject
+      title="Kondor NFTs"
       @signer="setSigner"
     />
     <Modal 
