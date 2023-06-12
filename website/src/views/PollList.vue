@@ -15,13 +15,17 @@ let alertData = ref({
 });
 
 const rpcNodes = import.meta.env.VITE_RPC_NODES.split(",");
-const pollContractId = import.meta.env.VITE_POLL_CONTRACT_ID;
+const pollContractId = ref(import.meta.env.VITE_POLL_CONTRACT_ID);
 const pobContractId = import.meta.env.VITE_POB_CONTRACT_ID;
 const network = import.meta.env.VITE_NETWORK;
 const showModalNewPoll = ref(false);
 const provider = new Provider(rpcNodes);
+const pollContractUrl = ref(network === "mainnet"
+  ? `https://koinosblocks.com/address/${pollContractId.value}`
+  : `https://harbinger.koinosblocks.com/address/${pollContractId.value}`
+);
 const contract = ref(new Contract({
-  id: pollContractId,
+  id: pollContractId.value,
   provider,
   abi,
 }) as PollContractClass);
@@ -242,6 +246,9 @@ async function vote(pollId: number, vote: number) {
         The mission of Koinos Polls is to have a platform where the community can
         get consensus around specific topics related to governance before submitting
         the proposal in the governance system or developing code.
+      </p>
+      <p>
+        The poll contract is <a :href="pollContractUrl">{{ pollContractId }}</a>.
       </p>
       <p>
         The votes are counted in the same way as the governance system:

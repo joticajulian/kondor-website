@@ -28,12 +28,12 @@ const bpNames: {
   : {};
 
 const rpcNodes = import.meta.env.VITE_RPC_NODES.split(",");
-const pollContractId = import.meta.env.VITE_POLL_CONTRACT_ID;
+const pollContractId = ref(import.meta.env.VITE_POLL_CONTRACT_ID);
 const pobContractId = import.meta.env.VITE_POB_CONTRACT_ID;
 const network = import.meta.env.VITE_NETWORK;
 const provider = new Provider(rpcNodes);
 const contract = ref(new Contract({
-  id: pollContractId,
+  id: pollContractId.value,
   provider,
   abi,
 }) as PollContractClass);
