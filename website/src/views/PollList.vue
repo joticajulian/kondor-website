@@ -230,6 +230,7 @@ async function vote(pollId: number, vote: number) {
   <div>
     <HeaderProject
       title="Polls"
+      url-path="/polls"
       @signer="setSigner"
     />
     <ModalNewPoll

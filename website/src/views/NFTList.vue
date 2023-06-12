@@ -279,6 +279,7 @@ async function disconnect() {
   <div>
     <HeaderProject
       title="Kondor NFTs"
+      url-path="/kondor-nft"
       @account="setAccount"
       @disconnect="disconnect"
     />

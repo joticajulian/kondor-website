@@ -278,6 +278,7 @@ async function vote(pollId: number, vote: number) {
   <div>
     <HeaderProject
       title="Polls"
+      url-path="/polls"
       @signer="setSigner"
     />
     <div class="all-polls">
