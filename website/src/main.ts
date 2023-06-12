@@ -1,5 +1,5 @@
 import { createApp } from 'vue'
-import { createRouter, createWebHashHistory } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
 import './style.css'
 import App from './App.vue'
 import LandingPage from './views/LandingPage.vue'
@@ -9,7 +9,7 @@ import PollList from './views/PollList.vue'
 import Poll from './views/Poll.vue'
 
 const router = createRouter({
-  history: createWebHashHistory(),
+  history: createWebHistory(),
   routes: [
     { path: '/', name: 'LandingPage', component: LandingPage },
     { path: '/polls', name: 'Poll-List', component: PollList },
