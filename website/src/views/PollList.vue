@@ -247,7 +247,7 @@ async function vote(pollId: number, vote: number) {
         get consensus around specific topics related to governance before submitting
         the proposal in the governance system or developing code.
       </p>
-      <p>
+      <p style="word-break: break-all;">
         The poll contract is <a :href="pollContractUrl">{{ pollContractId }}</a>.
       </p>
       <p>
@@ -389,5 +389,6 @@ async function vote(pollId: number, vote: number) {
 
 .buttons button{
   margin-right: 1em;
+  margin-bottom: 0.5em;
 }
 </style>

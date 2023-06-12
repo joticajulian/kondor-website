@@ -426,6 +426,7 @@ async function vote(pollId: number, vote: number) {
 
 .buttons button{
   margin-right: 1em;
+  margin-bottom: 0.5em;
 }
 
 .all-votes {
@@ -435,6 +436,12 @@ async function vote(pollId: number, vote: number) {
   width: 70%;
   min-width: 17em;
   justify-content: space-between;
+}
+
+@media only screen and (max-width: 600px) {
+  .all-votes {
+    flex-direction: column;
+  }
 }
 
 .all-votes h1 {
