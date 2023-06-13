@@ -160,7 +160,7 @@ async function getPolls() {
   polls.value = result.polls.map(poll => {
     const yesVotes = BigInt(poll.yes_vhp_votes ?? "0");
     const totalVotes = BigInt(poll.total_vhp_votes ?? "0");
-    const totalSupply = BigInt(poll.total_vhp_supply ?? "0");
+    const vhpProd = poll.vhp_producing.reduce<bigint>((t,v) => t + BigInt(v ?? "0"), BigInt(0)) / BigInt(5);
     const noVotes = BigInt(totalVotes - yesVotes);
 
     const percentage = (num: bigint, den: bigint): string => {
@@ -177,7 +177,7 @@ async function getPolls() {
       no_button_text: "Vote NO ❌",
       yes_class: {"voted-yes": false},
       no_class: {"voted-no": false},
-      participation: percentage(totalVotes, totalSupply),
+      participation: percentage(totalVotes, vhpProd),
       start_date: new Date(Number(poll.params.start_date)).toISOString().slice(0,-14),
       end_date: new Date(Number(poll.params.end_date)).toISOString().slice(0,-14),
       ended: Date.now() > Number(poll.params.end_date),

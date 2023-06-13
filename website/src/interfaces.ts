@@ -162,7 +162,7 @@ export interface PollData {
   params: PollParams;
   yes_vhp_votes: string;
   total_vhp_votes: string;
-  total_vhp_supply: string;
+  vhp_producing: string[];
   last_update: string;
 };
 
