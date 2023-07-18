@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@armana/walletconnect-koinos-sdk-js": "^0.0.4",
     "@roamin/my-koinos-wallet-sdk": "^0.0.9",
     "koilib": "^5.5.5",
     "kondor-js": "^0.4.2",
