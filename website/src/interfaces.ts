@@ -283,3 +283,64 @@ export interface PollContractClass extends Contract {
       }>;
   }
 }
+
+export class UserPoolData {
+  koin: {
+    pool1: bigint;
+    pool2: bigint;
+    wallet: bigint;
+  } = { pool1: BigInt(0), pool2: BigInt(0), wallet: BigInt(0)};
+  vhp: {
+    pool1: bigint;
+    pool2: bigint;
+    wallet: bigint;
+  } = { pool1: BigInt(0), pool2: BigInt(0), wallet: BigInt(0)};
+  vapor: {
+    pool1: bigint;
+    pool2: bigint;
+    wallet: bigint;
+  } = { pool1: BigInt(0), pool2: BigInt(0), wallet: BigInt(0)};
+}
+
+export interface FogataContractClass extends Contract {
+  functions: {
+    stake: <T = {}>(
+        args?: {
+          account: string;
+          koin_amount: string;
+          vhp_amount: string;        },
+        opts?: CallContractOptions
+      ) => Promise<{
+        operation: OperationJson;
+        transaction?: TransactionJsonWait;
+        result?: T;
+        receipt?: TransactionReceipt;
+      }>;
+
+    unstake: <T = {}>(
+        args?: {
+          account: string;
+          koin_amount: string;
+          vhp_amount: string;        },
+        opts?: CallContractOptions
+      ) => Promise<{
+        operation: OperationJson;
+        transaction?: TransactionJsonWait;
+        result?: T;
+        receipt?: TransactionReceipt;
+      }>;
+
+    set_collect_koin_preferences: <T = {}>(
+        args?: {
+          account: string;
+          all_after_virtual: string;
+          percentage_koin: string;        },
+        opts?: CallContractOptions
+      ) => Promise<{
+        operation: OperationJson;
+        transaction?: TransactionJsonWait;
+        result?: T;
+        receipt?: TransactionReceipt;
+      }>;
+  }
+}

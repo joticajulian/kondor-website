@@ -7,6 +7,9 @@ import NFTList from './views/NFTList.vue'
 import NFT from './views/NFT.vue'
 import PollList from './views/PollList.vue'
 import Poll from './views/Poll.vue'
+import JgaPool from './views/JgaPool.vue'
+import JgaPoolGov from './views/JgaPoolGov.vue'
+import JgaPoolProposal from './views/JgaPoolProposal.vue'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -15,7 +18,10 @@ const router = createRouter({
     { path: '/polls', name: 'Poll-List', component: PollList },
     { path: '/polls/:id', name: 'Poll', component: Poll },
     { path: '/kondor-nft', name: 'Kondor-NFT-List', component: NFTList },
-    { path: '/kondor-nft/:id', name: 'Kondor-NFT', component: NFT }
+    { path: '/kondor-nft/:id', name: 'Kondor-NFT', component: NFT },
+    { path: '/jgapool', name: 'Jga-Pool', component: JgaPool },
+    { path: '/jgapool/gov', name: 'Jga-Pool-Gov-List', component: JgaPoolGov },
+    { path: '/jgapool/gov/:id', name: 'Jga-Pool-Proposal', component: JgaPoolProposal },
   ],
 })
 
