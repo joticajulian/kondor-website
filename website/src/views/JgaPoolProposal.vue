@@ -236,7 +236,7 @@ async function vote(pollId: number, vote: number) {
 <template>
   <div>
     <HeaderProject
-    title="JGA Poll"
+    title="JGA Pool"
       url-path="/jgapool"
       @signer="setSigner"
     />

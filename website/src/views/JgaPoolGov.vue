@@ -192,14 +192,23 @@ async function vote(pollId: number, vote: number) {
 <template>
   <div>
     <HeaderProject
-      title="JGA Poll"
+      title="JGA Pool"
       url-path="/jgapool"
       @signer="setSigner"
     />
     <div class="description">
-      <p style="word-break: break-all;">
-        The gov contract is <a :href="jgaPoolGovContractUrl">{{ jgaPoolGovId }}</a>.
+      <p>The JGA Pool allows you to participate in the governance of koinos.
+        We act as representatives to the group of Koinos Block Producers, who are the
+        ones who control the governance. The votes are counted in the same way as
+        the governance system: 1 VHP = 1 vote 🗳️
       </p>
+      <p>
+        Once the participation reaches 60% we will update the vote of our pools.
+        If there is no enough participation we reserve the right to decide how to vote.
+      </p>
+      <!--<p style="word-break: break-all;">
+        The gov contract is <a :href="jgaPoolGovContractUrl">{{ jgaPoolGovId }}</a>.
+      </p>-->
     </div>
     <div class="all-polls">
       <div class="vhp-producing">

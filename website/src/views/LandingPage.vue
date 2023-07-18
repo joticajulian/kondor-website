@@ -18,7 +18,7 @@ import FootProject from "../components/FootProject.vue"
         <div class="title">Polls</div>
       </router-link>
       <router-link to="/jgapool" class="project-card">
-        <img src="/poll.png">
+        <img src="/jga-pool.png">
         <div class="title">JGA Pool</div>
       </router-link>
       <a href="https://fogata.io" class="project-card" target="_blank">

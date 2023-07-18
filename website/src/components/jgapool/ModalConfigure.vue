@@ -87,7 +87,33 @@ async function set() {
 
     if (initialPercentageSponsors !== BigInt(percentageSponsors.value)) {
       const newVirtual1 = totalVirtual * BigInt(percentageSponsors.value) / BigInt(100);
-      const newVirtual2 = totalVirtual - newVirtual1;
+      // const newVirtual2 = totalVirtual - newVirtual1;
+
+      if (newVirtual1 > virtual1) {
+        // move from pool#2 to pool#1
+        const deltaVirtual = newVirtual1 - virtual1;
+        const vhpToMove = deltaVirtual > vhpUser.pool2 ? vhpUser.pool2 : deltaVirtual;
+        const koinToMove = deltaVirtual - vhpToMove;
+        const params = {
+          account,
+          koin_amount: koinToMove.toString(),
+          vhp_amount: vhpToMove.toString(),
+        };
+        await tx.pushOperation(contract2.functions.unstake, params);
+        await tx.pushOperation(contract1.functions.stake, params);
+      } else {
+        // move from pool#1 to pool#2
+        const deltaVirtual = virtual1 - newVirtual1;
+        const vhpToMove = deltaVirtual > vhpUser.pool1 ? vhpUser.pool1 : deltaVirtual;
+        const koinToMove = deltaVirtual - vhpToMove;
+        const params = {
+          account,
+          koin_amount: koinToMove.toString(),
+          vhp_amount: vhpToMove.toString(),
+        };
+        await tx.pushOperation(contract1.functions.unstake, params);
+        await tx.pushOperation(contract2.functions.stake, params);
+      }
     }
 
     await tx.sign();

@@ -271,11 +271,13 @@ async function setSigner(signer: Signer) {
       @close="showModalConfigure = false"
     />
     <div class="description">
-      <p>JGA Pool is a mining pool for koinos blockchain. You can deposit KOIN
-        or VHP. The current APY is {{ apy }}. You can also destinate part of your earnings
+      <p>Earn KOIN and at the same time contribute to the decentratization
+        of the network. JGA Pool allows you to participate in the governance of
+        koinos. You can also destinate part of your earnings
         to the Sponsors program which will be used to fund projects in the ecosytem,
-        and you decide which projects should be funded.
+        and you decide which projects will be funded.
       </p>
+      <p>Current APY: {{ apy }}</p>
     </div>
     <div class="group-assets">
       <h1>Global Data</h1>
