@@ -47,14 +47,16 @@ async function getTotalVhp() {
   });
   
   try {
-    const { result } = await vhpContract.functions.balanceOf({
+    const { result: r1 } = await vhpContract.functions.balanceOf({
       owner: jgaPool1Id,
     });
-    if (result) {
-      vhpTotal.value = utils.formatUnits(result.value, 8);
-    } else {
-      vhpTotal.value = "0";
-    }
+    const { result: r2 } = await vhpContract.functions.balanceOf({
+      owner: jgaPool2Id,
+    });
+    let total = BigInt(0);
+    if (r1) total += BigInt(r1.value);
+    if (r2) total += BigInt(r2.value);
+    vhpTotal.value = utils.formatUnits(total.toString(), 8);
   } catch (error) {
     console.error(error);
   }

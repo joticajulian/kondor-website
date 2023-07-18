@@ -16,7 +16,9 @@ const vhpUser = props.userData!.vhp;
 const koinUser = props.userData!.koin;
 const virtual1 = vhpUser.pool1 + koinUser.pool1;
 const virtual2 = vhpUser.pool2 + koinUser.pool2;
-const totalVirtual = virtual1 + virtual2;
+const totalVirtual = virtual1 + virtual2 > BigInt(0)
+  ? virtual1 + virtual2
+  : BigInt(1);
 const initialPercentageSponsors = virtual1 * BigInt(100) / totalVirtual;
 
 let reburnSelection = ref("reburn-all");

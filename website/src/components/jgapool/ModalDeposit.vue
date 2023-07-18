@@ -3,7 +3,6 @@ import { ref, defineProps } from "vue"
 import { Contract, utils } from "koilib";
 import Alert from "../Alert.vue"
 import { FogataContractClass, UserPoolData } from "../../interfaces"
-import { TransactionJsonWait } from "koilib/lib/interface";
 
 const props = defineProps({
   contract1: Contract,
@@ -40,7 +39,7 @@ async function deposit() {
     }
     const koinToDepositC1Value = koinToDepositValue - koinToDepositC2Value;
     const vhpToDepositC1Value = vhpToDepositValue - vhpToDepositC2Value;
-    let tx: TransactionJsonWait;
+    let tx: Awaited<ReturnType<Contract["functions"]["xx"]>>["transaction"];
     if ((koinToDepositC1Value > BigInt(0) || vhpToDepositC1Value > BigInt(0)) && 
         (koinToDepositC2Value > BigInt(0) || vhpToDepositC2Value > BigInt(0))) {
       const { operation: op1 } = await contract1.functions.stake({
