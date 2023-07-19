@@ -31,6 +31,48 @@ onMounted(async () => {
     await mkw.connect();
     const signer = mkw.getSigner(address);
     emit("signer", signer);
+  } else if (wallet.value === "walletConnect") {
+    const walletConnectKoinos = new WalletConnectKoinos(
+      {
+        projectId: "d148ec2da7b4b498893e582c0c36dfb5",
+        metadata: {
+          name: "Koinosbox",
+          description: "Koinosbox",
+          url: "https://koinosbox.com",
+          icons: [
+            "https://walletconnect.com/_next/static/media/logo_mark.84dd8525.svg",
+          ],
+        },
+        modalOptions: {
+          explorerRecommendedWalletIds: "NONE",
+          enableExplorer: false,
+          walletImages: {
+            portal: 'https://portal.armana.io/favicon.png'
+          },
+          mobileWallets: [
+            {
+              id: 'portal',
+              name: 'Portal',
+              links: {
+                native: 'portal://',
+                universal: 'https://portal.armana.io'
+              }
+            }
+          ]
+        },
+      }
+    );
+  
+    const [address] = await walletConnectKoinos.connect(
+      [ChainIds.Mainnet],
+      [
+        Methods.SignAndSendTransaction,
+        Methods.PrepareTransaction,
+        Methods.WaitForTransaction,
+      ]
+    );
+    const signer = walletConnectKoinos.getSigner(address);
+    emit("signer", signer);
   }
 });
 
