@@ -2,6 +2,7 @@
 import { onMounted, ref, defineProps } from "vue";
 import * as kondor from "kondor-js"
 import MyKoinosWallet from '@roamin/my-koinos-wallet-sdk'
+import { ChainIds, Methods, WalletConnectKoinos } from "@armana/walletconnect-koinos-sdk-js";
 
 const props = defineProps({
   title: String,
@@ -88,6 +89,60 @@ async function useMKW() {
   emit("signer", signer);
   showDropdown.value = false;
 }
+
+async function useWalletConnect() {
+  const walletConnectKoinos = new WalletConnectKoinos(
+    {
+      projectId: "d148ec2da7b4b498893e582c0c36dfb5",
+      metadata: {
+        name: "Koinosbox",
+        description: "Koinosbox",
+        url: "https://koinosbox.com",
+        icons: [
+          "https://walletconnect.com/_next/static/media/logo_mark.84dd8525.svg",
+        ],
+      },
+      modalOptions: {
+        explorerRecommendedWalletIds: "NONE",
+        enableExplorer: false,
+        walletImages: {
+          portal: 'https://portal.armana.io/favicon.png'
+        },
+        mobileWallets: [
+          {
+            id: 'portal',
+            name: 'Portal',
+            links: {
+              native: 'portal://',
+              universal: 'https://portal.armana.io'
+            }
+          }
+        ]
+      },
+    }
+  );
+
+  const accounts = await walletConnectKoinos.connect(
+    [ChainIds.Mainnet],
+    [
+      Methods.SignAndSendTransaction,
+      Methods.PrepareTransaction,
+      Methods.WaitForTransaction,
+    ]
+  );
+
+  const [address] = accounts;
+  account.value = `${address.slice(0,4)}...${address.slice(30)}`;
+  wallet.value = "walletConnect";
+  window.localStorage.setItem("user", JSON.stringify({
+    wallet: "walletConnect",
+    address,
+  }));
+
+  const signer = walletConnectKoinos.getSigner(address);
+  emit("signer", signer);
+  showDropdown.value = false;
+}
 </script>
 
 <template>
@@ -113,6 +168,11 @@ async function useMKW() {
         <div class="wallet" :class="{'selected': wallet === 'mkw'}" @click="useMKW()">
           <div class="image">
             <img src="/mkw-logo.png"/>
+          </div>
+        </div>
+        <div class="wallet" :class="{'selected': wallet === 'walletConnect'}" @click="useWalletConnect()">
+          <div class="image">
+            <img src="/wallet-connect.png"/>
           </div>
         </div>
       </div>
@@ -179,8 +239,7 @@ async function useMKW() {
 
 .wallets {
   display: flex;
-  width: 15em;
-  justify-content: space-between;
+  flex-wrap: wrap;
 }
 
 .wallet {
@@ -189,6 +248,7 @@ async function useMKW() {
   padding: 2em;
   background: #eeeeee;
   border-radius: 8px;
+  margin: 0.5em;
 }
 
 .wallet.selected {
