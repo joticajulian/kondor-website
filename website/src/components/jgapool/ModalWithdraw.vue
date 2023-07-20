@@ -3,7 +3,6 @@ import { ref, defineProps, watch } from "vue"
 import { Contract, Transaction, Signer, utils } from "koilib";
 import Alert from "../Alert.vue"
 import { FogataContractClass, UserPoolData } from "../../interfaces"
-import { TransactionJsonWait } from "koilib/lib/interface";
 
 const props = defineProps({
   contract1: Contract,
