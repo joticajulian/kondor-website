@@ -66,8 +66,8 @@ onMounted(async () => {
     const [address] = await walletConnectKoinos.connect(
       [ChainIds.Mainnet],
       [
+        Methods.SignTransaction,
         Methods.SignAndSendTransaction,
-        Methods.PrepareTransaction,
         Methods.WaitForTransaction,
       ]
     );
@@ -167,8 +167,8 @@ async function useWalletConnect() {
   const accounts = await walletConnectKoinos.connect(
     [ChainIds.Mainnet],
     [
+      Methods.SignTransaction,
       Methods.SignAndSendTransaction,
-      Methods.PrepareTransaction,
       Methods.WaitForTransaction,
     ]
   );
