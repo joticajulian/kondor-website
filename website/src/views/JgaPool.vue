@@ -273,7 +273,7 @@ async function setSigner(signer: Signer) {
     <div class="description">
       <p>Earn KOIN and at the same time contribute to the decentratization
         of the network. JGA Pool allows you to participate in the governance of
-        koinos. You can also destinate part of your earnings
+        koinos. You can also designate part of your earnings
         to the Sponsors program which will be used to fund projects in the ecosytem,
         and you decide which projects will be funded.
       </p>
