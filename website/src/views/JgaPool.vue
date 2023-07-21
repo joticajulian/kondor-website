@@ -209,8 +209,8 @@ async function getUserData() {
     apyKoinValue = apyValue * (user.koin.pool2 + user.vhp.pool2) / (user.koin.pool1 + user.vhp.pool1 + user.koin.pool2 + user.vhp.pool2);
     apySponsorsValue = apyValue * (user.koin.pool1 + user.vhp.pool1) / (user.koin.pool1 + user.vhp.pool1 + user.koin.pool2 + user.vhp.pool2);
   }
-  const koinRewards1YearValue = user.vhp.pool2 * apyKoinValue / BigInt(10000);
-  const koinRewards1YearSponsorsValue = user.vhp.pool1 * apySponsorsValue / BigInt(10000);
+  const koinRewards1YearValue = user.vhp.pool2 * apyValue / BigInt(10000);
+  const koinRewards1YearSponsorsValue = user.vhp.pool1 * apyValue / BigInt(10000);
   const koinRewards1MonthValue = koinRewards1YearValue / BigInt(12);
   const koinRewards1DayValue = koinRewards1YearValue / BigInt(365);
   const koinRewards1DaySponsorsValue = koinRewards1YearSponsorsValue / BigInt(365);
@@ -333,7 +333,7 @@ async function setSigner(signer: Signer) {
         <div class="name">Rewards</div>
         <div class="value">
           {{ koinRewards1Year }} KOIN per year<br>
-          {{ koinRewards1Day }} KOIN per month
+          {{ koinRewards1Month }} KOIN per month
         </div>
       </div>
       <div class="data-row">
