@@ -19,7 +19,7 @@ const virtual2 = vhpUser.pool2 + koinUser.pool2;
 const totalVirtual = virtual1 + virtual2 > BigInt(0)
   ? virtual1 + virtual2
   : BigInt(1);
-const initialPercentageSponsors = virtual1 * BigInt(100) / totalVirtual;
+const initialPercentageSponsors = (virtual1 * BigInt(100) + totalVirtual / BigInt(2))/ totalVirtual;
 
 let reburnSelection = ref("reburn-all");
 let keepVirtual = ref("0.00000000");
