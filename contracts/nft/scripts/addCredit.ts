@@ -48,7 +48,7 @@ async function main() {
     amount: string;
   }[];
 
-  for (let i = 0; i < credits.length; i += 1 ) {
+  for (let i = 0; i < credits.length; i += 1) {
     await tx.pushOperation(contract.functions.addCredit, credits[i]);
   }
 

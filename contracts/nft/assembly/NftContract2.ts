@@ -22,11 +22,11 @@ export class NftContract2 extends NftWithMessage {
    */
   patch(args: common.uint32): void {
     System.require(this.only_owner(), "not authorized by the owner");
-    const key = Protobuf.encode<common.uint32>(args, common.uint32.encode)
+    const key = Protobuf.encode<common.uint32>(args, common.uint32.encode);
     const dataPatch = this.dataPatches.get(key)!;
     System.require(dataPatch.value == false, "patch already done");
 
-    switch(args.value) {
+    switch (args.value) {
       case 1: {
         // change Rusia to Russia
         const tokenId1 = StringBytes.stringToBytes("Rusia");

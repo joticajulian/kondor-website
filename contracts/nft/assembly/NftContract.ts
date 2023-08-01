@@ -92,6 +92,20 @@ export class NftContract extends Ownable {
   }
 
   /**
+   * Authority function to share mana
+   * @external
+   */
+  authorize(args: authority.authorize_arguments): authority.authorize_result {
+    // share mana with everyone
+    if (args.type == authority.authorization_type.transaction_application) {
+      return new authority.authorize_result(true);
+    }
+
+    System.log("authorization must be for transaction_application");
+    return new authority.authorize_result(false);
+  }
+
+  /**
    * Get name of the NFT
    * @external
    * @readonly

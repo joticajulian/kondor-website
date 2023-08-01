@@ -46,6 +46,7 @@ async function main() {
 
   const { receipt, transaction } = await contract.deploy({
     abi: JSON.stringify(abi),
+    authorizesTransactionApplication: true,
     rcLimit: "10000000000",
     nextOperations: [takeOwnership],
   });
