@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@armana/walletconnect-koinos-sdk-js": "^0.0.4",
+    "@koinosbox/contracts": "^1.1.2",
     "@roamin/my-koinos-wallet-sdk": "^0.0.9",
     "koilib": "^5.6.0",
     "kondor-js": "^0.4.2",

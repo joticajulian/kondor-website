@@ -344,3 +344,21 @@ export interface FogataContractClass extends Contract {
       }>;
   }
 }
+
+export interface NicknamesContractClass extends Contract {
+  functions: {
+    verify_valid_name: <T = {
+      value: string;
+    }>(
+      args?: {
+        value: string;
+      },
+      opts?: CallContractOptions
+    ) => Promise<{
+      operation: OperationJson;
+      transaction?: TransactionJsonWait;
+      result?: T;
+      receipt?: TransactionReceipt;
+    }>;
+  }
+}
