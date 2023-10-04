@@ -10,7 +10,8 @@ import Poll from './views/Poll.vue'
 import JgaPool from './views/JgaPool.vue'
 import JgaPoolGov from './views/JgaPoolGov.vue'
 import JgaPoolProposal from './views/JgaPoolProposal.vue'
-import Nicknames from './views/nicknames/CreateName.vue'
+import Nicknames from './views/nicknames/index.vue'
+import UpdateName from './views/nicknames/UpdateName.vue'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -24,6 +25,7 @@ const router = createRouter({
     { path: '/jgapool/gov', name: 'Jga-Pool-Gov-List', component: JgaPoolGov },
     { path: '/jgapool/gov/:id', name: 'Jga-Pool-Proposal', component: JgaPoolProposal },
     { path: '/nicknames', name: 'Nicknames', component: Nicknames },
+    { path: '/nicknames/update', name: 'Nicknames-update', component: UpdateName },
   ],
 })
 
