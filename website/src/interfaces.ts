@@ -360,5 +360,59 @@ export interface NicknamesContractClass extends Contract {
       result?: T;
       receipt?: TransactionReceipt;
     }>;
+
+    owner_of: <T = {
+      account: string;
+    }>(
+      args?: {
+        token_id: string;
+      },
+      opts?: CallContractOptions
+    ) => Promise<{
+      operation: OperationJson;
+      transaction?: TransactionJsonWait;
+      result?: T;
+      receipt?: TransactionReceipt;
+    }>;
+
+    metadata_of: <T = {
+      value: string;
+    }>(
+      args?: {
+        token_id: string;
+      },
+      opts?: CallContractOptions
+    ) => Promise<{
+      operation: OperationJson;
+      transaction?: TransactionJsonWait;
+      result?: T;
+      receipt?: TransactionReceipt;
+    }>;
+
+    set_metadata: <T = {}>(
+      args?: {
+        token_id: string;
+        metadata: string;
+      },
+      opts?: CallContractOptions
+    ) => Promise<{
+      operation: OperationJson;
+      transaction?: TransactionJsonWait;
+      result?: T;
+      receipt?: TransactionReceipt;
+    }>;
+
+    mint: <T = {}>(
+      args?: {
+        to: string;
+        token_id: string;
+      },
+      opts?: CallContractOptions
+    ) => Promise<{
+      operation: OperationJson;
+      transaction?: TransactionJsonWait;
+      result?: T;
+      receipt?: TransactionReceipt;
+    }>;
   }
 }

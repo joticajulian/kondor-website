@@ -85,7 +85,7 @@ async function create() {
     const valid = await checkName(name.value);
     if (valid) router.push({
       path: "/nicknames/update",
-      query: { name: name.value, "newName": "true" }
+      query: { name: name.value.replace("@", ""), "newName": "true" }
     });
   } catch (error) {
     nameError.value = (error as Error).message;
