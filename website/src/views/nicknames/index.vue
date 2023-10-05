@@ -127,5 +127,51 @@ async function create() {
 </template>
 
 <style scoped>
+.nick-container {
+  width: 80%;
+  margin: auto;
+  height: calc(100vh - 13.5em);
+  align-items: center;
+  vertical-align: middle;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
 
+.title {
+  text-align: center;
+  font-size: 3.5em;
+  font-weight: bold;
+  margin-bottom: 0.5em; 
+}
+
+.form {
+  display: flex;
+  align-content: center;
+}
+
+.form input {
+  margin-right: 1em;
+  margin-bottom: 0;
+}
+
+.form button {
+  /* height: 2em; */
+  /* padding: 0; */
+}
+
+.name-error {
+  margin-top:0.5em;
+  height: 1.2em;
+}
+
+@media only screen and (max-width: 600px) {
+  .form {
+    flex-direction: column;
+  }
+
+  .form input {
+    margin-bottom: 1em;
+  }
+}
 </style>
