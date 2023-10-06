@@ -14,6 +14,11 @@ let alertData = ref({
   message: "",
 });
 
+const classNotification = ref({
+  error: false,
+  success: false,
+});
+
 const rpcNodes = import.meta.env.VITE_RPC_NODES.split(",");
 const nicknamesContractId = ref(import.meta.env.VITE_NICKNAMES_CONTRACT_ID);
 const network = import.meta.env.VITE_NETWORK;
@@ -34,12 +39,41 @@ let timer: NodeJS.Timeout;
 watch(name, async (newValue) => {
   if (timer) {
     clearTimeout(timer);
-    timer = null;
   }
   timer = setTimeout(() => {
     checkName(newValue);
   }, 300);
 });
+
+function notify(type: "error" | "success" | "empty", message?: string) {
+  console.log(type);
+  switch (type) {
+    case "error": {
+      classNotification.value = {
+        error: true,
+        success: false,
+      };
+      nameError.value = message || "";
+      break;
+    }
+    case "success": {
+      classNotification.value = {
+        error: false,
+        success: true,
+      };
+      nameError.value = message || "";
+      break;
+    }
+    case "empty": {
+      classNotification.value = {
+        error: false,
+        success: false,
+      };
+      nameError.value = "";
+      break;
+    }
+  }
+}
 
 const nameUpdated = computed(() => {
   return name.value.startsWith("@") ? name.value : `@${name.value}`;
@@ -52,14 +86,14 @@ async function setSigner(signer: Signer) {
 
 async function checkName(input: string) {
   if (!input) {
-    nameError.value = "";
+    notify("empty");
     return false;
   }
 
   try {
     const value = input.startsWith("@") ? input.slice(1) : input;
     const { result } = await contract.value.functions.verify_valid_name({ value });
-    nameError.value = result?.value || "";
+    notify("success", result?.value);
     return true;
   } catch (error) {
     const { message } = error as Error;
@@ -70,12 +104,17 @@ async function checkName(input: string) {
       // empty
     }
     alreadyExist.value = jsonMessage.error.includes("already exist");
-    if (alreadyExist.value) nameError.value = "";
-    else nameError.value = jsonMessage.error;
-
-    if (nameError.value.includes("reserved for the owner of kap://")) {
+    if (alreadyExist.value) {
+      notify("empty");
+      return false;
+    }
+    
+    if (jsonMessage.error.includes("reserved for the owner of kap://")) {
+      notify("success", jsonMessage.error);
       return true;
     }
+    
+    notify("error", jsonMessage.error);
     return false;
   }
 }
@@ -109,7 +148,7 @@ async function create() {
         <input type="text" v-model="name" @keyup.enter="create()">
         <button @click="create()">Create</button>
       </div>
-      <div class="name-error">{{ nameError }}</div>
+      <div class="name-error" :class="classNotification">{{ nameError }}</div>
       <div v-if="alreadyExist" class="card-name">
         <div class="image"></div>
         <div class="name-content">
@@ -129,6 +168,7 @@ async function create() {
 <style scoped>
 .nick-container {
   width: 80%;
+  max-width: 40em;
   margin: auto;
   height: calc(100vh - 13.5em);
   align-items: center;
@@ -148,21 +188,34 @@ async function create() {
 .form {
   display: flex;
   align-content: center;
+  width: 100%;
+  justify-content: center;
 }
 
 .form input {
   margin-right: 1em;
   margin-bottom: 0;
-}
-
-.form button {
-  /* height: 2em; */
-  /* padding: 0; */
+  /* width: 60%; */
+  font-size: 1em;
 }
 
 .name-error {
-  margin-top:0.5em;
-  height: 1.2em;
+  margin-top: 1em;
+  height: 2.5em;
+  padding: 0.5em 1em;
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: 8px;
+}
+
+.error {
+  background-color: rgb(253, 205, 205);
+  color:red;
+}
+
+.success {
+  background-color: rgb(205, 253, 209);
+  color: green;
 }
 
 @media only screen and (max-width: 600px) {
@@ -171,6 +224,8 @@ async function create() {
   }
 
   .form input {
+    width: 100%;
+    margin-right: 0;
     margin-bottom: 1em;
   }
 }
