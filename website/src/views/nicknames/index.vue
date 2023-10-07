@@ -212,7 +212,7 @@ async function donate(value: number) {
       <button @click="donate(30)" class="donation d30">Donate 30 KOIN</button>
       <button @click="donate(100)" class="donation d100">Donate 100 KOIN</button>
     </div>
-    <FootProject/>
+    <FootProject :nomargin="true"/>
     <Alert
       :data="alertData"
       @close="alertData.show = false"
@@ -251,7 +251,7 @@ async function donate(value: number) {
   width: 80%;
   max-width: 40em;
   margin: auto;
-  height: calc(100vh - 13.5em);
+  height: calc(100vh - 10.5em);
   align-items: center;
   vertical-align: middle;
   display: flex;
