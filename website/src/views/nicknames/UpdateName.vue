@@ -200,7 +200,7 @@ async function register() {
             <input type="text" v-model="github">
           </div>
           <button @click="register()">{{ newName === "true" ? "Register" : "Update"}}</button>
-          <button @click="router.back()">Cancel</button>
+          <button @click="router.back()" style="margin-left: 1em;">Cancel</button>
         </div>
       </div>
     </div>
