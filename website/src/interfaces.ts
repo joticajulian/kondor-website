@@ -41,6 +41,24 @@ export class NftCard {
   classCard: { [x: string]: boolean} = {};
 }
 
+export interface TokenContractClass extends Contract {
+  functions: {
+    transfer: <T = {}>(
+        args?: {
+          from: string;
+          to: string;
+          value: string;
+        },
+        opts?: CallContractOptions
+      ) => Promise<{
+        operation: OperationJson;
+        transaction?: TransactionJsonWait;
+        result?: T;
+        receipt?: TransactionReceipt;
+      }>;
+  }
+}
+
 export interface NftContractClass extends Contract {
   functions: {
     bid: <T = {}>(

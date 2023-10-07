@@ -1,5 +1,9 @@
 import { createApp } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faTwitter, faTelegram, faDiscord, faGithub } from '@fortawesome/free-brands-svg-icons'
+import { faLocationDot } from '@fortawesome/free-solid-svg-icons'
 import './style.css'
 import App from './App.vue'
 import LandingPage from './views/LandingPage.vue'
@@ -13,6 +17,8 @@ import JgaPoolProposal from './views/JgaPoolProposal.vue'
 import Nicknames from './views/nicknames/index.vue'
 import UpdateName from './views/nicknames/UpdateName.vue'
 import NameProfile from './views/nicknames/NameProfile.vue'
+
+library.add(faTwitter, faDiscord, faGithub, faTelegram, faLocationDot);
 
 const router = createRouter({
   history: createWebHistory(),
@@ -32,5 +38,6 @@ const router = createRouter({
 })
 
 createApp(App)
+  .component('font-awesome-icon', FontAwesomeIcon)
   .use(router)
   .mount('#app')

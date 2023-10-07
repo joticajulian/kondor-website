@@ -6,7 +6,7 @@ import * as nicknamesAbi from "@koinosbox/contracts/assembly/nicknames/nicknames
 import HeaderProject from "../../components/HeaderProject.vue"
 import FootProject from "../../components/FootProject.vue"
 import Alert from "../../components/Alert.vue"
-import { NicknamesContractClass } from "../../interfaces"
+import { NicknamesContractClass, TokenContractClass } from "../../interfaces"
 
 let alertData = ref({
   type: "",
@@ -34,9 +34,11 @@ const account = ref("");
 const name = ref("");
 const nameError = ref("");
 const alreadyExist = ref(false);
+const loading = ref(false);
 let timer: NodeJS.Timeout;
 
 watch(name, async (newValue) => {
+  loading.value = true;
   if (timer) {
     clearTimeout(timer);
   }
@@ -46,7 +48,6 @@ watch(name, async (newValue) => {
 });
 
 function notify(type: "error" | "success" | "empty", message?: string) {
-  console.log(type);
   switch (type) {
     case "error": {
       classNotification.value = {
@@ -73,6 +74,7 @@ function notify(type: "error" | "success" | "empty", message?: string) {
       break;
     }
   }
+  loading.value = false;
 }
 
 const nameUpdated = computed(() => {
@@ -122,12 +124,56 @@ async function checkName(input: string) {
 async function create() {
   try {
     const valid = await checkName(name.value);
+    if (alreadyExist.value) {
+      router.push(`/nicknames/@${name.value.replace("@", "")}`);
+    }
     if (valid) router.push({
       path: "/nicknames/update",
       query: { name: name.value.replace("@", ""), "newName": "true" }
     });
   } catch (error) {
     nameError.value = (error as Error).message;
+  }
+}
+
+async function donate(value: number) {
+  try {
+    if(!account.value) throw new Error("Connect your wallet");
+
+    const koin = new Contract({
+      id: import.meta.env.VITE_KOIN_CONTRACT_ID,
+      provider,
+      signer: contract.value.signer as Signer,
+      abi: utils.tokenAbi,
+    }) as TokenContractClass;
+  
+    const manaAvailable = await koin.provider!.getAccountRc(account.value);
+    const rcLimit = Math.min(10_0000_0000, Number(manaAvailable)).toString();
+
+    const { transaction } = await koin.functions.transfer({
+      from: account.value,
+      to: "1z629tURV9KAK6Q5yqFDozwSHeWshxXQe",
+      value: `${value}00000000`,
+    }, { rcLimit });console.log(`${value}00000000`);
+
+    alertData.value = {
+      type: "info",
+      show: true,
+      message: `Donation submitted. Waiting to be mined`,
+    }
+    if (!transaction) throw new Error("Error submitting the transaction");
+    await transaction.wait();
+    alertData.value = {
+      type: "success",
+      show: true,
+      message: `Thanks for your contribution!`,
+    }
+  } catch (error) {
+    alertData.value = {
+      type: "error",
+      show: true,
+      message: (error as Error).message
+    }
   }
 }
 
@@ -139,23 +185,32 @@ async function create() {
       title="Nicknames"
       url-path="/nicknames"
       @signer="setSigner"
+      @disconnect="account = ''"
     />
     <div class="nick-container">
       <div class="title">
-        Nicknames
+        <img src="/nicknames_logo_bright.svg">
       </div>
       <div class="form">
         <input type="text" v-model="name" @keyup.enter="create()">
-        <button @click="create()">Create</button>
+        <button @click="create()">
+          <span v-if="loading" class="loader"></span>
+          <span v-else>{{ alreadyExist ? "view" : "create" }}</span>
+        </button>
       </div>
       <div class="name-error" :class="classNotification">{{ nameError }}</div>
-      <div v-if="alreadyExist" class="card-name">
+      <!--<div v-if="alreadyExist" class="card-name">
         <div class="image"></div>
         <div class="name-content">
           <div class="nickname">{{ nameUpdated }}</div>
           <button @click="$router.push(`/nicknames/${nameUpdated}`)">view</button>
         </div>
-      </div>
+      </div>-->
+    </div>
+    <div class="donations">
+      <button @click="donate(10)" class="donation d10">Donate 10 KOIN</button>
+      <button @click="donate(30)" class="donation d30">Donate 30 KOIN</button>
+      <button @click="donate(100)" class="donation d100">Donate 100 KOIN</button>
     </div>
     <FootProject/>
     <Alert
@@ -166,6 +221,32 @@ async function create() {
 </template>
 
 <style scoped>
+
+.donations {
+  display: flex;
+  justify-content: end;
+}
+
+.donation {
+  font-size: 0.6em;
+  margin-left: 0.5em;
+}
+
+.d10 {
+  background-color: #dbdbdb;
+}
+
+.d30 {
+  background-color: #0e254fc7;
+  color: white;
+}
+
+.d100 {
+  background-color: rgb(248 116 163 / 81%);
+  color: white;
+  margin-right: 2em;
+}
+
 .nick-container {
   width: 80%;
   max-width: 40em;
@@ -182,7 +263,12 @@ async function create() {
   text-align: center;
   font-size: 3.5em;
   font-weight: bold;
-  margin-bottom: 0.5em; 
+  margin-bottom: 0.5em;
+}
+
+.title img {
+  width: 80%;
+  max-width: 40em;
 }
 
 .form {

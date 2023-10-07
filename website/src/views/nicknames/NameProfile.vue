@@ -19,6 +19,14 @@ const image = ref("");
 const imageRender = computed(() => {
   return image.value || "https://upload.wikimedia.org/wikipedia/commons/b/bc/Unknown_person.jpg";
 });
+const websiteRender = computed(() => {
+  return website.value.startsWith("http") ? website.value : `https://${website.value}`;
+});
+const twitterRender = computed(() => twitter.value && twitter.value.startsWith("http") ? twitter.value : `https://twitter.com/${twitter.value}`);
+const githubRender = computed(() => github.value && github.value.startsWith("http") ? github.value : `https://github.com/${github.value}`);
+const discordRender = computed(() => discord.value && discord.value.startsWith("http") ? discord.value : `https://discord.com/users/${discord.value}`);
+const telegramRender = computed(() => telegram.value && telegram.value.startsWith("http") ? telegram.value : `https://t.me/${telegram.value}`);
+
 const background = ref("");
 const bio = ref("");
 const location = ref("");
@@ -90,33 +98,48 @@ onMounted(async () => {
     }
   }
 });
+
+function update() {
+  router.push({
+    path: "/nicknames/update",
+    query: { name: name.replace("@", ""), "newName": "false" }
+  });
+}
 </script>
 
 <template>
-  <div>
+  <div class="page" :style="`background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 1)), url(${background});`">
     <HeaderProject
       title="Nicknames"
       url-path="/nicknames"
       @signer="setSigner"
+      @disconnect="account = ''"
     />
     <div class="nick-container">
       <div class="image">
-        <img :src="image">
+        <img :src="imageRender">
       </div>
       <div class="content">
         <div class="title-name">
           <div class="nickname">{{ name }}</div>
           <div class="address">{{ owner }}</div>
+          <div class="block-explorers">
+            <a class="blockexplorer" :href="`https://koinosblocks.com/address/${owner}`" target="_blank">koinosblocks</a>
+            <a class="blockexplorer" :href="`https://koiner.app/addresses/${owner}`" target="_blank">koiner</a>
+          </div>
         </div>
         <div class="data">
-          <div class="bio">{{ bio }}</div>
-          <div class="location">{{ location }}</div>
-          <div class="website">{{ website }}</div>
-          <div class="email">{{ email }}</div>
-          <div class="twitter">{{ twitter }}</div>
-          <div class="telegram">{{ telegram }}</div>
-          <div class="discord">{{ discord }}</div>
-          <div class="github">{{ github }}</div>
+          <div v-if="bio" class="bio">{{ bio }}</div>
+          <div v-if="location" class="location"><font-awesome-icon icon="fa-solid fa-location-dot" /> {{ location }}</div>
+          <a v-if="website" :href="websiteRender" class="website" target="_blank">{{ website }}</a>
+          <div v-if="email" class="email">{{ email }}</div>
+          <div class="brands">
+            <a v-if="twitter" :href="twitterRender" target="_blank" class="brand-icon"><font-awesome-icon icon="fa-brands fa-twitter" /></a>
+            <a v-if="telegram" :href="telegramRender" target="_blank" class="brand-icon"><font-awesome-icon icon="fa-brands fa-telegram" /></a>
+            <a v-if="discord" :href="discordRender" target="_blank" class="brand-icon"><font-awesome-icon icon="fa-brands fa-discord" /></a>
+            <a v-if="github" :href="githubRender" target="_blank" class="brand-icon"><font-awesome-icon icon="fa-brands fa-github" /></a>
+          </div>
+          <button v-if="account === owner" @click="update">Update</button>
         </div>
       </div>
     </div>
@@ -129,5 +152,100 @@ onMounted(async () => {
 </template>
 
 <style scoped>
+.nick-container {
+  display: flex;
+  width: 80%;
+  margin: auto;
+  margin-top: 3em;
+}
+.image {
+  width: 15em;
+  line-height: 0;
+  margin-right: 2em;
+}
 
+.image img {
+  width: inherit;
+  border-radius: 20%;
+  box-shadow: 0em 0em 2em white;
+}
+
+.nickname {
+  font-size: 3em;
+  word-break: break-all;
+  font-weight: bold;
+}
+
+.address {
+  font-weight: bold;
+}
+
+.block-explorers {
+  display: flex;
+  justify-content: end;
+  margin-top: 0.2em;
+}
+
+.blockexplorer {
+  margin-left: 0.5em;
+  font-size: 0.8em;
+  font-weight: unset;
+  color: white;
+  background-color: blueviolet;
+  border-radius: 8px;
+  padding: 0.2em 0.7em;
+}
+
+.content {
+  background: #ffffffd1;
+  border-radius: 2em;
+  padding: 2em;
+}
+
+.data button {
+  margin-top: 2em;
+}
+
+.bio {
+  margin: 1em 0;
+}
+
+.location, .email {
+  text-align: end;
+}
+
+.website {
+  display: flex;
+  justify-content: end;
+}
+
+.brands {
+  margin-top:1em;
+  text-align: center;
+}
+
+.brand-icon {
+  font-size: 2em;
+  margin: 1em 0.2em;
+}
+
+@media only screen and (max-width: 800px) {
+  .nick-container {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .title-name {
+    text-align: center;
+  }
+
+  .image {
+    margin-right: 0;
+    margin-bottom: 3em;
+  }
+
+  .address {
+    font-size: 0.8em;
+  }
+}
 </style>
