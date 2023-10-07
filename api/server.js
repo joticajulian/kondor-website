@@ -1,4 +1,12 @@
 const fastify = require("fastify")({ logger: true });
+const { Contract, Provider } = require("koilib");
+const nicknamesAbi = require("./nicknames-abi.json");
+
+const nick = new Contract({
+  id: "1KD9Es7LBBjA1FY3ViCgQJ7e6WH1ipKbhz",
+  abi: nicknamesAbi,
+  provider: new Provider(["https://api.koinos.io"]),
+}).functions;
 
 const validNames = [
   "Afghanistan",
@@ -178,6 +186,26 @@ fastify.get("/kondor-nfts/:id", async (req, reply) => {
     }
   }
 });
+
+fastify.get("/nicknames/:id", async (req, reply) => {
+  const { id } = req.params;
+  reply.header("Access-Control-Allow-Origin", "*");
+  reply.header("Access-Control-Allow-Methods", "POST, OPTIONS");
+  try {
+    const { result } = await nick.metadata_of({ token_id: id });
+    reply.send(result.value);
+  } catch (error) {
+    if (error.code && error.response) {
+      reply.code(error.code);
+      reply.send(error.response);
+    } else {
+      reply.code(500);
+      reply.send("kondor nft internal server error");
+    }
+  }
+});
+
+
 
 const start = async () => {
   try {
