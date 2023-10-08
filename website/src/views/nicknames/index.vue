@@ -252,6 +252,7 @@ async function donate(value: number) {
   max-width: 40em;
   margin: auto;
   height: calc(100vh - 10.5em);
+  min-height: 20em;
   align-items: center;
   vertical-align: middle;
   display: flex;
@@ -287,7 +288,7 @@ async function donate(value: number) {
 
 .name-error {
   margin-top: 1em;
-  height: 2.5em;
+  min-height: 2.5em;
   padding: 0.5em 1em;
   width: 100%;
   box-sizing: border-box;

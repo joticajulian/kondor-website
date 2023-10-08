@@ -49,6 +49,7 @@ const contract = ref(new Contract({
 
 const router = useRouter();
 const name = router.currentRoute.value.params.id as string;
+const tokenId = `0x${utils.toHexString(new TextEncoder().encode(name))}`;
 const account = ref("");
 
 async function setSigner(signer: Signer) {
@@ -120,27 +121,30 @@ function update() {
         <img :src="imageRender">
       </div>
       <div class="content">
-        <div class="title-name">
-          <div class="nickname">{{ name }}</div>
-          <div class="address">{{ owner }}</div>
-          <div class="block-explorers">
-            <a class="blockexplorer" :href="`https://koinosblocks.com/address/${owner}`" target="_blank">koinosblocks</a>
-            <a class="blockexplorer" :href="`https://koiner.app/addresses/${owner}`" target="_blank">koiner</a>
+        <div class="content-box">
+          <div class="title-name">
+            <div class="nickname">{{ name }}</div>
+            <div class="address">{{ owner }}</div>
+            <div class="block-explorers">
+              <a class="blockexplorer" :href="`https://koinosblocks.com/address/${owner}`" target="_blank">koinosblocks</a>
+              <a class="blockexplorer" :href="`https://koiner.app/addresses/${owner}`" target="_blank">koiner</a>
+            </div>
+          </div>
+          <div class="data">
+            <div v-if="bio" class="bio">{{ bio }}</div>
+            <div v-if="location" class="location"><font-awesome-icon icon="fa-solid fa-location-dot" /> {{ location }}</div>
+            <a v-if="website" :href="websiteRender" class="website" target="_blank">{{ website }}</a>
+            <div v-if="email" class="email">{{ email }}</div>
+            <div class="brands">
+              <a v-if="twitter" :href="twitterRender" target="_blank" class="brand-icon"><font-awesome-icon icon="fa-brands fa-twitter" /></a>
+              <a v-if="telegram" :href="telegramRender" target="_blank" class="brand-icon"><font-awesome-icon icon="fa-brands fa-telegram" /></a>
+              <a v-if="discord" :href="discordRender" target="_blank" class="brand-icon"><font-awesome-icon icon="fa-brands fa-discord" /></a>
+              <a v-if="github" :href="githubRender" target="_blank" class="brand-icon"><font-awesome-icon icon="fa-brands fa-github" /></a>
+            </div>
+            <button v-if="account === owner" @click="update">Update</button>
           </div>
         </div>
-        <div class="data">
-          <div v-if="bio" class="bio">{{ bio }}</div>
-          <div v-if="location" class="location"><font-awesome-icon icon="fa-solid fa-location-dot" /> {{ location }}</div>
-          <a v-if="website" :href="websiteRender" class="website" target="_blank">{{ website }}</a>
-          <div v-if="email" class="email">{{ email }}</div>
-          <div class="brands">
-            <a v-if="twitter" :href="twitterRender" target="_blank" class="brand-icon"><font-awesome-icon icon="fa-brands fa-twitter" /></a>
-            <a v-if="telegram" :href="telegramRender" target="_blank" class="brand-icon"><font-awesome-icon icon="fa-brands fa-telegram" /></a>
-            <a v-if="discord" :href="discordRender" target="_blank" class="brand-icon"><font-awesome-icon icon="fa-brands fa-discord" /></a>
-            <a v-if="github" :href="githubRender" target="_blank" class="brand-icon"><font-awesome-icon icon="fa-brands fa-github" /></a>
-          </div>
-          <button v-if="account === owner" @click="update">Update</button>
-        </div>
+        <div class="token-id">Token ID: {{ tokenId }}</div>
       </div>
     </div>
     <FootProject/>
@@ -157,7 +161,16 @@ function update() {
   width: 80%;
   margin: auto;
   margin-top: 3em;
+  min-height: calc(100vh - 16.5em);
 }
+
+.token-id {
+  /*width: 100%;*/
+  text-align: center;
+  color: gray;
+  font-size: 0.7em;
+}
+
 .image {
   width: 15em;
   line-height: 0;
@@ -196,7 +209,7 @@ function update() {
   padding: 0.2em 0.7em;
 }
 
-.content {
+.content-box {
   background: #ffffffd1;
   border-radius: 2em;
   padding: 2em;

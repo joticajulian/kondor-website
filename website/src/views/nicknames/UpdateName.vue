@@ -164,7 +164,7 @@ async function register() {
             <input type="text" v-model="image">
           </div>
           <div class="group">
-            <label for="">Background</label>
+            <label for="">Background URL</label>
             <input type="text" v-model="background">
           </div>
           <div class="group">
