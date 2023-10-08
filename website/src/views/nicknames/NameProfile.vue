@@ -165,7 +165,6 @@ function update() {
 }
 
 .token-id {
-  /*width: 100%;*/
   text-align: center;
   color: gray;
   font-size: 0.7em;
