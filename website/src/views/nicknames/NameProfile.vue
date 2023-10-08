@@ -49,7 +49,7 @@ const contract = ref(new Contract({
 
 const router = useRouter();
 const name = router.currentRoute.value.params.id as string;
-const tokenId = `0x${utils.toHexString(new TextEncoder().encode(name))}`;
+const tokenId = `0x${utils.toHexString(new TextEncoder().encode(name.slice(1)))}`;
 const account = ref("");
 
 async function setSigner(signer: Signer) {
@@ -60,7 +60,6 @@ async function setSigner(signer: Signer) {
 onMounted(async () => {
   try {
     if (!name.startsWith("@")) throw new Error("The nickname must start with @");
-    const tokenId = `0x${utils.toHexString(new TextEncoder().encode(name.slice(1)))}`;
     const { result: resultOwner } = await contract.value.functions.owner_of({
       token_id: tokenId,
     });
