@@ -8,6 +8,10 @@ import FootProject from "../../components/FootProject.vue"
 import Alert from "../../components/Alert.vue"
 import { NicknamesContractClass } from "../../interfaces"
 
+function getName(tokenId: string) {
+  return new TextDecoder().decode(utils.toUint8Array(tokenId.slice(2)));
+}
+
 let alertData = ref({
   type: "",
   show: false,
@@ -36,6 +40,9 @@ const twitter = ref("");
 const telegram = ref("");
 const discord = ref("");
 const github = ref("");
+
+const otherNames = ref([] as string[]);
+const mainName = ref("");
 
 const rpcNodes = import.meta.env.VITE_RPC_NODES.split(",");
 const nicknamesContractId = ref(import.meta.env.VITE_NICKNAMES_CONTRACT_ID);
@@ -90,12 +97,34 @@ onMounted(async () => {
     telegram.value = metadata.telegram;
     discord.value = metadata.discord;
     github.value = metadata.github;
+
+    const { result: resultMainToken } = await contract.value.functions.get_main_token({
+      account: owner.value,
+    });
+
+    if (resultMainToken && resultMainToken.token_id) {
+      mainName.value = getName(resultMainToken.token_id);
+    }
+
+    const { result: tokensByOwner } = await contract.value.functions.get_tokens_by_owner({
+      owner: owner.value,
+      start: "",
+      limit: 80,
+    });
+
+    otherNames.value = tokensByOwner?.token_ids
+      .map(t => getName(t))
+      .filter(n => n !== mainName.value && n !== name.slice(1))
+      .sort()
+      || [];
+
   } catch (error) {
     alertData.value = {
       type: "error",
       show: true,
       message: (error as Error).message
     }
+    console.error(error);
   }
 });
 
@@ -104,6 +133,39 @@ function update() {
     path: "/nicknames/update",
     query: { name: name.replace("@", ""), "newName": "false" }
   });
+}
+
+async function setMainName() {
+  try {
+    if(!account.value) throw new Error("Connect your wallet");
+    const manaAvailable = await contract.value.provider!.getAccountRc(account.value);
+    const rcLimit = Math.min(10_0000_0000, Number(manaAvailable)).toString();
+
+    const { transaction } = await contract.value.functions.set_main_token({
+      token_id: tokenId,
+    }, { rcLimit });
+
+    alertData.value = {
+      type: "info",
+      show: true,
+      message: `Transaction submitted. Waiting to be mined`,
+    }
+    if (!transaction) throw new Error("Error submitting the transaction");
+    await transaction.wait();
+    alertData.value = {
+      type: "success",
+      show: true,
+      message: `Transaction mined.`,
+    }
+    router.push(`/nicknames/@${name}`);
+  } catch (error) {
+    alertData.value = {
+      type: "error",
+      show: true,
+      message: (error as Error).message
+    }
+    console.error(error);
+  }
 }
 </script>
 
@@ -140,7 +202,18 @@ function update() {
               <a v-if="discord" :href="discordRender" target="_blank" class="brand-icon"><font-awesome-icon icon="fa-brands fa-discord" /></a>
               <a v-if="github" :href="githubRender" target="_blank" class="brand-icon"><font-awesome-icon icon="fa-brands fa-github" /></a>
             </div>
+            <div v-if="otherNames.length > 0" class="other-names">
+              <h3>Names linked to same address</h3>
+              <p>Main name: <a :href="`/nicknames/@${mainName}`">@{{ mainName }}</a></p>
+              <p>
+                Others:
+                <span v-for="otherName in otherNames">
+                  <a :href="`/nicknames/@${otherName}`">@{{ otherName }}</a>{{ " " }}
+                </span>
+              </p>
+            </div>
             <button v-if="account === owner" @click="update">Update</button>
+            <button v-if="account === owner && mainName !== name.slice(1)" @click="setMainName">Set {{ name }} as main name</button>
           </div>
         </div>
         <div class="token-id">Token ID: {{ tokenId }}</div>
@@ -238,6 +311,19 @@ function update() {
 .brand-icon {
   font-size: 2em;
   margin: 1em 0.2em;
+}
+
+.other-names {
+  margin-top: 2em;
+  font-size: 0.8em;
+}
+
+.other-names p, h3 {
+  margin: 0;
+}
+
+button {
+  margin-right: 1em;
 }
 
 @media only screen and (max-width: 800px) {

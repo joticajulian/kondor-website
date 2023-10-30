@@ -136,6 +136,7 @@ async function register() {
       show: true,
       message: (error as Error).message
     }
+    console.error(error);
   }
 }
 </script>
@@ -160,7 +161,7 @@ async function register() {
         <div class="form">
           <p>All fields are OPTIONAL</p>
           <div class="group">
-            <label for="">Image URL <span class="small">(use a service like <a href="https://imagesharing.com/" target="_blank">ImageSharing</a> or <a href="https://postimages.org/" target="_blank">PostImages</a> to upload the image)</span></label>
+            <label for="">Image URL <span class="small">(use a service like <a href="https://postimages.org/" target="_blank">PostImages</a> to upload the image)</span></label>
             <input type="text" v-model="image">
           </div>
           <div class="group">
