@@ -63,7 +63,8 @@ async function set() {
       case "reburn-percentage": {
         allAfterVirtual1 = "0";
         allAfterVirtual2 = "0";
-        percentageKoin = utils.parseUnits(reburnPercentage.value.replace("%","").trim(), 3);
+        percentageKoin = Number(100000 - Number(utils.parseUnits(reburnPercentage.value.replace("%","").trim(), 3))).toString();
+        break;
       }
       default: {
         // reburn-all
@@ -73,6 +74,7 @@ async function set() {
         break;
       }      
     }
+    console.log(percentageKoin);
 
     await tx.pushOperation(contract1.functions.set_collect_koin_preferences, {
       account,
