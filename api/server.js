@@ -8,6 +8,12 @@ const nick = new Contract({
   provider: new Provider(["https://api.koinos.io"]),
 }).functions;
 
+const elementus = new Contract({
+  id: "1EwJUW4BFbA4EGmSyB9bgdhB3gk2f3shRN",
+  abi: nicknamesAbi,
+  provider: new Provider(["https://api.koinos.io"]),
+}).functions;
+
 const validNames = [
   "Afghanistan",
   "Algeria",
@@ -205,7 +211,23 @@ fastify.get("/nicknames/:id", async (req, reply) => {
   }
 });
 
-
+fastify.get("/kondor-elementus/:id", async (req, reply) => {
+  const { id } = req.params;
+  reply.header("Access-Control-Allow-Origin", "*");
+  reply.header("Access-Control-Allow-Methods", "POST, OPTIONS");
+  try {
+    const { result } = await elementus.metadata_of({ token_id: id });
+    reply.send(result.value);
+  } catch (error) {
+    if (error.code && error.response) {
+      reply.code(error.code);
+      reply.send(error.response);
+    } else {
+      reply.code(500);
+      reply.send("elementus internal server error");
+    }
+  }
+});
 
 const start = async () => {
   try {
