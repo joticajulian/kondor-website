@@ -221,11 +221,11 @@ fastify.get("/kondor-elementus/:id", async (req, reply) => {
     /**
      * temporal solution to reduce size
      */
-    const metadata = JSON.parse(result.value);
+    /*const metadata = JSON.parse(result.value);
     const newUrl = metadata.file_url.replace("/elementus/", "/elementus-small/");
     metadata.file_url = newUrl;
     metadata.image = newUrl;
-    result.value = JSON.stringify(metadata);
+    result.value = JSON.stringify(metadata);*/
 
     reply.send(result.value);
   } catch (error) {
