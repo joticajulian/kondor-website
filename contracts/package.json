@@ -3,19 +3,19 @@
   "version": "0.1.0",
   "license": "MIT",
   "dependencies": {
-    "koilib": "^5.5.3",
-    "koinos-precompiler-as": "^0.4.1"
+    "koilib": "^5.6.1",
+    "koinos-precompiler-as": "^1.5.0"
   },
   "devDependencies": {
-    "@as-covers/core": "^0.2.1",
-    "@as-pect/cli": "^6.2.4",
-    "@koinos/mock-vm": "^0.4.3",
-    "@koinos/sdk-as": "^0.4.5",
+    "@as-covers/core": "^0.4.2",
+    "@as-pect/cli": "^8.0.1",
+    "@koinos/mock-vm": "1.0.0",
+    "@koinos/sdk-as": "npm:@koinosbox/sdk-as@1.1.0-alpha.4",
     "@roaminroe/protoc": "^2.4.0",
     "@typescript-eslint/eslint-plugin": "^5.39.0",
     "@typescript-eslint/parser": "^5.39.0",
-    "as-proto": "npm:@koinos/as-proto@1.0.0",
-    "assemblyscript": "^0.19.22",
+    "as-proto": "npm:@koinos/as-proto@1.0.1",
+    "assemblyscript": "^0.27.1",
     "copyfiles": "^2.4.1",
     "dotenv": "^16.0.3",
     "eslint": "^8.25.0",
@@ -44,6 +44,6 @@
     "lint": "eslint --max-warnings 0 --ext ts \"*/assembly/**/*.ts\""
   },
   "config": {
-    "protocVersion": "21.8"
+    "protocVersion": "25.2"
   }
 }
