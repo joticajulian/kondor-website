@@ -48,7 +48,7 @@ export class NftContract2 extends NftWithMessage {
         auct.bid!.token_id = tokenId;
         this.auctions.put(tokenId, auct);
         break;
-      } */
+      }
       case 3: {
         const MAX_TOKEN_ID_LENGTH = 32;
         const tokens = this.get_tokens(
@@ -67,7 +67,7 @@ export class NftContract2 extends NftWithMessage {
           `token owner pairs have been updated. Total nfts updated: ${tokens.token_ids.length}`
         );
         break;
-      }
+      } */
       default: {
         System.fail(`patch logic #${args.value} not implemented`);
       }

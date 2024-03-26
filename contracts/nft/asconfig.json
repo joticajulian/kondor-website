@@ -16,5 +16,11 @@
       "noAssert": false
     }
   },
-  "options": {}
+  "options": {
+    "exportStart": "_start",
+    "disable": ["sign-extension", "bulk-memory"],
+    "disableWarning": "235",
+    "lib": [],
+    "use": ["abort="]
+  }
 }

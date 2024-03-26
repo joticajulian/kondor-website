@@ -26,12 +26,12 @@ async function main() {
     bytecode: fs.readFileSync(
       path.join(__dirname, "../build/release/nft.wasm")
     ),
-    options: {
+    /*options: {
       payer: accountWithFunds.address,
       beforeSend: async (tx: TransactionJson) => {
         await accountWithFunds.signTransaction(tx);
       },
-    },
+    },*/
   });
 
   const { operation: takeOwnership } =
@@ -47,8 +47,8 @@ async function main() {
   const { receipt, transaction } = await contract.deploy({
     abi: JSON.stringify(abi),
     authorizesTransactionApplication: true,
-    rcLimit: "10000000000",
-    nextOperations: [takeOwnership],
+    rcLimit: "1000000000",
+    // nextOperations: [takeOwnership],
   });
   console.log("Transaction submitted. Receipt: ");
   console.log(receipt);
