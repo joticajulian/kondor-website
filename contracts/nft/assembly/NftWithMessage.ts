@@ -1,23 +1,16 @@
-import { System, Storage } from "@koinos/sdk-as";
-import { common } from "./proto/common";
-import { nft } from "./proto/nft";
+import { System, Storage, authority } from "@koinos/sdk-as";
+import { common, nft } from "@koinosbox/contracts";
 import { nftmessage } from "./proto/nftmessage";
 import { AuctionNftContract } from "./AuctionNftContract";
 
 export class NftWithMessage extends AuctionNftContract {
-  ownerMessages: Storage.Map<Uint8Array, common.str>;
-
-  constructor() {
-    super();
-
-    this.ownerMessages = new Storage.Map(
-      this.contractId,
-      300,
-      common.str.decode,
-      common.str.encode,
-      () => new common.str("")
-    );
-  }
+  ownerMessages: Storage.Map<Uint8Array, common.str> = new Storage.Map(
+    this.contractId,
+    300,
+    common.str.decode,
+    common.str.encode,
+    () => new common.str("")
+  );
 
   /**
    * Define a message to the world for a specific NFT
@@ -26,8 +19,8 @@ export class NftWithMessage extends AuctionNftContract {
   setOwnerMessage(args: nftmessage.onwer_message): void {
     let account: Uint8Array;
     const tokenOwner = this.owner_of(new nft.token(args.token_id!));
-    if (tokenOwner.account) {
-      account = tokenOwner.account!;
+    if (tokenOwner.value) {
+      account = tokenOwner.value!;
     } else {
       const auctionToken = this.auctions.get(args.token_id!);
       System.require(auctionToken, "this token is not listed for auction");
@@ -40,14 +33,11 @@ export class NftWithMessage extends AuctionNftContract {
       account = auctionToken!.bid!.account!;
     }
 
-    const isAuthorized = this.check_authority(
-      account,
-      false,
-      false,
-      new Uint8Array(0)
+    const isAuthorized = System.checkAuthority(
+      authority.authorization_type.contract_call,
+      account
     );
     System.require(isAuthorized, "set owner message operation not authorized");
-
     this.ownerMessages.put(args.token_id!, new common.str(args.message));
   }
 

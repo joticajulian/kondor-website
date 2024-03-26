@@ -3,16 +3,10 @@ require("dotenv").config({ path: path.join(__dirname, "../.env") });
 
 module.exports = {
   class: "NftContract2",
-  proto: [
-    "./proto/nft.proto",
-    "./proto/common.proto",
-    "./proto/auctionnft.proto",
-    "./proto/nftmessage.proto",
-  ],
+  proto: ["./proto/auctionnft.proto", "./proto/nftmessage.proto"],
   files: [
     "./NftContract.ts",
     "./NftContract2.ts",
-    "./Ownable.ts",
     "./AuctionNftContract.ts",
     "./NftWithMessage.ts",
   ],
@@ -27,11 +21,7 @@ module.exports = {
   protoImport: [
     {
       name: "@koinosbox/contracts",
-      path:
-        process.env.IMPORT_KOINOSBOX_PROTO_FROM_NODE_MODULES === "true"
-          ? "../node_modules/@koinosbox/contracts/koinosbox-proto"
-          : "../koinosbox-proto",
-      exclude: ["nicknames"],
+      path: "../node_modules/@koinosbox/contracts/koinosbox-proto",
     },
     {
       name: "@koinos/sdk-as",

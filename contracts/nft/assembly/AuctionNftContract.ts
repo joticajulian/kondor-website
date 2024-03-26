@@ -1,46 +1,35 @@
-import { System, Storage, Protobuf, Token } from "@koinos/sdk-as";
-import { common } from "./proto/common";
+import { System, Storage, Protobuf, Token, authority } from "@koinos/sdk-as";
 import { auctionnft } from "./proto/auctionnft";
-import { nft } from "./proto/nft";
 import { NftContract } from "./NftContract";
+import { common, nft } from "@koinosbox/contracts";
 
 export const AUCTION_PERIOD: u64 = 7 * 24 * 60 * 60 * 1000;
 // export const AUCTION_PERIOD: u64 = 60 * 60 * 1000;
 
 export class AuctionNftContract extends NftContract {
-  auctions: Storage.Map<Uint8Array, auctionnft.auction>;
+  auctions: Storage.Map<Uint8Array, auctionnft.auction> = new Storage.Map(
+    this.contractId,
+    200,
+    auctionnft.auction.decode,
+    auctionnft.auction.encode,
+    null
+  );
 
-  credits: Storage.Map<Uint8Array, common.uint64>;
+  credits: Storage.Map<Uint8Array, common.uint64> = new Storage.Map(
+    this.contractId,
+    201,
+    common.uint64.decode,
+    common.uint64.encode,
+    () => new common.uint64(0)
+  );
 
-  reentrantLocked: Storage.Obj<common.boole>;
-
-  constructor() {
-    super();
-
-    this.auctions = new Storage.Map(
-      this.contractId,
-      200,
-      auctionnft.auction.decode,
-      auctionnft.auction.encode,
-      null
-    );
-
-    this.credits = new Storage.Map(
-      this.contractId,
-      201,
-      common.uint64.decode,
-      common.uint64.encode,
-      () => new common.uint64(0)
-    );
-
-    this.reentrantLocked = new Storage.Obj(
-      this.contractId,
-      900,
-      common.boole.decode,
-      common.boole.encode,
-      () => new common.boole(false)
-    );
-  }
+  reentrantLocked: Storage.Obj<common.boole> = new Storage.Obj(
+    this.contractId,
+    900,
+    common.boole.decode,
+    common.boole.encode,
+    () => new common.boole(false)
+  );
 
   reentrantLock(): void {
     const reentrantLocked = this.reentrantLocked.get()!;
@@ -57,10 +46,14 @@ export class AuctionNftContract extends NftContract {
    * @external
    */
   createAuction(args: auctionnft.bid): void {
-    System.require(this.only_owner(), "not authorized by the owner");
+    const isAuthorized = System.checkAuthority(
+      authority.authorization_type.contract_call,
+      this.owner().value!
+    );
+    System.require(isAuthorized, "not authorized by the owner");
     // check if the token is already minted
     const tokenOwner = this.tokenOwners.get(args.token_id!)!;
-    System.require(!tokenOwner.account, "token already minted");
+    System.require(!tokenOwner.value, "token already minted");
 
     // check the auction and bid period
     const auctionToken = this.auctions.get(args.token_id!);
@@ -102,10 +95,9 @@ export class AuctionNftContract extends NftContract {
    * @readonly
    */
   listAuctions(args: common.list_args): auctionnft.auctions {
-    const direction =
-      args.direction == common.direction.ascending
-        ? Storage.Direction.Ascending
-        : Storage.Direction.Descending;
+    const direction = args.descending
+      ? Storage.Direction.Descending
+      : Storage.Direction.Ascending;
     const auctions = this.auctions.getManyValues(
       args.start ? args.start! : new Uint8Array(0),
       args.limit,
@@ -228,7 +220,11 @@ export class AuctionNftContract extends NftContract {
    * @external
    */
   addCredit(args: auctionnft.userKoin): void {
-    System.require(this.only_owner(), "not authorized by the owner");
+    const isAuthorized = System.checkAuthority(
+      authority.authorization_type.contract_call,
+      this.owner().value!
+    );
+    System.require(isAuthorized, "not authorized by the owner");
     const userCredit = this.credits.get(args.account!)!;
     System.require(
       userCredit.value <= u64.MAX_VALUE - args.amount,
@@ -244,6 +240,6 @@ export class AuctionNftContract extends NftContract {
    * @readonly
    */
   getCredit(args: common.address): common.uint64 {
-    return this.credits.get(args.account!)!;
+    return this.credits.get(args.value!)!;
   }
 }
