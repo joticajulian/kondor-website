@@ -2,7 +2,7 @@
 import { onMounted, ref, watch, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { Contract, Provider, Signer, utils } from 'koilib'
-import * as nicknamesAbi from "@koinosbox/contracts/assembly/nicknames/nicknames-abi.json"
+import * as nicknamesAbi from "./nicknames-abi.json"
 import HeaderProject from "../../components/HeaderProject.vue"
 import FootProject from "../../components/FootProject.vue"
 import Alert from "../../components/Alert.vue"
@@ -18,6 +18,8 @@ let alertData = ref({
   message: "",
 });
 
+const address = ref("");
+const typeAddress = ref("");
 const owner = ref("");
 const image = ref("");
 const imageRender = computed(() => {
@@ -42,7 +44,9 @@ const discord = ref("");
 const github = ref("");
 
 const otherNames = ref([] as string[]);
+const otherNamesOwner = ref([] as string[]);
 const mainName = ref("");
+const showOtherNamesOwner = ref(false);
 
 const rpcNodes = import.meta.env.VITE_RPC_NODES.split(",");
 const nicknamesContractId = ref(import.meta.env.VITE_NICKNAMES_CONTRACT_ID);
@@ -67,14 +71,27 @@ async function setSigner(signer: Signer) {
 onMounted(async () => {
   try {
     if (!name.startsWith("@")) throw new Error("The nickname must start with @");
+    const { result: resultAddress } = await contract.value.functions.get_address({
+      value: name.slice(1),
+    });
+    address.value = resultAddress?.value || "not registered";
+    if (resultAddress?.address_modifiable_only_by_governance) {
+      typeAddress.value = "modifiablegov";
+    } else if(resultAddress?.permanent_address) {
+      typeAddress.value = "permanent";
+    } else {
+      typeAddress.value = "nopermanent";
+    }
+
     const { result: resultOwner } = await contract.value.functions.owner_of({
       token_id: tokenId,
     });
-    owner.value = resultOwner?.account || "not registered";
+    owner.value = resultOwner?.value || "not registered";
 
     const { result: resultMetadata } = await contract.value.functions.metadata_of({
       token_id: tokenId,
     });
+
     const metadata = JSON.parse(resultMetadata?.value || "{}") as {
       image: string;
       background: string;
@@ -99,7 +116,7 @@ onMounted(async () => {
     github.value = metadata.github;
 
     const { result: resultMainToken } = await contract.value.functions.get_main_token({
-      account: owner.value,
+      value: address.value,
     });
 
     if (resultMainToken && resultMainToken.token_id) {
@@ -112,9 +129,21 @@ onMounted(async () => {
       limit: 80,
     });
 
-    otherNames.value = tokensByOwner?.token_ids
+    const { result: tokensByAddress } = await contract.value.functions.get_tokens_by_address({
+      address: address.value,
+      start: "",
+      limit: 80,
+    });
+
+    otherNames.value = tokensByAddress?.token_ids
       .map(t => getName(t))
       .filter(n => n !== mainName.value && n !== name.slice(1))
+      .sort()
+      || [];
+
+    otherNamesOwner.value = tokensByOwner?.token_ids
+      .map(t => getName(t))
+      .filter(n => n !== mainName.value && n !== name.slice(1) && !otherNames.value.includes(n))
       .sort()
       || [];
 
@@ -185,10 +214,14 @@ async function setMainName() {
         <div class="content-box">
           <div class="title-name">
             <div class="nickname">{{ name }}</div>
-            <div class="address">{{ owner }}</div>
+            <div class="address">{{ address }} 
+              <span class="lock" v-if="typeAddress === 'permanent'">🔒</span>
+              <span class="lock" v-if="typeAddress === 'modifiablegov'">🔐</span>
+            </div>
+            <div v-if="owner !== address" class="ownedby">owned by {{ owner }}</div>
             <div class="block-explorers">
-              <a class="blockexplorer" :href="`https://koinosblocks.com/address/${owner}`" target="_blank">koinosblocks</a>
-              <a class="blockexplorer" :href="`https://koiner.app/addresses/${owner}`" target="_blank">koiner</a>
+              <a class="blockexplorer" :href="`https://koinosblocks.com/address/${address}`" target="_blank">koinosblocks</a>
+              <a class="blockexplorer" :href="`https://koiner.app/addresses/${address}`" target="_blank">koiner</a>
             </div>
           </div>
           <div class="data">
@@ -202,18 +235,29 @@ async function setMainName() {
               <a v-if="discord" :href="discordRender" target="_blank" class="brand-icon"><font-awesome-icon icon="fa-brands fa-discord" /></a>
               <a v-if="github" :href="githubRender" target="_blank" class="brand-icon"><font-awesome-icon icon="fa-brands fa-github" /></a>
             </div>
-            <div v-if="otherNames.length > 0" class="other-names">
+            <div v-if="otherNames.length > 0 || mainName !== name" class="other-names">
               <h3>Names linked to same address</h3>
               <p>Main name: <a :href="`/nicknames/@${mainName}`">@{{ mainName }}</a></p>
-              <p>
-                Others:
+              <p v-if="otherNames.length > 0">
+                Other names:
                 <span v-for="otherName in otherNames">
                   <a :href="`/nicknames/@${otherName}`">@{{ otherName }}</a>{{ " " }}
                 </span>
               </p>
             </div>
+            <div v-if="otherNamesOwner.length > 0" class="other-names">
+              <h3>Other names of the owner <button @click="showOtherNamesOwner = !showOtherNamesOwner">
+                  {{ showOtherNamesOwner ? "hide" : "show" }}
+                </button>
+              </h3>
+              <p v-if="showOtherNamesOwner">
+                <span v-for="otherName in otherNamesOwner">
+                  <a :href="`/nicknames/@${otherName}`">@{{ otherName }}</a>{{ " " }}
+                </span>
+              </p>
+            </div>
             <button v-if="account === owner" @click="update">Update</button>
-            <button v-if="account === owner && mainName !== name.slice(1)" @click="setMainName">Set {{ name }} as main name</button>
+            <button v-if="account === address && mainName !== name.slice(1)" @click="setMainName">Set {{ name }} as main name</button>
           </div>
         </div>
         <div class="token-id">Token ID: {{ tokenId }}</div>
@@ -262,6 +306,14 @@ async function setMainName() {
 
 .address {
   font-weight: bold;
+}
+
+.ownedby {
+  font-size: 0.8em;
+}
+
+.lock {
+  font-size: 1.4rem;
 }
 
 .block-explorers {
@@ -320,6 +372,13 @@ async function setMainName() {
 
 .other-names p, h3 {
   margin: 0;
+}
+
+.other-names button {
+  padding: 0.1rem 0.8rem;
+  margin: 0;
+  height: 1.3rem;
+  font-size: 0.8rem;
 }
 
 button {

@@ -380,7 +380,7 @@ export interface NicknamesContractClass extends Contract {
     }>;
 
     owner_of: <T = {
-      account: string;
+      value: string;
     }>(
       args?: {
         token_id: string;
@@ -398,6 +398,39 @@ export interface NicknamesContractClass extends Contract {
     }>(
       args?: {
         token_id: string;
+      },
+      opts?: CallContractOptions
+    ) => Promise<{
+      operation: OperationJson;
+      transaction?: TransactionJsonWait;
+      result?: T;
+      receipt?: TransactionReceipt;
+    }>;
+
+    get_address: <T = {
+      value: string;
+      permanent_address: boolean;
+      address_modifiable_only_by_governance: boolean;
+    }>(
+      args?: {
+        value: string;
+      },
+      opts?: CallContractOptions
+    ) => Promise<{
+      operation: OperationJson;
+      transaction?: TransactionJsonWait;
+      result?: T;
+      receipt?: TransactionReceipt;
+    }>;
+
+    get_tokens_by_address: <T = {
+      token_ids: string[];
+    }>(
+      args?: {
+        address: string;
+        start: string;
+        limit: number;
+        direction?: number;
       },
       opts?: CallContractOptions
     ) => Promise<{
@@ -428,7 +461,7 @@ export interface NicknamesContractClass extends Contract {
       token_id: string;
     }>(
       args?: {
-        account: string;
+        value: string;
       },
       opts?: CallContractOptions
     ) => Promise<{
@@ -454,6 +487,35 @@ export interface NicknamesContractClass extends Contract {
     set_main_token: <T = {}>(
       args?: {
         token_id: string;
+      },
+      opts?: CallContractOptions
+    ) => Promise<{
+      operation: OperationJson;
+      transaction?: TransactionJsonWait;
+      result?: T;
+      receipt?: TransactionReceipt;
+    }>;
+
+    set_extended_metadata: <T = {}>(
+      args?: {
+        token_id: string;
+        permanent_address?: boolean;
+        address_modifiable_only_by_governance?: boolean;
+        other?: string;
+      },
+      opts?: CallContractOptions
+    ) => Promise<{
+      operation: OperationJson;
+      transaction?: TransactionJsonWait;
+      result?: T;
+      receipt?: TransactionReceipt;
+    }>;
+
+    set_address: <T = {}>(
+      args?: {
+        token_id: string;
+        address: string;
+        gov_proposal_update?: boolean;
       },
       opts?: CallContractOptions
     ) => Promise<{

@@ -51,6 +51,10 @@ button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
+button:disabled {
+  color: gray;
+  cursor: not-allowed;
+}
 
 .card {
   padding: 2em;

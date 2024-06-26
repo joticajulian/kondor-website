@@ -2,9 +2,10 @@
 import { onMounted, ref, watch, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { Contract, Provider, Signer, utils } from 'koilib'
-import * as nicknamesAbi from "@koinosbox/contracts/assembly/nicknames/nicknames-abi.json"
+import * as nicknamesAbi from "./nicknames-abi.json"
 import HeaderProject from "../../components/HeaderProject.vue"
 import FootProject from "../../components/FootProject.vue"
+import ModalQuestion from "../../components/ModalQuestion.vue"
 import Alert from "../../components/Alert.vue"
 import { NicknamesContractClass } from "../../interfaces"
 
@@ -13,11 +14,19 @@ let alertData = ref({
   show: false,
   message: "",
 });
+const showModalQuestion = ref(false);
+const messagePermanentAddress = ref("");
+const responseQuestion = ref("");
+const permanentAddress = ref(false);
 
 const image = ref("");
 const imageRender = computed(() => {
   return image.value || "https://upload.wikimedia.org/wikipedia/commons/b/bc/Unknown_person.jpg";
 });
+const oldAddress = ref("");
+const address = ref("");
+const oldTypeAddress = ref("");
+const typeAddress = ref("");
 const background = ref("");
 const bio = ref("");
 const location = ref("");
@@ -53,6 +62,27 @@ onMounted(async () => {
     const { result: resultMetadata } = await contract.value.functions.metadata_of({
       token_id: tokenId,
     });
+
+    try {
+      const { result: resultAddress } = await contract.value.functions.get_address({ value: name });
+      oldAddress.value = resultAddress?.value || "";
+      address.value = resultAddress?.value || "";
+      if (resultAddress?.address_modifiable_only_by_governance) {
+        permanentAddress.value = true;
+        oldTypeAddress.value = "modifiablegov";
+      } else if(resultAddress?.permanent_address) {
+        permanentAddress.value = true;
+        oldTypeAddress.value = "permanent";
+      } else {
+        permanentAddress.value = false;
+        oldTypeAddress.value = "nopermanent";
+      }
+      typeAddress.value = oldTypeAddress.value;
+    } catch(error) {
+      oldAddress.value = "";
+      address.value = "";
+    }
+
     const metadata = JSON.parse(resultMetadata?.value || "{}") as {
       image: string;
       background: string;
@@ -64,7 +94,7 @@ onMounted(async () => {
       telegram: string;
       discord: string;
       github: string;
-    }
+    };
     image.value = metadata.image;
     background.value = metadata.background;
     bio.value = metadata.bio;
@@ -99,6 +129,41 @@ async function register() {
         token_id: tokenId,
       }, { onlyOperation: true });
       previousOperations.push(mint);
+    }
+
+    if (oldAddress.value !== address.value ) {
+      if(!utils.isChecksumAddress(address.value)) {
+        throw new Error(`Invalid pointing address ${address.value}`);
+      }
+      const { operation } = await contract.value.functions.set_address({
+        token_id: tokenId,
+        address: address.value,
+      }, { onlyOperation: true });
+      previousOperations.push(operation);
+    }
+
+    if (oldTypeAddress.value !== typeAddress.value && typeAddress.value !== "nopermanent") {
+      showModalQuestion.value = true;
+      messagePermanentAddress.value = typeAddress.value === "permanent"
+        ? `The link between nickname @${name} and address ${address.value.slice(0,5)}...${address.value.slice(-5)} will be sealed permanently, and it will not be possible to change it in the future. Do you want to continue? (you can still update the metadata, like image, etc).`
+        : `The link between nickname @${name} and address ${address.value.slice(0,5)}...${address.value.slice(-5)} will be sealed and it will not be possible to change it in the future except by Koinos Governance. Do you want to continue? (you can still update the metadata, like image, etc).`;
+      responseQuestion.value = "";
+      const result = await new Promise((resolve) => {
+        const interval = setInterval(() => {
+          if (!responseQuestion.value) return;
+          resolve(responseQuestion.value);
+          clearInterval(interval);
+        }, 30)
+      });
+      showModalQuestion.value = false;
+      if (result !== "accept") return;
+
+      const { operation: extendedMetadata } = await contract.value.functions.set_extended_metadata({
+        token_id: tokenId,
+        permanent_address: typeAddress.value === "permanent",
+        address_modifiable_only_by_governance: typeAddress.value === "modifiablegov",
+      }, { onlyOperation: true });
+      previousOperations.push(extendedMetadata);
     }
 
     const { transaction } = await contract.value.functions.set_metadata({
@@ -149,6 +214,13 @@ async function register() {
       @signer="setSigner"
       @disconnect="account = ''"
     />
+    <ModalQuestion 
+      v-if="showModalQuestion"
+      title="Permanent address"
+      :subtitle="messagePermanentAddress"
+      @accept="responseQuestion = 'accept'"
+      @cancel="responseQuestion = 'cancel'"
+    />
     <div class="nick-container">
       <div class="image">
         <img :src="imageRender">
@@ -160,6 +232,24 @@ async function register() {
         </div>
         <div class="form">
           <p>All fields are OPTIONAL</p>
+          <div class="group">
+            <label for="">Pointing address</label>
+            <input type="text" v-model="address" :disabled="permanentAddress">
+          </div>
+          <div class="group">
+            <div class="item">
+              <input type="radio" value="nopermanent" v-model="typeAddress" :disabled="permanentAddress">
+              <label for="">Not permanent</label>
+            </div>
+            <div class="item">
+              <input type="radio" value="modifiablegov" v-model="typeAddress" :disabled="permanentAddress">
+              <label for="">Address modifiable by governance</label>
+            </div>
+            <div class="item">
+              <input type="radio" value="permanent" v-model="typeAddress" :disabled="permanentAddress">
+              <label for="">Permanent address</label>
+            </div>
+          </div>
           <div class="group">
             <label for="">Image URL <span class="small">(use a service like <a href="https://postimages.org/" target="_blank">PostImages</a> to upload the image)</span></label>
             <input type="text" v-model="image">
@@ -215,6 +305,10 @@ async function register() {
 
 <style scoped>
 
+input {
+  margin: 0;
+}
+
 .nick-container {
   display: flex;
   width: 80%;
@@ -251,6 +345,19 @@ async function register() {
 
 .small {
   font-size: 0.7em;
+}
+
+.group {
+  margin-bottom: 1rem;
+}
+
+.item {
+  display: flex;
+  align-items: baseline;
+}
+
+.item input {
+  width: 2rem;
 }
 
 @media only screen and (max-width: 800px) {

@@ -2,7 +2,7 @@
 import { onMounted, ref, watch, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { Contract, Provider, Signer, utils } from 'koilib'
-import * as nicknamesAbi from "@koinosbox/contracts/assembly/nicknames/nicknames-abi.json"
+import * as nicknamesAbi from "./nicknames-abi.json"
 import HeaderProject from "../../components/HeaderProject.vue"
 import FootProject from "../../components/FootProject.vue"
 import Alert from "../../components/Alert.vue"
@@ -33,7 +33,8 @@ const router = useRouter();
 const account = ref("");
 const name = ref("");
 const nameError = ref("");
-const alreadyExist = ref(false);
+const alreadyExist = ref(true);
+const validName = ref(false);
 const loading = ref(false);
 let timer: NodeJS.Timeout;
 
@@ -89,12 +90,15 @@ async function setSigner(signer: Signer) {
 async function checkName(input: string) {
   if (!input) {
     notify("empty");
+    alreadyExist.value = true;
+    validName.value = false;
     return false;
   }
 
   try {
     const value = input.startsWith("@") ? input.slice(1) : input;
     const { result } = await contract.value.functions.verify_valid_name({ value });
+    validName.value = true;
     notify("success", result?.value);
     return true;
   } catch (error) {
@@ -108,15 +112,18 @@ async function checkName(input: string) {
     alreadyExist.value = jsonMessage.error.includes("already exist");
     if (alreadyExist.value) {
       notify("empty");
+      validName.value = true;
       return false;
     }
     
     if (jsonMessage.error.includes("reserved for the owner of kap://")) {
       notify("success", jsonMessage.error);
+      validName.value = true;
       return true;
     }
     
     notify("error", jsonMessage.error);
+    validName.value = false;
     return false;
   }
 }
@@ -193,9 +200,9 @@ async function donate(value: number) {
       </div>
       <div class="form">
         <input type="text" v-model="name" @keyup.enter="create()">
-        <button @click="create()">
+        <button @click="create()" :disabled="!validName">
           <span v-if="loading" class="loader"></span>
-          <span v-else>{{ alreadyExist ? "view" : "create" }}</span>
+          <span v-else>{{ alreadyExist ? "search" : "create" }}</span>
         </button>
       </div>
       <div class="name-error" :class="classNotification">{{ nameError }}</div>
